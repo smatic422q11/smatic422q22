@@ -5,9 +5,9 @@ import random
 from datetime import datetime
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse, FileResponse
 from pymongo import MongoClient
 from pymongo.server_api import ServerApi
-
 
 # 1. DATENBANK-VERBINDUNG
 MONGO_URI = os.environ.get('MONGO_URI')
@@ -69,16 +69,7 @@ def send_verification_email(user_email, code):
     except Exception as e:
         print(f"Systemfehler beim Mail-Versand: {e}")
         return False
-        
- except Exception as e:
-        print(f"Systemfehler beim Mail-Versand: {e}")
-        return False
-except Exception as e:
-        print(f"Systemfehler beim Mail-Versand: {e}")
-        return False
 
-
-from fastapi.responses import FileResponse
 
 @app.get("/")
 def read_root():
