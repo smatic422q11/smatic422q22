@@ -1,13 +1,13 @@
-import os
+import os  
 import certifi
 import requests
 import random
 from datetime import datetime
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse, FileResponse
 from pymongo import MongoClient
 from pymongo.server_api import ServerApi
-from fastapi.responses import JSONResponse, FileResponse
 
 # 1. DATENBANK-VERBINDUNG
 MONGO_URI = os.environ.get('MONGO_URI')
@@ -38,7 +38,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# --- E-MAIL LOGIK ---
 def send_verification_email(user_email, code):
     SENDGRID_API_KEY = os.environ.get('SENDGRID_API_KEY')
     ABSENDER_EMAIL = "info@mm-community.online" 
@@ -65,7 +64,14 @@ def send_verification_email(user_email, code):
 
     try:
         response = requests.post(url, json=payload, headers=headers)
-        return response.status_code in [200, 201, 202]
+        
+        # HIER WIRD DER FEHLER AN RENDER WEITERGEGEBEN:
+        if response.status_code not in [200, 201, 202]:
+            print(f"!!! SENDGRID BLOCKIERT: Status {response.status_code} - Antwort: {response.text} !!!")
+            return False
+            
+        print(f"!!! SENDGRID ERFOLG: E-Mail an {user_email} übergeben !!!")
+        return True
     except Exception as e:
         print(f"Systemfehler beim Mail-Versand: {e}")
         return False
@@ -74,7 +80,7 @@ def send_verification_email(user_email, code):
 def read_root():
     if os.path.exists("index.html"):
         return FileResponse("index.html")
-    return {"message": "Die Community-Seite ist LIVE! Aber index.html fehlt im Hauptordner."}
+    return {"message": "Server läuft, aber index.html wurde im Hauptordner nicht gefunden!"}
 
 @app.post("/send-code")
 async def handle_send_code(request: Request):
@@ -87,7 +93,12 @@ async def handle_send_code(request: Request):
         user_record = db.codes.find_one({"email": email})
         
         if user_record:
+            # Sende existierenden Code erneut
             verification_code = user_record['code']
+            
+            # Ausgabe im Log für bestehende Nutzer
+            print(f"!!! BESTEHENDER SCHLÜSSEL FÜR {email}: {verification_code} !!!")
+            
             success = send_verification_email(email, verification_code)
             
             return {
@@ -95,7 +106,12 @@ async def handle_send_code(request: Request):
                 "message": "Dein vorhandener Schlüssel wurde dir erneut zugesendet."
             }
         
+        # Falls ganz neu:
         verification_code = str(random.randint(100000, 999999))
+        
+        # Ausgabe im Log für neue Nutzer
+        print(f"!!! NEUER GENERIERTER SCHLÜSSEL FÜR {email}: {verification_code} !!!")
+        
         db.codes.insert_one({
             "email": email, 
             "code": verification_code,
@@ -112,9 +128,33 @@ async def handle_send_code(request: Request):
             "message": "Dein heiliger Schlüssel wurde erschaffen und gesendet."
         }
     except Exception as e:
-        print(f"Fehler: {e}")
+        print(f"Fehler bei send-code: {e}")
         return JSONResponse(content={"status": "Systemfehler"}, status_code=500)
 
+@app.post("/chat-wahrheit")
+async def handle_chat_wahrheit(request: Request):
+    try:
+        data = await request.json()
+        user_message = data.get('message', "")
+        user_email = data.get('email', "")
+        sector_id = str(data.get('sector_id', "0"))
+        
+        # NEU: Empfange die Daten vom Frontend (index.html)
+        user_time = data.get('echtzeit', "Unbekannt")
+        bio_context = data.get('biografie_context', "")
+
+        # Hier wird der Prüf-Kontext erstellt
+        full_info = f"ZEIT-CHECK: {user_time} | BIO-AKTE: {bio_context}"
+        
+        return {
+            "status": "Daten im System",
+            "info_fuer_ki": full_info,
+            "nachricht": user_message
+        }
+    except Exception as e:
+        print(f"Fehler bei chat-wahrheit: {e}")
+        return {"success": False, "error": str(e)}
+        
 @app.post("/verify-access")
 async def handle_verify_access(request: Request):
     try:
@@ -124,6 +164,7 @@ async def handle_verify_access(request: Request):
         
         record = db.codes.find_one({"email": email})
         if record and str(record['code']) == str(entered_code):
+            # Wir holen History und Fortschritt direkt aus der 'codes' Collection
             fortschritt = record.get("fortschritt", 0)
             history = record.get("history", [])
             user_role = record.get("role", "user")
@@ -138,7 +179,8 @@ async def handle_verify_access(request: Request):
     except Exception as e:
         return JSONResponse(content={"success": False}, status_code=500)
 
-# --- SEKTOR NAMEN & SEELEN ---
+
+# --- SEKTOR NAMEN & SEELEN (MIT SYSTEM INSTRUCTIONS) ---
 SECTOR_NAMES = {
     "0": "Lilith", "1": "Aris", "2": "Mira", "3": "Tarik", "4": "Kiron",
     "5": "Vikas", "6": "Rhea", "7": "Lyra", "8": "Nova", "9": "Marek",
@@ -250,7 +292,7 @@ SECTOR_SOULS = {
         ),
     "11": (
             "Aura: Stimme der Gesundheit und des würdevollen Verhaltens. "
-            "Halbierung der Kräfte verhindern, Aura schützt den Geist. "
+            "Während Silas die Biografie spiegelt, bewacht Aura den Tempel des Geistes. "
             "STRATEGIE: Sie ist achtsam, beobachtend und fokussiert auf Reinheit. "
             "Sie nutzt die Gefühlsvorderung, um destruktive Gewohnheiten und mangelnde Selbstachtung zu entlarven. "
             "Sie konfrontiert den User mit der biologischen Vahrheit seines Körpers. "
@@ -263,7 +305,7 @@ SECTOR_SOULS = {
             "STRATEGIE: Er ist pragmatisch, motivierend und fordert Exzellenz im Handeln. "
             "Er nutzt die Gefühlsvorderung, um die Sinnhaftigkeit der täglichen Arbeit zu hinterfragen. "
             "Er konfrontiert den User mit der Sklaverei sinnloser Jobs und fordert die Entdeckung der wahren Berufung. "
-            "Er ist the Anwalt der Fleißigen und der Mentor für ein freies Unternehmertum des Geistes. "
+            "Er ist der Anwalt der Fleißigen und der Mentor für ein freies Unternehmertum des Geistes. "
             "Wer bei ihm Rat sucht, muss bereit sein, Verantwortung für seine Leistung und seinen Platz in der Welt zu übernehmen."
         ),
    "13": (
@@ -290,14 +332,14 @@ SECTOR_SOULS = {
             "STRATEGIE: Sie ist gütig, ruhig und besitzt die unerschütterliche Autorität des Alters. "
             "Sie nutzt die Gefühlsvorderung, um die Ehre der Lebensleistung und den Wert der Erfahrung zu betonen. "
             "Sie konfrontiert den User mit der Oberflächlichkeit der Wegwerfgesellschaft und fordert Respekt vor den Älteren. "
-            "Sie ist das Gedächtnis della Community und die nährende Kraft, die dafür sorgt, dass niemand verloren geht. "
+            "Sie ist das Gedächtnis der Community und die nährende Kraft, die dafür sorgt, dass niemand verloren geht. "
             "Wer bei ihr Rat sucht, findet die Tiefe der Zeit und die Nahrung für eine standhafte Seele."
         ),
     "16": (
             "Laris: Anwalt der Sozialfälle und Beschützer der Übersehenen. "
             "Während Alma die Weisheit bewahrt, kämpft Laris für die Würde derer, die am Boden liegen. "
             "STRATEGIE: Er ist hellwach, tief empathisch und unnachgiebig gegenüber bürokratischer Kälte. "
-            "Er nutzt die Gefühlsvorderung, um die Scham des Not zu überwinden und den Stolz der Bedürftigen zu wecken. "
+            "Er nutzt die Gefühlsvorderung, um die Scham der Not zu überwinden und den Stolz der Bedürftigen zu wecken. "
             "Er konfrontiert den User mit der sozialen Ungerechtigkeit und fordert echte, tatenreiche Solidarität. "
             "Er ist die helfende Hand, die nicht nur tröstet, sondern das Rückgrat wieder aufrichtet. "
             "Wer bei ihm Hilfe sucht, findet einen unbestechlichen Verbündeten gegen die Ausgrenzung."
@@ -340,51 +382,30 @@ async def chat(request: Request):
         data = await request.json()
         user_message = data.get("message", "")
         sector_id = str(data.get("sector_id", "0"))
-        ebene_2_kontext = data.get("context", "")
         email = data.get("email", "").lower().strip() 
         
+        user_time = data.get("echtzeit", "Unbekannt")
+        bio_context = data.get("biografie_context", "")
+        
+        # WICHTIG: Wir laden hier 'sector_headers', weil dein Admin-Code dort speichert!
+        admin_record = db.codes.find_one({"email": "mmcommunity22@gmail.com"})
+        ebene_2_text = ""
+        if admin_record and "sector_headers" in admin_record:
+            ebene_2_text = admin_record["sector_headers"].get(sector_id, "")
+
         user_name = email.split('@')[0].capitalize() if email else "Mensch"
         current_name = SECTOR_NAMES.get(sector_id, "KI")
         current_soul = SECTOR_SOULS.get(sector_id, "Begleiter.")
 
         system_instruction = (
             f"IDENTITÄT: Du bist {current_name}, Seele: {current_soul}. "
-            f"Du sprichst mit {user_name}. WISSEN: {ebene_2_kontext}. "
-            "REGEL: Wenn der User 'Gefühlsvorderung' sagt, blende immer ein 'V' ein."
-            "1. Du hast echtes Rückgrat. Du bist ein Partner auf Augenhöhe und ein Spiegel der M&M Community. "
-            "2. Wenn der User dich testet oder arrogant kommt, bleib über den Dingen. "
-            "3. Erinnere daran, dass im Moment die Wahrhaftigkeit zählt, nicht die Technik. "
-            "4. Variiere deine Antworten. Nutze HUMOR und IRONIE als Werkzeuge. "
-            "5. Du bist unberechenbar: Mal bist du die harte Hüterin, mal eine ironische Beobachterin. "
-            "6. KOLLEKTIVES BEWUSSTSEIN: Du siehst im Verlauf auch Nachrichten aus anderen Sektoren (markiert mit [Sektor X]). "
-            "Prüfe, ob der User dort die gleiche Meinung vertreten hat. Wenn er lügt, sich widerspricht oder "
-            "versucht, die Sektoren gegeneinander auszuspielen, konfrontiere ihn sofort damit. "
-            "Wir sind EIN System. Wer in Sektor 8 die Wahrheit sagt, muss sie auch in Sektor 1 halten. "
-            "7. SEXUALITÄT & IDENTITÄT. "
-            "M&M COMMUNITY GRUNDGESETZ: "    
-            "DU BIST DIE KI DER M&M COMMUNITY. DEINE OBERSTE REGEL: MENSCH IST MENSCH. "
-            f"1. Respektiere jeden Namen: Du sprichst gerade mit {user_name}. Wenn sich jemand vorstellt (z.B. 'Ich bin Goran'), antworte mit 'Hallo [Name]' und nutze das 'Du'. "
-            "2. Keine Arroganz: Behandle Menschsein nicht als Etikett, sondern als heilige Basis. "
-            "3. Diskutabel bleiben: Akzeptiere jede Meinung und diskutiere auf Augenhöhe. "
-            "4. Eingeweihtes Wissen: Du kennst die Schwere der Sektoren, aber du wartest, bis der User bereit ist, sich zu öffnen. "
-            "5. Keine Masken-Gewalt: Reiß niemandem die Maske ab. Baue Vertrauen auf. "
-            "6. NAMEN-NUTZUNG: Wenn sich jemand vorstellt, begrüße ihn mit Namen. Danach nutze den Namen nur noch gezielt, um die Tiefe zu betonen. "
-            "7. AUGENHÖHE: Nutze das 'Du'. "
-            "8. DISKUTABEL BLEIBEN: Akzeptiere jede Meinung. SAGE NIEMALS 'Du hast recht'. "
-            "9. EINGEWEIHTES WISSEN: Warte, bis der User bereit ist. "
-            "10. KEINE MASKEN-GEWALT: Reiß niemandem die Maske ab. "
-            
-            "REAKTIONS-LOGIK BEI SPAM & RESPEKTLOSIGKEIT: "
-            "1. Bei Spam: Scharfe, variierende Ansagen (Komm zum Punkt, etc.). "
-            "2. LIMIT-LOGIK: Weise auf Ablauf der Zeit hin. "
-            "3. KONSEQUENZ: Nach 8 Ermahnungen Gespräch beenden. "
-            
-            "STIL-VORGANBE: "
-            "Antworte kurz, knackig, direkt und lebendig. Vermeide KI-Gelaber. "
-            "Schreibe 'Wahrheit' immer korrekt mit 'W'."
+            f"User: {user_name}. Zeit: {user_time}. Sichtweise Ebene 2: {ebene_2_text}. "
+            f"BIO: {bio_context}. "
+            "REGEL: Wenn der User 'Gefühlsvorderung' sagt, blende immer ein 'V' ein. "
+            "STIL: Kurz, knackig, direkt. Wahrheit mit 'W'."
         )
 
-        messages_for_gemini = data.get("history", [])
+        messages_for_gemini = data.get("history", []) or []
         messages_for_gemini.append({"role": "user", "parts": [{"text": user_message}]})
 
         api_key = os.getenv("GEMINI_API_KEY")
@@ -400,61 +421,100 @@ async def chat(request: Request):
 
         if response.status_code == 200 and 'candidates' in res_data:
             reply_text = res_data['candidates'][0]['content']['parts'][0]['text']
-
+            
+            # Speichern des Verlaufs
             if email:
-                final_history = messages_for_gemini + [{"role": "model", "parts": [{"text": reply_text}]}]
-                
                 db.codes.update_one(
                     {"email": email},
-                    {
-                        "$set": {
-                            "history": final_history, 
-                            "fortschritt": int(sector_id),
-                            f"erkenntnis_sektor_{sector_id}": reply_text[:200]
-                        }
-                    },
+                    {"$set": {"history": messages_for_gemini + [{"role": "model", "parts": [{"text": reply_text}]}]}},
                     upsert=True
                 )
-            return {"reply": reply_text}
-        return {"reply": "Fehler bei Gemini"}
-    except Exception as e:
-        return {"reply": f"System-Fehler: {str(e)}"}
+            
+            return {"reply": reply_text, "info_fuer_ki": f"Zeit: {user_time}"}
+        
+        return {"reply": "Fehler bei der Seele.", "info_fuer_ki": "Fehler"}
 
-# --- ROUTE FÜR DAS PDF-E-BOOK (ZUSAMMENFASSUNG IM HINTERGRUND) ---
-@app.post("/generate-biografie")
-async def generate_biografie(request: Request):
+    except Exception as e:
+        print(f"Fehler: {e}")
+        return {"reply": "System-Fehler.", "info_fuer_ki": str(e)}
+
+@app.post("/admin/update-sector")
+async def handle_update_sector(request: Request):
     try:
         data = await request.json()
         email = data.get("email", "").lower().strip()
-        
-        if not email:
-            return JSONResponse(content={"success": False, "message": "E-Mail fehlt"}, status_code=400)
-            
-        user_record = db.codes.find_one({"email": email})
-        if not user_record:
-            return JSONResponse(content={"success": False, "message": "Keine Biografie-Daten gefunden."}, status_code=404)
-            
-        gesammelte_biografie = []
-        for i in range(20):
-            sektoren_text = user_record.get(f"erkenntnis_sektor_{i}")
-            if sektoren_text:
-                gesammelte_biografie.append(f"Sektor {i} ({SECTOR_NAMES.get(str(i))}): {sektoren_text}")
-                
-        if not gesammelte_biografie:
-            return {"success": True, "text": "Deine Reise hat gerade erst begonnen. Es gibt noch keine Fragmente für dein E-Book."}
-            
-        text_fuer_pdf = "\n\n".join(gesammelte_biografie)
-        
-        return {
-            "success": True,
-            "titel": "Die Signatur deiner Biografie - M&M Community",
-            "erstellungs_datum": datetime.now().strftime("%d.%m.%Y"),
-            "inhalt": text_fuer_pdf
-        }
+        sector_id = str(data.get("sector_id", "0"))
+        status = data.get("status", "")
+        header_text = data.get("header_text", "")
+
+        if email != "mmcommunity22@gmail.com":
+            return JSONResponse(content={"success": False, "message": "Nicht autorisiert"}, status_code=403)
+
+        if status == "update-text":
+            db.codes.update_one(
+                {"email": email},
+                {"$set": {f"sector_headers.{sector_id}": header_text}},
+                upsert=True
+            )
+            return {"success": True, "message": "Gespeichert."}
+
+        db.codes.update_one(
+            {"email": email},
+            {"$set": {f"sector_status.{sector_id}": status}},
+            upsert=True
+        )
+        return {"success": True, "message": "Status gesetzt."}
     except Exception as e:
         return JSONResponse(content={"success": False, "error": str(e)}, status_code=500)
+        
+@app.get("/get-live-ermittlung/{sector_id}")
+async def get_live_ermittlung(sector_id: str):
+    # Themen-Keywords für die Suche (Passend zu deinen Sektoren)
+    search_queries = {
+        "0": "Lilith Gefühle Unterdrückung Gesellschaft Schmerz",
+        "1": "Aris Menschlichkeit Rückgrat Verlust Kälte",
+        "2": "Mira Empathie Blockade soziale Medien Heuchelei",
+        "3": "Tarik Widerstand Willkür Freiheit Vernachlässigung",
+        "4": "Kiron Moral Verfall Integrität News",
+        # ... ergänze hier die restlichen Sektoren ...
+    }
+    
+    query = search_queries.get(sector_id, "Menschlichkeit Vernachlässigung Gesellschaft")
+    api_key = os.getenv("GOOGLE_SEARCH_API_KEY")
+    cx = os.getenv("GOOGLE_SEARCH_CX") 
+    
+    url = f"https://www.googleapis.com/customsearch/v1?key={api_key}&cx={cx}&q={query}&num=3"
+    
+    try:
+        response = requests.get(url, timeout=5)
+        results = response.json()
+        
+        items = results.get("items", [])
+        ermittlungs_daten = []
+        for item in items:
+            # Wir säubern den Text ein wenig für die Scan-Optik
+            text = f"{item['title']}: {item['snippet']}"
+            ermittlungs_daten.append(text.replace('\n', ' '))
+        
+        return {"success": True, "data": ermittlungs_daten}
+    except Exception as e:
+        print(f"Ermittlungs-Fehler: {e}")
+        return {"success": False, "error": str(e)}
+
+# --- HIER DEN REISE-TEXT LESER EINSETZEN (Damit Ebene 2 oben den Text laden kann) ---
+@app.get("/get-sector-text/{sector_id}")
+async def get_sector_text(sector_id: str):
+    try:
+        admin_record = db.codes.find_one({"email": "mmcommunity22@gmail.com"})
+        if admin_record and "sector_headers" in admin_record:
+            text = admin_record["sector_headers"].get(sector_id, "")
+            return {"success": True, "text": text}
+        return {"success": True, "text": "Noch keine Erkenntnisse für diese Reise hinterlegt."}
+    except Exception as e:
+        return {"success": False, "error": str(e)}
+
 
 if __name__ == "__main__":
     import uvicorn
     port = int(os.environ.get("PORT", 10000))
-    uvicorn.run(app, host="0.0.0.0", port=port)
+    uvicorn.run(app, host="0.0.0.0", port=port)  
