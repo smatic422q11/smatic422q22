@@ -73,6 +73,9 @@ def send_verification_email(user_email, code):
  except Exception as e:
         print(f"Systemfehler beim Mail-Versand: {e}")
         return False
+except Exception as e:
+        print(f"Systemfehler beim Mail-Versand: {e}")
+        return False
 
 
 from fastapi.responses import FileResponse
@@ -82,7 +85,7 @@ def read_root():
     if os.path.exists("index.html"):
         return FileResponse("index.html")
     return {"message": "Server läuft, aber index.html wurde im Hauptordner nicht gefunden!"}
-    
+
 @app.post("/send-code")
 async def handle_send_code(request: Request):
     try:
