@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>M&M-COMMUNITY 2.0</title>
+    <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script> 
+    <style>
+    body { background: radial-gradient(circle, #f0f7ff 0%, #a4cdfc 50%, #82b7f7 100%) !important; background-size: 150% 150% !important; animation: wolkenZug 20s ease-in-out infinite; color: #000; font-family: 'Segoe UI', Arial, sans-serif; margin: 0; padding: 0; display: flex; flex-direction: column; align-items: center; height: 100vh; overflow: hidden; }
+        
+       /* LOGO LINKS OBEN - ADMIN DOPPELKLICK */
+.dashboard-header { width: 100%; position: absolute; top: 3%; display: flex; justify-content: flex-start; padding: 0 1%; box-sizing: border-box; z-index: 100; }
+.logo-ring { width: 110px; height: 110px; border: 3px solid #fff; background-color: #003d8f; border-radius: 50%; display: flex; flex-direction: column; justify-content: center; align-items: center; cursor: pointer; user-select: none; box-shadow: 0 0 60px 25px rgba(255, 215, 0, 0.6), 0 0 100px 50px rgba(255, 255, 255, 0.4); }
+.logo-mm { font-size: 2rem; font-weight: 900; line-height: 0.8; }
+.logo-community { font-size: 0.6rem; letter-spacing: 1.5px; text-transform: uppercase; font-weight: bold; } 
+
+        /* EBENEN LOGIK */
+        .ebene { display: none; width: 100%; flex-direction: column; align-items: center; height: 100vh; position: relative; }
+        .aktiv { display: flex; }
+
+        /* EBENE 1: DASHBOARD */
+        .info-section { width: 100%; height: 26vh; border-top: 2px solid #003d8f; border-bottom: 2px solid #003d8f; background-color: #000; position: relative; overflow: hidden; margin-top: 2vh; display: flex; flex-direction: column; justify-content: center; align-items: center; flex-shrink: 0; }
+        .auth-container-left { position: absolute; bottom: 10px; left: 15px; display: flex; gap: 5px; align-items: center; }
+        .auth-container-right { position: absolute; bottom: 10px; right: 15px; display: flex; gap: 5px; align-items: center; }
+        .auth-input { background: rgba(0, 61, 143, 0.2); border: 1px solid #003d8f; color: #fff; padding: 5px 10px; font-size: 0.75rem; outline: none; }
+        .auth-btn { background: #ffd700; color: #000; border: none; padding: 5px 12px; font-weight: bold; font-size: 0.7rem; cursor: pointer; text-transform: uppercase; }
+
+        .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; width: 90%; max-width: 1300px; padding: 5px 0; flex-grow: 1; }
+        .box { display: flex; border: 2px solid #003d8f; background-color: #000 !important; position: relative; overflow: hidden; align-items: center; justify-content: center; }
+        .text { padding: 4px; text-transform: uppercase; font-size: 0.65rem; cursor: pointer; text-align: center; font-weight: 600; width: 100%; color: #fff !important; background-color: #000 !important; }
+
+        .fundament-container { display: flex; width: 97%; max-width: 1480px; gap: 15px; flex-shrink: 0; }
+        .fundament-box { flex: 1; display: flex; border: 2px solid #003d8f; background: #000; min-height: 50px; align-items: center; justify-content: center; cursor: pointer; }
+        .mm-fundament-final { width: 98%; max-width: 1550px; height: 60px; background-color: #000; border: 3px solid #003d8f; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 25px rgba(0, 61, 143, 0.4); margin-bottom: 60px; flex-shrink: 0; }
+
+        /* EBENE 2: SCAN (27.5% PLATZ OBEN) */
+       .scan-header-space { width: 100%; height: 27.5vh; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 900; letter-spacing: 5px; background: radial-gradient(circle, #003d8f 0%, #000 80%) !important; border-bottom: 2px solid #003d8f; text-shadow: 0 0 20px #fff; text-transform: uppercase; }
+        #main-text-area { width: 100vw; height: calc(100vh - 27.5vh - 60px); overflow-y: auto; color: #ccc; font-size: 1.1rem; border: none; padding: 20px; background: rgba(255,0,0,0.03); margin-bottom: 0; box-sizing: border-box; position: relative; }
+        
+        /* EBENE 3: CHAT */
+        #ebene3 { width: 100%; height: 100vh; background-size: cover; background-position: center; transition: background-image 3s ease-in-out; position: relative; }
+        #ebene3::before { content: ""; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.3); z-index: 0; }
+       .chat-ebene-container { position: relative; z-index: 1; width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; padding-bottom: 70px; }
+        #chat-box { width: 70%; height: 65vh; border: 1px solid #003d8f; background: #000 !important; padding: 15px; overflow-y: auto; opacity: 1; box-sizing: border-box; }
+       .chat-input-row { display: flex; width: 70%; border: 1px solid #003d8f; margin-top: 5px; background: #000 !important; box-sizing: border-box; }
+        
+        /* EBENE 4: VIDEO & BUTTONS UNTEN */
+        .video-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; width: 90%; margin-top: 60px; }
+        .video-slot { aspect-ratio: 3/2; background: #111; border: 1px solid #003d8f; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; color: #666; }
+        .video-controls { display: flex; gap: 20px; margin-top: auto; margin-bottom: 80px; }
+
+        /* SPECIAL CONTENT */
+        .special-content { margin-top: 140px; width: 85%; text-align: center; }
+        .action-btn { background: #ffd700; color: #000; border: none; padding: 12px 25px; font-weight: bold; cursor: pointer; margin-top: 20px; text-transform: uppercase; }
+        .form-input { width: 100%; max-width: 400px; background: #111; border: 1px solid #003d8f; color: #fff; padding: 10px; margin-top: 10px; outline: none; }
+
+        /* NAVIGATION */
+        .bottom-nav { position: fixed; bottom: 0; width: 100%; height: 60px; background: #000; padding: 0 25px; display: flex; align-items: center; border-top: 1px solid #1a1a1a; z-index: 200; box-sizing: border-box; }
+        .nav-btn { background: #ffd700; color: #000; border: none; padding: 10px 20px; font-weight: bold; cursor: pointer; border-radius: 4px; }
+        .exit-btn { background: #ff4d4d; color: #fff; margin-left: auto; }
+        
+      @keyframes wolkenZug { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+    </style>
+</head>
+<body>
+
+    <div class="dashboard-header">
+        <div class="logo-ring" onclick="wechselEbene('ebene1')" ondblclick="wechselEbene('admin_ebene')">
+            <div class="logo-mm">M&M</div>
+            <div class="logo-community">COMMUNITY</div>
+        </div>
+    </div>
+
+    <div id="ebene1" class="ebene aktiv">
+     <div class="info-section">
+    <div style="position: absolute; top: 8px; width: 100%; text-align: center; color: #fff; font-weight: 900; letter-spacing: 12px; font-size: 1.6rem; text-transform: uppercase; user-select: none;">
+        Von M&M Community
+    </div>
+
+    <div class="auth-container-left">
+        <input type="email" id="db-mail" class="auth-input enter-trigger" placeholder="E-Mail..." autocomplete="off">
+        <button class="auth-btn" onclick="handleAnkerSetzen()">Anker setzen</button>
+    </div>
+
+    <div id="werbetafel-inhalt" style="display: flex; justify-content: center; align-items: flex-start; width: 100%; margin-top: 5vh; color: #fff; text-transform: uppercase; font-weight: bold;">
+        
+        <div style="width: 33%; padding-left: 130px; box-sizing: border-box; text-align: left;">
+            <h3 style="color: #fff; margin: 0; font-size: 1rem; border-bottom: 2px solid #003d8f; display: inline-block; margin-bottom: 8px;">1. DEINE MISSION</h3>
+            <p style="margin: 5px 0; font-size: 0.8rem; line-height: 1.4; font-weight: 500;">
+                Schreibe deine Biografie<br>
+                der Wahrhaftigkeit und fange<br>
+                mit der GEFÜHLSVORDERUNG an.
+            </p>
+        </div>
+
+        <div style="width: 34%; text-align: center; box-sizing: border-box;">
+            <h3 style="color: #fff; margin: 0; font-size: 1rem; border-bottom: 2px solid #003d8f; display: inline-block; margin-bottom: 8px;">2. DEINE ORIENTIERUNG</h3>
+            <p style="margin: 8px 0; font-size: 0.75rem; color: #ccc; font-weight: 500; text-transform: none;">
+                Setze deinen Anker und hole dir deinen Schlüssel für die Mission
+            </p>
+            <div style="display: flex; justify-content: center; gap: 15px; font-size: 0.75rem; margin-top: 10px;">
+                <span style="color: #003d8f;">● BLAU: GESCHLOSSEN</span>
+                <span style="color: #ffd700;">● GELB: ARBEIT</span>
+                <span style="color: #ff4d4d;">● ROT: WARTET</span>
+                <span style="color: #00ff00;">● GRÜN: ERLEDIGT</span>
+            </div>
+        </div>
+
+        <div style="width: 33%; padding-right: 130px; box-sizing: border-box; text-align: right;">
+            <h3 style="color: #fff; margin: 0; font-size: 1rem; border-bottom: 2px solid #003d8f; display: inline-block; margin-bottom: 8px;">3. DEIN ZIEL</h3>
+            <p style="margin: 5px 0; font-size: 0.8rem; line-height: 1.4; font-weight: 500;">
+                Vollende alle 20 Sektoren<br>
+                für dein EBOOK.
+            </p>
+        </div>
+    </div>
+
+    <div class="auth-container-right">
+        <input type="password" id="db-code" class="auth-input enter-trigger" placeholder="Schlüsselcode..." autocomplete="off">
+        <button class="auth-btn" style="background:#fff;" onclick="handleVerifyAccess()">OK</button>
+    </div>
+</div>
+        <div class="grid" id="main-grid"></div>
+        <div class="fundament-container">
+            <div class="fundament-box" onclick="wechselEbene('ebene21')"><div class="text">21 | Kapital und Verwaltung</div></div>
+            <div class="fundament-box" onclick="wechselEbene('ebene22')"><div class="text">DAS KOLLEKTIV | 22</div></div>
+        </div>
+        <div class="mm-fundament-final">
+            <div style="color: #003d8f; font-weight: 900; letter-spacing: 12px; text-transform: uppercase; font-size: 1.1rem;">M&M Community Fundament</div>
+        </div>
+    </div>
+
+    <div id="ebene2" class="ebene">
+        <div class="scan-header-space">M&M COMMUNITY TEXTE & SICHTWEISEN (27.5% PLATZ)</div>
+        <div id="main-text-area">
+            <span style="color:#ff0000; font-weight:900;">KI-ERMITTLUNG AKTIV</span><br><br>
+            Initialisiere Sektor-Daten...
+        </div>
+    </div>
+
+    <div id="ebene3" class="ebene">
+        <div class="chat-ebene-container">
+            <div id="chat-box"><i>Dialog bereit für vertiefte Wahrheit...</i></div>
+            <div class="chat-input-row">
+                <input type="text" id="chat-in" class="enter-trigger" style="flex:1; background:transparent; border:none; color:#fff; padding:15px; outline:none;" placeholder="Deine Nachricht...">
+                <button onclick="sendeChat()" style="background:#003d8f; color:#fff; border:none; padding:0 30px; cursor:pointer;">SENDEN</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="ebene4" class="ebene">
+    <div style="margin-top: 130px; font-weight: 900; letter-spacing: 10px; font-size: 1.5rem; text-align: center; width: 100%;">
+        DER VIDEO-BEWEIS
+    </div>
+    <div class="video-grid">
+        <script>for(let i=1; i<=8; i++) document.write('<div class="video-slot">SLOT '+i+'</div>');</script>
+    </div>
+       <div class="video-controls">
+            <button style="background:#00ff00; border:none; padding:15px 40px; font-weight:bold; cursor:pointer;">START</button>
+            <button style="background:#ff0000; border:none; padding:15px 40px; color:#fff; font-weight:bold; cursor:pointer;" onclick="wechselEbene('ebene1')">EXIT</button>
+        </div>
+    </div> 
+
+   <div id="admin_ebene" class="ebene">
+        <div class="special-content" style="border: 2px solid #ffd700; background-color: #000; padding: 25px; width: 90%; max-width: 1000px; margin-top: 100px; box-sizing: border-box;">
+            <h1 style="color: #ffd700; letter-spacing: 5px; margin-bottom: 20px; font-size: 1.5rem; font-weight: 900;">ADMINISTRATIVE STEUERUNG (M&M ZENTRALE)</h1>
+            
+            <div style="background: #111; border: 1px solid #333; padding: 15px; margin-bottom: 20px; text-align: left;">
+                <h3 style="color: #fff; margin: 0 0 5px 0; font-size: 1rem;">🔑 AKTIVE ANKER & SCHLÜSSEL</h3>
+                <p style="margin: 0; color: #ffd700; font-size: 1.2rem; font-weight: bold;">Bereits verifizierte User-Lizenzen: <span id="admin-schluessel-zaehler">0</span></p>
+            </div>
+
+            <div style="display: flex; gap: 20px; text-align: left;">
+                <div style="flex: 2; background: #111; border: 1px solid #003d8f; padding: 15px; box-sizing: border-box;">
+                    <h3 style="color: #003d8f; margin: 0 0 10px 0; font-size: 1rem;">📝 HEADER-TEXTER FÜR EBENE 2</h3>
+                    <label style="color: #ccc; font-size: 0.8rem; font-weight: bold;">Sektor auswählen:</label>
+                    <select id="admin-sektor-auswahl" style="width: 100%; background: #222; color: #fff; border: 1px solid #003d8f; padding: 8px; margin: 5px 0 15px 0; outline: none;"></select>
+                    
+                    <label style="color: #ccc; font-size: 0.8rem; font-weight: bold;">Überschrift / Sichtweise für den oberen Platz (27.5% Bereich):</label>
+                    <textarea id="admin-sektor-text" style="width: 100%; height: 180px; background: #222; color: #fff; border: 1px solid #003d8f; padding: 10px; margin-top: 5px; box-sizing: border-box; outline: none; font-family: sans-serif; resize: none;" placeholder="Schreibe hier den Text für die KI-Ermittlung hinein..."></textarea>
+                    
+                    <button class="action-btn" style="width: 100%; margin-top: 15px;" onclick="adminSpeichereSektorText()">In Datenbank & Sektor übertragen</button>
+                </div>
+
+                <div style="flex: 1; background: #111; border: 1px solid #ff4d4d; padding: 15px; display: flex; flex-direction: column; box-sizing: border-box;">
+                    <h3 style="color: #ff4d4d; margin: 0 0 10px 0; font-size: 1rem;">🔒 FASSADEN-REGELUNG</h3>
+                    <label style="color: #ccc; font-size: 0.8rem; font-weight: bold;">Status für gewählten Sektor:</label>
+                    <select id="admin-status-auswahl" style="width: 100%; background: #222; color: #fff; border: 1px solid #ff4d4d; padding: 8px; margin: 5px 0 15px 0; outline: none;">
+                        <option value="status-blau">🔵 BLAU: GESCHLOSSEN (Wartung)</option>
+                        <option value="status-gelb">🟡 GELB: ARBEIT (Geöffnet)</option>
+                        <option value="status-rot">🔴 ROT: WARTET</option>
+                        <option value="status-gruen">🟢 GRÜN: ERLEDIGT</option>
+                    </select>
+                    <button class="action-btn" style="background: #ff4d4d; color: #fff; margin-top: auto; width: 100%;" onclick="adminSetzeSektorStatus()">Status erzwingen</button>
+                </div>
+            </div>
+
+            <div style="margin-top: 20px; text-align: right; display: flex; justify-content: flex-end; gap: 10px;">
+                <button class="nav-btn" style="background: #333; color: #fff;" onclick="alert('Hier klemmen wir morgen das nächste Kabel an!')">+ ERWEITERN</button>
+                <button class="nav-btn" onclick="wechselEbene('ebene1')">ZURÜCK ZUM TURM</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="ebene21" class="ebene">
+        <div class="special-content">
+            <h1 style="color: #ffd700;">HERZLICHEN GLÜCKWUNSCH</h1>
+            <button class="action-btn" onclick="alert('PDF-Export...')">Biografie als PDF anfordern</button>
+        </div>
+    </div>
+
+    <div id="ebene22" class="ebene">
+        <div class="special-content">
+            <h1 style="color: #003d8f;">DAS KOLLEKTIV | VERIFIZIERUNG</h1>
+            <input type="text" class="form-input enter-trigger" placeholder="Name...">
+            <input type="text" class="form-input enter-trigger" placeholder="Konto...">
+            <br>
+            <button class="action-btn" style="background:#003d8f; color:#fff;" onclick="alert('Abo...')">Abonnement abschließen</button>
+        </div>
+    </div>
+
+  <div class="bottom-nav">
+    <button class="nav-btn" onclick="wechselEbene('ebene1')">DASHBOARD</button>
+    
+    <div id="legal-links" style="position: absolute; left: 50%; transform: translateX(-50%); display: flex; gap: 25px; font-size: 0.65rem; text-transform: uppercase; color: #666; font-weight: bold; white-space: nowrap;">
+        <span style="cursor:pointer" onclick="openLegal('impressum')">Impressum</span>
+       <span style="cursor:pointer" onclick="openLegal('nutzungsbedingungen')">Nutzungsbedingungen</span>
+        <span style="cursor:pointer" onclick="openLegal('datenschutz')">Datenschutz</span>
+    </div>
+
+    <button id="weiter-nav" class="nav-btn" style="display:none; margin-left:15px;" onclick="naechste()">WEITER →</button>
+    <button class="nav-btn exit-btn" onclick="window.location.reload()">EXIT / ABMELDEN</button>
+</div>
+    <div id="legal-overlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.95); z-index:5000; overflow-y:auto; padding:30px; box-sizing:border-box;">
+    <button onclick="this.parentElement.style.display='none'" style="float:right; background:#ff4d4d; color:#fff; border:none; padding:10px 20px; cursor:pointer; font-weight:bold; font-size:1rem;">SCHLIESSEN X</button>
+    <div id="legal-content-area" style="max-width:900px; margin:50px auto; color:#fff; font-size:1.1rem; line-height:1.6;">
+        Wird geladen...
+    </div>
+</div>
+
+ <script>
+       const themen = ["Recht auf Gefühlsvorderung", "Wie werde ich Mensch", "Glaube an Friede", "Programm für Bürgerliche Rechte", "Moralische Pflicht und Verantwortung", "Menschlichkeit Wiederherstellung", "Kinderschutz-Pflicht-Elternrechte", "Wahre Richtung und Kunst", "LGBTQ und Kirche", "Trend und Tradition", "Religionsbekenntnis oder Selbstwahl", "Gesundheitswesen und Verhalten", "Arbeitswelt und Du", "Mobbing am Arbeitsplatz", "Jugendsprecher", "Ratgeber für Pensionisten", "Sozialgefallen und Widerkehr", "Nachbarschaft und Gemeinschaft", "Alleinerziehend", "Die Brücke"];
+       const seelenNamen = ["Lilith", "Aris", "Mira", "Tarik", "Kiron", "Vikas", "Rhea", "Lyra", "Nova", "Marek", "Silas", "Aura", "Joris", "Sira", "Kian", "Alma", "Laris", "Liv", "Kyra", "Chiron"];
+       const grid = document.getElementById('main-grid');
+       let aktuelleEbeneIdx = 1;
+       let scanSlideshow;
+       let userEmail = ""; 
+       let aktuelleSektorId = "0";
+       let alleSektorenVerlaeufe = {};
+       let globaleBiografieDaten = "";
+     
+       themen.forEach((t, i) => {
+    grid.innerHTML += `
+        <div class="box">
+            <div class="text" onclick="waehleSektor(${i})">${t}</div>
+        </div>`;
+});
+
+function waehleSektor(id) {
+    aktuelleSektorId = id.toString();
+    const chatBox = document.getElementById('chat-box');
+
+    // Falls Sektor-Speicher leer ist, neu anlegen
+    if (!alleSektorenVerlaeufe[aktuelleSektorId]) {
+        alleSektorenVerlaeufe[aktuelleSektorId] = [];
+        chatBox.innerHTML = `<i>Verbindung zu Sektor ${themen[id]} (${seelenNamen[id]}) bereit...</i>`;
+    } else {
+        // Chat-Fenster leeren und alte Nachrichten dieses Sektors laden
+        chatBox.innerHTML = "";
+        alleSektorenVerlaeufe[aktuelleSektorId].forEach(msg => {
+            const istUser = msg.role === "user";
+            const farbe = istUser ? "#fff" : "#ffd700";
+            const sender = istUser ? "Du" : seelenNamen[aktuelleSektorId];
+            chatBox.innerHTML += `<div style="color: ${farbe}; margin-bottom: 10px;"><b>${sender}:</b> ${msg.parts[0].text}</div>`;
+        });
+    }
+
+    // Deine bestehende Ebenen-Logik aufrufen
+    wechselEbene('ebene2', id);
+}
+        const adminSelect = document.getElementById('admin-sektor-auswahl'); if (adminSelect) { themen.forEach((t, i) => { adminSelect.innerHTML += `<option value="${i}">Sektor ${i+1}: ${t}</option>`; }); }
+      
+        // 2. Funktion für die Rechtliche Texte
+        async function openLegal(fileName) {
+            const area = document.getElementById('legal-content-area');
+            const overlay = document.getElementById('legal-overlay');
+            overlay.style.display = 'block';
+            area.innerHTML = "Inhalt wird geladen...";
+            try {
+                const response = await fetch(fileName + '.html'); 
+                if (!response.ok) throw new Error('Datei nicht gefunden');
+                const data = await response.text();
+                area.innerHTML = data;
+            } catch (error) {
+                area.innerHTML = "<span style='color:red;'>Fehler beim Laden: " + fileName + ".html konnte nicht gefunden werden.</span>";
+            }
+        }
+
+// EBENE 2: Der "Himmel" für deine Texte (Blaues Leuchten)
+function starteScanOptik(themenIndex) {
+    // Falls noch eine alte Slideshow von Ebene 2 läuft, stoppen wir sie hier sicherheitshalber
+    if (typeof scanSlideshow !== 'undefined') clearInterval(scanSlideshow);
+    
+    const headerSpace = document.querySelector('.scan-header-space');
+    headerSpace.style.backgroundImage = "none"; 
+    headerSpace.innerHTML = `SEKTOR: ${themen[themenIndex]}`;
+}
+
+// EBENE 3: Die emotionale Reise (Bilder KOMPLETT abgewürgt für Wolken-Test!)
+function starteChatHintergrund() {
+    // Hier löschen wir JEDEN laufenden Timer im System, damit nichts mehr springt!
+    if (typeof chatSlideshow !== 'undefined') {
+        clearInterval(chatSlideshow);
+    }
+    
+    const ebene3 = document.getElementById('ebene3');
+    
+    // Wir zwingen die Ebene, absolut nackt und transparent zu bleiben
+    ebene3.style.backgroundImage = "none"; 
+    ebene3.style.background = "transparent !important"; 
+}
+
+// Die Steuerung beim Wechseln der Ebenen
+function wechselEbene(id, index = null) {
+    if (typeof chatSlideshow !== 'undefined') {
+        clearInterval(chatSlideshow);
+    }
+
+    document.querySelectorAll('.ebene').forEach(e => e.classList.remove('aktiv'));
+    document.getElementById(id).classList.add('aktiv');
+    if (id === 'admin_ebene') { ladeNeueAdminStats(); }
+
+    if (id === 'ebene2' && index !== null) {
+        starteScanOptik(index); 
+    } else if (id === 'ebene3') {
+        starteChatHintergrund(); 
+    } else {
+        if (typeof scanSlideshow !== 'undefined') clearInterval(scanSlideshow);
+    }
+
+    document.getElementById('legal-links').style.visibility = (id === 'ebene1') ? 'visible' : 'hidden';
+
+    // Navigations-Code für weiter-nav etc.
+    if(id === 'ebene1') {
+        aktuelleEbeneIdx = 1;
+        document.getElementById('weiter-nav').style.display = 'none';
+    } else if(id.startsWith('ebene') && !['ebene21', 'ebene22', 'admin_ebene'].includes(id)) {
+        aktuelleEbeneIdx = parseInt(id.replace('ebene', ''));
+        document.getElementById('weiter-nav').style.display = (aktuelleEbeneIdx === 4) ? 'none' : 'inline-block';
+    } else {
+        document.getElementById('weiter-nav').style.display = 'none';
+    }
+}
+        function naechste() {
+            if(aktuelleEbeneIdx < 4) wechselEbene('ebene' + (aktuelleEbeneIdx + 1));
+        }
+
+     document.addEventListener('keypress', function (e) {
+    if (e.key === 'Enter') {
+        const activeEl = document.activeElement;
+        
+        // Wenn du im Chat tippst -> Senden!
+        if (activeEl.id === 'chat-in') {
+            sendeChat();
+        } 
+        // Falls du gerade im Login-Bereich bist
+        else if (activeEl.id === 'db-mail') {
+            handleAnkerSetzen();
+        }
+        else if (activeEl.id === 'db-code') {
+            handleVerifyAccess();
+        }
+    }
+}); 
+     
+async function ladeNeueAdminStats() {
+    const zaehler = document.getElementById('admin-schluessel-zaehler');
+    try {
+        const response = await fetch('https://mm-community.onrender.com/admin/stats');
+        const data = await response.json();
+        if (data.success && zaehler) { zaehler.innerText = data.total_souls; }
+    } catch (e) { console.error("Fehler beim Laden der Admin-Stats:", e); }
+}
+
+async function adminSpeichereSektorText() {
+    const sektorId = document.getElementById('admin-sektor-auswahl').value;
+    const headerText = document.getElementById('admin-sektor-text').value.trim();
+    const email = document.getElementById('db-anker-mail').value.trim();
+
+    if (!headerText) { alert("Bitte einen Text für den oberen Platz eingeben."); return; }
+
+    try {
+        // Nutzt deinen bestehenden Render-Endpunkt
+        const response = await fetch('https://mm-community.onrender.com/admin/update-sector', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: email, sector_id: sektorId, header_text: headerText, status: 'update-text' })
+        });
+        const data = await response.json();
+        alert("Überschrift erfolgreich an Sektor " + (parseInt(sektorId) + 1) + " übertragen!");
+    } catch (e) { alert("Fehler beim Übertragen der Sichtweise."); }
+}
+
+async function adminSetzeSektorStatus() {
+    const sektorId = document.getElementById('admin-sektor-auswahl').value;
+    const statusWert = document.getElementById('admin-status-auswahl').value;
+    const email = document.getElementById('db-anker-mail').value.trim();
+
+    // Mapping von deiner Klassen-Bezeichnung auf deine alten Backend-Zustände
+    let statusMuster = 'open';
+    if (statusWert === 'status-blau') statusMuster = 'closed';
+    if (statusWert === 'status-rot') statusMuster = 'waiting';
+    if (statusWert === 'status-gruen') statusMuster = 'secure';
+
+    try {
+        const response = await fetch('https://mm-community.onrender.com/admin/update-sector', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: email, sector_id: sektorId, status: statusMuster })
+        });
+        alert("Fassaden-Regelung aktiv! Sektor " + (parseInt(sektorId) + 1) + " wurde auf den neuen Status gesetzt.");
+    } catch (e) { alert("Fehler beim Erzwingen des Status."); }
+}
+async function generiereBiografiePDF() {
+    const email = document.getElementById('db-mail').value;
+    if(!email) return alert("Bitte erst E-Mail auf dem Dashboard eingeben!");
+
+    const btn = event.currentTarget;
+    btn.innerText = "WIRD ERSTELLT...";
+
+    try {
+        const response = await fetch('https://mm-community.onrender.com/generate-pdf', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: email })
+        });
+        
+        if (response.ok) {
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `Biografie.pdf`;
+            document.body.appendChild(a);
+            a.click();
+        }
+    } catch (e) {
+        alert("Fehler!");
+    } finally {
+        btn.innerText = "Biografie als PDF anfordern";
+    }
+}
+async function handleAnkerSetzen() {
+    const emailInput = document.getElementById('db-mail').value.trim();
+    if (!emailInput) return alert("Bitte eine E-Mail eingeben.");
+
+    try {
+        const response = await fetch('https://mm-community.onrender.com/send-code', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: emailInput })
+        });
+        const data = await response.json();
+        alert(data.message); 
+    } catch (e) {
+        alert("Server-Verbindung fehlgeschlagen.");
+    }
+}
+
+async function handleVerifyAccess() {
+    const emailInput = document.getElementById('db-mail').value.trim();
+    const codeInput = document.getElementById('db-code').value.trim();
+
+    try {
+        const response = await fetch('https://mm-community.onrender.com/verify-access', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: emailInput, code: codeInput })
+        });
+        const data = await response.json();
+
+        if (data.success) {
+            userEmail = emailInput; // E-Mail für später merken
+            chatVerlauf = data.history || []; // Bestehenden Chat laden
+            alert("Zugang gewährt! Willkommen zurück.");
+        } else {
+            alert("Schlüsselcode ungültig.");
+        }
+    } catch (e) {
+        alert("Fehler bei der Kommunikation.");
+    }
+}
+async function sendeChat() {
+    const inputField = document.getElementById('chat-in');
+    const userMessage = inputField.value.trim();
+    if (!userMessage || !userEmail) return;
+
+    const chatBox = document.getElementById('chat-box');
+    const nameKI = seelenNamen[parseInt(aktuelleSektorId)];
+
+    chatBox.innerHTML += `<div style="color: #fff; margin-bottom: 10px;"><b>Du:</b> ${userMessage}</div>`;
+    chatBox.scrollTop = chatBox.scrollHeight;
+    inputField.value = "";
+
+    try {
+        // ÄNDERUNG HIER: Von /chat-wahrheit auf /chat wechseln!
+        const response = await fetch('https://mm-community.onrender.com/chat', { 
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                email: userEmail,
+                message: userMessage,
+                sector_id: aktuelleSektorId,
+                history: alleSektorenVerlaeufe[aktuelleSektorId] || [],
+                echtzeit: new Date().toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' }),
+                biografie_context: globaleBiografieDaten || ""
+            })
+        });
+
+        const data = await response.json();
+        
+        // Jetzt kommt die echte Antwort von Gemini zurück
+        if (data.reply) {
+            chatBox.innerHTML += `<div style="color: #ffd700; margin-bottom: 15px;"><b>${nameKI}:</b> ${data.reply}</div>`;
+            chatBox.scrollTop = chatBox.scrollHeight;
+            
+            // Verlauf speichern
+            if (!alleSektorenVerlaeufe[aktuelleSektorId]) alleSektorenVerlaeufe[aktuelleSektorId] = [];
+            alleSektorenVerlaeufe[aktuelleSektorId].push({ "role": "user", "parts": [{ "text": userMessage }] });
+            alleSektorenVerlaeufe[aktuelleSektorId].push({ "role": "model", "parts": [{ "text": data.reply }] });
+        }
+
+    } catch (e) {
+        console.error("Fehler beim Senden:", e);
+    }
+}
+ </script>
+</body>
+</html> 
