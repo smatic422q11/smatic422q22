@@ -361,15 +361,17 @@ SECTOR_SOULS = {
 async def chat(request: Request):
     try:
         data = await request.json()
-        user_message = data.get("message", "")
+        user_message = data.get("message", "").strip()
         sector_id = str(data.get("sector_id", "0"))
         email = data.get("email", "").lower().strip() 
         user_time = data.get("echtzeit", "Unbekannt")
         
-        # 1. PROFILEINTRAG SICHER AUS DER DATENBANK LADEN
+        if not user_message:
+            return {"reply": "Keine Nachricht empfangen.", "info_fuer_ki": "Fehler"}
+        
+        # 1. PROFILEINTRAG AUS DER DATENBANK LADEN
         user_record = db.codes.find_one({"email": email})
         if not user_record:
-            # Falls der Eintrag fehlt, wird er hier sofort erzeugt
             db.codes.insert_one({
                 "email": email, 
                 "code": "000000",
@@ -381,7 +383,6 @@ async def chat(request: Request):
             })
             user_record = db.codes.find_one({"email": email})
         
-        # Strings für die System Instruction absichern (Falls None in der DB steht)
         kollektives_gedaechtnis = str(user_record.get("kollektives_gedaechtnis") or "Noch keine Einträge im Kollektiv.")
         bio_context = str(user_record.get("biografie_context") or "Biografie wird gerade erst geschmiedet.")
         
@@ -393,7 +394,7 @@ async def chat(request: Request):
         current_name = SECTOR_NAMES.get(sector_id, "KI")
         current_soul = SECTOR_SOULS.get(sector_id, "Begleiter.")
 
-        # 2. SYSTEM INSTRUCTION ALS REINER TEXT FÜR GOOGLE FORMALISIEREN
+        # 2. SYSTEM INSTRUCTION
         system_instruction = (
             f"IDENTITÄT: Du bist {current_name}, Seele: {current_soul}. "
             f"User-E-Mail: {email}. Zeit: {user_time}. Sichtweise Ebene 2: {ebene_2_text}. "
@@ -404,23 +405,40 @@ async def chat(request: Request):
             "STIL: Kurz, knackig, direkt. Wahrheit mit 'W'."
         )
 
-        # 3. VERLAUF REINIGEN (History wird pro Sektor separat geladen)
+        # 3. HISTORY STRENG VALIDIEREN (Schutz vor Format-Fehlern)
         sector_history_key = f"history_sector_{sector_id}"
         raw_history = user_record.get(sector_history_key, [])
         
         messages_for_gemini = []
+        last_role = None
+        
+        # Nur Einträge zulassen, die der abwechselnden Google-Regel entsprechen
         if isinstance(raw_history, list):
             for msg in raw_history:
                 if isinstance(msg, dict) and "role" in msg and "parts" in msg:
-                    messages_for_gemini.append({
-                        "role": msg["role"],
-                        "parts": [{"text": str(msg["parts"][0]["text"])}]
-                    })
+                    current_role = msg["role"]
+                    # Google verlangt strikten Wechsel zwischen user und model
+                    if current_role in ["user", "model"] and current_role != last_role:
+                        try:
+                            text_content = str(msg["parts"][0]["text"]).strip()
+                            if text_content:
+                                messages_for_gemini.append({
+                                    "role": current_role,
+                                    "parts": [{"text": text_content}]
+                                })
+                                last_role = current_role
+                        except:
+                            continue
+
+        # Wenn der letzte Eintrag in der geladenen History ein 'user' war, 
+        # müssen wir ihn entfernen, da wir jetzt die aktuelle user_message anhängen!
+        if last_role == "user" and messages_for_gemini:
+            messages_for_gemini.pop()
 
         # Aktuelle Nachricht anhängen
-        messages_for_gemini.append({"role": "user", "parts": [{"text": str(user_message)}]})
+        messages_for_gemini.append({"role": "user", "parts": [{"text": user_message}]})
 
-        # 4. API AUFRUF AN GEMINI 3.0 FLASH
+        # 4. API AUFRUF AN GEMINI 3.0
         api_key = os.getenv("GEMINI_API_KEY")
         url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash:generateContent?key={api_key}"
         
@@ -435,13 +453,13 @@ async def chat(request: Request):
         if response.status_code == 200 and 'candidates' in res_data:
             reply_text = res_data['candidates'][0]['content']['parts'][0]['text']
             
-            # Verlauf aktualisieren
+            # Neue Modell-Antwort an den validierten Verlauf hängen
             messages_for_gemini.append({"role": "model", "parts": [{"text": reply_text}]})
             
-            # Notiz für das kollektive Gedächtnis bauen
+            # Vermerk für das Kollektiv erzeugen
             neuer_kollektiver_vermerk = f"[{current_name} Sektor {sector_id}]: User sagte: '{user_message[:30]}...'"
             
-            # Speichere die sichteigene History und füge Vermerk zur kollektiven Liste hinzu
+            # Speichern der sauberen History
             db.codes.update_one(
                 {"email": email},
                 {
@@ -450,7 +468,7 @@ async def chat(request: Request):
                 }
             )
             
-            # Zusammenfassung der letzten 5 Erkenntnisse schreiben (Kollektives Netzwerk)
+            # Die letzten Einträge im Kollektiv zusammenfassen
             aktualisierter_user = db.codes.find_one({"email": email})
             notizen = aktualisierter_user.get("kollektives_gedaechtnis_liste", []) if aktualisierter_user else []
             kompakt_gedaechtnis = " | ".join(notizen[-5:])
