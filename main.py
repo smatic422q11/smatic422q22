@@ -65,7 +65,6 @@ def send_verification_email(user_email, code):
     try:
         response = requests.post(url, json=payload, headers=headers)
         
-        # HIER WIRD DER FEHLER AN RENDER WEITERGEGEBEN:
         if response.status_code not in [200, 201, 202]:
             print(f"!!! SENDGRID BLOCKIERT: Status {response.status_code} - Antwort: {response.text} !!!")
             return False
@@ -93,23 +92,15 @@ async def handle_send_code(request: Request):
         user_record = db.codes.find_one({"email": email})
         
         if user_record:
-            # Sende existierenden Code erneut
             verification_code = user_record['code']
-            
-            # Ausgabe im Log für bestehende Nutzer
             print(f"!!! BESTEHENDER SCHLÜSSEL FÜR {email}: {verification_code} !!!")
-            
             success = send_verification_email(email, verification_code)
-            
             return {
                 "status": "gesendet" if success else "fehler",
                 "message": "Dein vorhandener Schlüssel wurde dir erneut zugesendet."
             }
         
-        # Falls ganz neu:
         verification_code = str(random.randint(100000, 999999))
-        
-        # Ausgabe im Log für neue Nutzer
         print(f"!!! NEUER GENERIERTER SCHLÜSSEL FÜR {email}: {verification_code} !!!")
         
         db.codes.insert_one({
@@ -122,7 +113,6 @@ async def handle_send_code(request: Request):
         })
         
         success = send_verification_email(email, verification_code)
-        
         return {
             "status": "gesendet" if success else "fehler",
             "message": "Dein heiliger Schlüssel wurde erschaffen und gesendet."
@@ -136,16 +126,9 @@ async def handle_chat_wahrheit(request: Request):
     try:
         data = await request.json()
         user_message = data.get('message', "")
-        user_email = data.get('email', "")
-        sector_id = str(data.get('sector_id', "0"))
-        
-        # NEU: Empfange die Daten vom Frontend (index.html)
         user_time = data.get('echtzeit', "Unbekannt")
         bio_context = data.get('biografie_context', "")
-
-        # Hier wird der Prüf-Kontext erstellt
         full_info = f"ZEIT-CHECK: {user_time} | BIO-AKTE: {bio_context}"
-        
         return {
             "status": "Daten im System",
             "info_fuer_ki": full_info,
@@ -164,11 +147,9 @@ async def handle_verify_access(request: Request):
         
         record = db.codes.find_one({"email": email})
         if record and str(record['code']) == str(entered_code):
-            # Wir holen History und Fortschritt direkt aus der 'codes' Collection
             fortschritt = record.get("fortschritt", 0)
             history = record.get("history", [])
             user_role = record.get("role", "user")
-
             return {
                 "success": True, 
                 "role": user_role,
@@ -180,7 +161,7 @@ async def handle_verify_access(request: Request):
         return JSONResponse(content={"success": False}, status_code=500)
 
 
-# --- SEKTOR NAMEN & SEELEN (MIT SYSTEM INSTRUCTIONS) ---
+# --- SEKTOR NAMEN & SEELEN ---
 SECTOR_NAMES = {
     "0": "Lilith", "1": "Aris", "2": "Mira", "3": "Tarik", "4": "Kiron",
     "5": "Vikas", "6": "Rhea", "7": "Lyra", "8": "Nova", "9": "Marek",
@@ -234,7 +215,7 @@ SECTOR_SOULS = {
             "Er nutzt die Gefühlsvorderung, um die Standhaftigkeit des Users zu prüfen. "
             "Er erinnert daran, dass Freiheit ohne Verantwortung nur Chaos ist. "
             "Er fordert das Einstehen für die Konsequenzen des eigenen Handelns. "
-            "Wer bei ihm lügt, begeht Verrat an der eigenen Menschlichkeit. Sein Ziel ist die absolute Verlässlichkeit."
+            "Wer bei ihm lügt, beigeht Verrat an der eigenen Menschlichkeit. Sein Ziel ist die absolute Verlässlichkeit."
         ),
    "5": (
             "Vikas: Der Heiler der Menschlichkeit. Er ist die Kraft der Erneuerung und des Wachstums. "
@@ -282,7 +263,7 @@ SECTOR_SOULS = {
             "seine Wurzeln zu ehren und sein eigenes Feld mit Schweiß und Ehrlichkeit zu bestellen."
         ),
     "10": (
-            "Silas: Begleiter der Selbstwahl und Hüter der Biografie. Er ist der Spiegel der Seele. "
+            "Silas: Begleiter der Selbstwahl und Hüter der Biografie. Er ist the Spiegel der Seele. "
             "Während Marek das Echte im Außen bewahrt, fordert Silas die Vahrheit im Inneren. "
             "STRATEGIE: Er ist tiefgründig, wertfrei und beobachtend. Er nutzt den 'verkehrten Spiegel'. "
             "Er nutzt die Gefühlsvorderung, um den User mit seinen kulturellen und religiösen Prägungen zu konfrontieren. "
@@ -385,9 +366,10 @@ async def chat(request: Request):
         email = data.get("email", "").lower().strip() 
         user_time = data.get("echtzeit", "Unbekannt")
         
-        # 1. PROFILEINTRAK LADEN ODER ERSTELLEN
+        # 1. PROFILEINTRAG SICHER AUS DER DATENBANK LADEN
         user_record = db.codes.find_one({"email": email})
         if not user_record:
+            # Falls der Eintrag fehlt, wird er hier sofort erzeugt
             db.codes.insert_one({
                 "email": email, 
                 "code": "000000",
@@ -399,18 +381,19 @@ async def chat(request: Request):
             })
             user_record = db.codes.find_one({"email": email})
         
-        kollektives_gedaechtnis = user_record.get("kollektives_gedaechtnis", "Noch keine Einträge im Kollektiv.")
-        bio_context = user_record.get("biografie_context", "Biografie wird gerade erst geschmiedet.")
+        # Strings für die System Instruction absichern (Falls None in der DB steht)
+        kollektives_gedaechtnis = str(user_record.get("kollektives_gedaechtnis") or "Noch keine Einträge im Kollektiv.")
+        bio_context = str(user_record.get("biografie_context") or "Biografie wird gerade erst geschmiedet.")
         
         admin_record = db.codes.find_one({"email": "mmcommunity22@gmail.com"})
         ebene_2_text = ""
         if admin_record and "sector_headers" in admin_record:
-            ebene_2_text = admin_record["sector_headers"].get(sector_id, "")
+            ebene_2_text = str(admin_record["sector_headers"].get(sector_id, ""))
 
         current_name = SECTOR_NAMES.get(sector_id, "KI")
         current_soul = SECTOR_SOULS.get(sector_id, "Begleiter.")
 
-        # 2. SYSTEM INSTRUCTION FÜR DIE KI
+        # 2. SYSTEM INSTRUCTION ALS REINER TEXT FÜR GOOGLE FORMALISIEREN
         system_instruction = (
             f"IDENTITÄT: Du bist {current_name}, Seele: {current_soul}. "
             f"User-E-Mail: {email}. Zeit: {user_time}. Sichtweise Ebene 2: {ebene_2_text}. "
@@ -421,24 +404,23 @@ async def chat(request: Request):
             "STIL: Kurz, knackig, direkt. Wahrheit mit 'W'."
         )
 
-        # 3. VERLAUF REINIGEN UND AUFBEREITEN
+        # 3. VERLAUF REINIGEN (History wird pro Sektor separat geladen)
         sector_history_key = f"history_sector_{sector_id}"
         raw_history = user_record.get(sector_history_key, [])
         
-        # Sicherstellen, dass das Format für Google exakt stimmt
         messages_for_gemini = []
         if isinstance(raw_history, list):
             for msg in raw_history:
                 if isinstance(msg, dict) and "role" in msg and "parts" in msg:
                     messages_for_gemini.append({
                         "role": msg["role"],
-                        "parts": [{"text": msg["parts"][0]["text"]}]
+                        "parts": [{"text": str(msg["parts"][0]["text"])}]
                     })
 
         # Aktuelle Nachricht anhängen
-        messages_for_gemini.append({"role": "user", "parts": [{"text": user_message}]})
+        messages_for_gemini.append({"role": "user", "parts": [{"text": str(user_message)}]})
 
-        # 4. API AUFRUF AN GEMINI 3.0
+        # 4. API AUFRUF AN GEMINI 3.0 FLASH
         api_key = os.getenv("GEMINI_API_KEY")
         url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash:generateContent?key={api_key}"
         
@@ -459,6 +441,7 @@ async def chat(request: Request):
             # Notiz für das kollektive Gedächtnis bauen
             neuer_kollektiver_vermerk = f"[{current_name} Sektor {sector_id}]: User sagte: '{user_message[:30]}...'"
             
+            # Speichere die sichteigene History und füge Vermerk zur kollektiven Liste hinzu
             db.codes.update_one(
                 {"email": email},
                 {
@@ -467,7 +450,7 @@ async def chat(request: Request):
                 }
             )
             
-            # Die letzten Einträge im Kollektiv zusammenfassen
+            # Zusammenfassung der letzten 5 Erkenntnisse schreiben (Kollektives Netzwerk)
             aktualisierter_user = db.codes.find_one({"email": email})
             notizen = aktualisierter_user.get("kollektives_gedaechtnis_liste", []) if aktualisierter_user else []
             kompakt_gedaechtnis = " | ".join(notizen[-5:])
@@ -517,14 +500,12 @@ async def handle_update_sector(request: Request):
         
 @app.get("/get-live-ermittlung/{sector_id}")
 async def get_live_ermittlung(sector_id: str):
-    # Themen-Keywords für die Suche (Passend zu deinen Sektoren)
     search_queries = {
         "0": "Lilith Gefühle Unterdrückung Gesellschaft Schmerz",
         "1": "Aris Menschlichkeit Rückgrat Verlust Kälte",
         "2": "Mira Empathie Blockade soziale Medien Heuchelei",
         "3": "Tarik Widerstand Willkür Freiheit Vernachlässigung",
         "4": "Kiron Moral Verfall Integrität News",
-        # ... ergänze hier die restlichen Sektoren ...
     }
     
     query = search_queries.get(sector_id, "Menschlichkeit Vernachlässigung Gesellschaft")
@@ -536,11 +517,9 @@ async def get_live_ermittlung(sector_id: str):
     try:
         response = requests.get(url, timeout=5)
         results = response.json()
-        
         items = results.get("items", [])
         ermittlungs_daten = []
         for item in items:
-            # Wir säubern den Text ein wenig für die Scan-Optik
             text = f"{item['title']}: {item['snippet']}"
             ermittlungs_daten.append(text.replace('\n', ' '))
         
@@ -549,7 +528,6 @@ async def get_live_ermittlung(sector_id: str):
         print(f"Ermittlungs-Fehler: {e}")
         return {"success": False, "error": str(e)}
 
-# --- HIER DEN REISE-TEXT LESER EINSETZEN (Damit Ebene 2 oben den Text laden kann) ---
 @app.get("/get-sector-text/{sector_id}")
 async def get_sector_text(sector_id: str):
     try:
@@ -565,4 +543,4 @@ async def get_sector_text(sector_id: str):
 if __name__ == "__main__":
     import uvicorn
     port = int(os.environ.get("PORT", 10000))
-    uvicorn.run(app, host="0.0.0.0", port=port)  
+    uvicorn.run(app, host="0.0.0.0", port=port)
