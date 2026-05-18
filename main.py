@@ -383,14 +383,11 @@ async def chat(request: Request):
         user_message = data.get("message", "")
         sector_id = str(data.get("sector_id", "0"))
         email = data.get("email", "").lower().strip() 
-        
         user_time = data.get("echtzeit", "Unbekannt")
         
-        # 1. USER-PROFIL AUS DER DATENBANK LADEN ODER ERSTELLEN
+        # 1. PROFILEINTRAK LADEN ODER ERSTELLEN
         user_record = db.codes.find_one({"email": email})
-        
         if not user_record:
-            # Falls der User noch nicht in der DB existiert, legen wir ihn schnell an
             db.codes.insert_one({
                 "email": email, 
                 "code": "000000",
@@ -402,11 +399,9 @@ async def chat(request: Request):
             })
             user_record = db.codes.find_one({"email": email})
         
-        # Kollektive Daten aus der DB holen
         kollektives_gedaechtnis = user_record.get("kollektives_gedaechtnis", "Noch keine Einträge im Kollektiv.")
         bio_context = user_record.get("biografie_context", "Biografie wird gerade erst geschmiedet.")
         
-        # Admin-Vorgaben für Ebene 2 laden
         admin_record = db.codes.find_one({"email": "mmcommunity22@gmail.com"})
         ebene_2_text = ""
         if admin_record and "sector_headers" in admin_record:
@@ -415,7 +410,7 @@ async def chat(request: Request):
         current_name = SECTOR_NAMES.get(sector_id, "KI")
         current_soul = SECTOR_SOULS.get(sector_id, "Begleiter.")
 
-        # 2. DAS SYSTEM INSTRUCTION
+        # 2. SYSTEM INSTRUCTION FÜR DIE KI
         system_instruction = (
             f"IDENTITÄT: Du bist {current_name}, Seele: {current_soul}. "
             f"User-E-Mail: {email}. Zeit: {user_time}. Sichtweise Ebene 2: {ebene_2_text}. "
@@ -426,16 +421,24 @@ async def chat(request: Request):
             "STIL: Kurz, knackig, direkt. Wahrheit mit 'W'."
         )
 
-        # 3. VERLAUF SICHER LADEN
+        # 3. VERLAUF REINIGEN UND AUFBEREITEN
         sector_history_key = f"history_sector_{sector_id}"
-        messages_for_gemini = user_record.get(sector_history_key, [])
+        raw_history = user_record.get(sector_history_key, [])
         
-        # Falls die alte History kein valides Format hat, leeren wir sie zur Sicherheit
-        if not isinstance(messages_for_gemini, list):
-            messages_for_gemini = []
+        # Sicherstellen, dass das Format für Google exakt stimmt
+        messages_for_gemini = []
+        if isinstance(raw_history, list):
+            for msg in raw_history:
+                if isinstance(msg, dict) and "role" in msg and "parts" in msg:
+                    messages_for_gemini.append({
+                        "role": msg["role"],
+                        "parts": [{"text": msg["parts"][0]["text"]}]
+                    })
 
+        # Aktuelle Nachricht anhängen
         messages_for_gemini.append({"role": "user", "parts": [{"text": user_message}]})
 
+        # 4. API AUFRUF AN GEMINI 3.0
         api_key = os.getenv("GEMINI_API_KEY")
         url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash:generateContent?key={api_key}"
         
@@ -450,9 +453,10 @@ async def chat(request: Request):
         if response.status_code == 200 and 'candidates' in res_data:
             reply_text = res_data['candidates'][0]['content']['parts'][0]['text']
             
+            # Verlauf aktualisieren
             messages_for_gemini.append({"role": "model", "parts": [{"text": reply_text}]})
             
-            # 4. IM HINTERGRUND DAS KOLLEKTIVE GEDÄCHTNIS AKTUALISIEREN
+            # Notiz für das kollektive Gedächtnis bauen
             neuer_kollektiver_vermerk = f"[{current_name} Sektor {sector_id}]: User sagte: '{user_message[:30]}...'"
             
             db.codes.update_one(
@@ -463,7 +467,7 @@ async def chat(request: Request):
                 }
             )
             
-            # Zusammenfassung schreiben
+            # Die letzten Einträge im Kollektiv zusammenfassen
             aktualisierter_user = db.codes.find_one({"email": email})
             notizen = aktualisierter_user.get("kollektives_gedaechtnis_liste", []) if aktualisierter_user else []
             kompakt_gedaechtnis = " | ".join(notizen[-5:])
@@ -475,7 +479,7 @@ async def chat(request: Request):
             
             return {"reply": reply_text, "info_fuer_ki": f"Zeit: {user_time}"}
         
-        print(f"Gemini API Fehler-Antwort: {res_data}")
+        print(f"Gemini API Fehler-Details: {res_data}")
         return {"reply": "Fehler bei der Seele. (API-Problem)", "info_fuer_ki": "Fehler"}
 
     except Exception as e:
