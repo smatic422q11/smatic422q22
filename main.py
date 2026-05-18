@@ -90,6 +90,10 @@ async def handle_send_code(request: Request):
         if user_record:
             # Sende existierenden Code erneut
             verification_code = user_record['code']
+            
+            # Ausgabe im Log für bestehende Nutzer
+            print(f"!!! BESTEHENDER SCHLÜSSEL FÜR {email}: {verification_code} !!!")
+            
             success = send_verification_email(email, verification_code)
             
             return {
@@ -99,6 +103,10 @@ async def handle_send_code(request: Request):
         
         # Falls ganz neu:
         verification_code = str(random.randint(100000, 999999))
+        
+        # Ausgabe im Log für neue Nutzer
+        print(f"!!! NEUER GENERIERTER SCHLÜSSEL FÜR {email}: {verification_code} !!!")
+        
         db.codes.insert_one({
             "email": email, 
             "code": verification_code,
@@ -453,6 +461,7 @@ async def handle_update_sector(request: Request):
         return {"success": True, "message": "Status gesetzt."}
     except Exception as e:
         return JSONResponse(content={"success": False, "error": str(e)}, status_code=500)
+        
 @app.get("/get-live-ermittlung/{sector_id}")
 async def get_live_ermittlung(sector_id: str):
     # Themen-Keywords für die Suche (Passend zu deinen Sektoren)
