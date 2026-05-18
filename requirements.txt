@@ -1,1 +1,8 @@
+fastapi
+uvicorn
+httpx
+google-genai
+pymongo
+dnspython
+certifi
 
