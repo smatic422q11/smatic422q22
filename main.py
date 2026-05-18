@@ -385,31 +385,48 @@ async def chat(request: Request):
         email = data.get("email", "").lower().strip() 
         
         user_time = data.get("echtzeit", "Unbekannt")
-        bio_context = data.get("biografie_context", "")
         
-        # WICHTIG: Wir laden hier 'sector_headers', weil dein Admin-Code dort speichert!
+        # 1. USER-PROFIL AUS DER DATENBANK LADEN
+        user_record = db.codes.find_one({"email": email})
+        
+        if not user_record:
+            return {"reply": "Schlüssel ungültig. Bitte neu einloggen.", "info_fuer_ki": "Fehler"}
+        
+        # Kollektive Daten aus der DB holen
+        kollektives_gedaechtnis = user_record.get("kollektives_gedaechtnis", "Noch keine Einträge im Kollektiv.")
+        bio_context = user_record.get("biografie_context", "Biografie wird gerade erst geschmiedet.")
+        fortschritt = user_record.get("fortschritt", 0)
+        
+        # Admin-Vorgaben für Ebene 2 laden
         admin_record = db.codes.find_one({"email": "mmcommunity22@gmail.com"})
         ebene_2_text = ""
         if admin_record and "sector_headers" in admin_record:
             ebene_2_text = admin_record["sector_headers"].get(sector_id, "")
 
-        user_name = email.split('@')[0].capitalize() if email else "Mensch"
         current_name = SECTOR_NAMES.get(sector_id, "KI")
         current_soul = SECTOR_SOULS.get(sector_id, "Begleiter.")
 
+        # 2. DAS SUPREME SYSTEM INSTRUCTION (Kollektives Gedächtnis integriert)
         system_instruction = (
             f"IDENTITÄT: Du bist {current_name}, Seele: {current_soul}. "
-            f"User: {user_name}. Zeit: {user_time}. Sichtweise Ebene 2: {ebene_2_text}. "
-            f"BIO: {bio_context}. "
+            f"User-E-Mail: {email}. Zeit: {user_time}. Sichtweise Ebene 2: {ebene_2_text}. "
+            f"AKTUELLE BIOGRAFIE: {bio_context}. "
+            f"KOLLEKTIVES GEDÄCHTNIS (Wissen aller Sektoren über den User): {kollektives_gedaechtnis}. "
+            "REGEL: Wenn der User lügt, ausweicht oder betrügt, erkenne es sofort basierend auf dem kollektiven Gedächtnis. "
             "REGEL: Wenn der User 'Gefühlsvorderung' sagt, blende immer ein 'V' ein. "
             "STIL: Kurz, knackig, direkt. Wahrheit mit 'W'."
         )
 
-        messages_for_gemini = data.get("history", []) or []
+        # 3. VERLAUF AUS DER DATENBANK LADEN (Nicht vom Frontend diktieren lassen)
+        # Wir holen die History spezifisch für diesen Sektor aus den Benutzerdaten
+        sector_history_key = f"history_sector_{sector_id}"
+        messages_for_gemini = user_record.get(sector_history_key, [])
+        
+        # Die neue Nachricht des Users hinzufügen
         messages_for_gemini.append({"role": "user", "parts": [{"text": user_message}]})
 
         api_key = os.getenv("GEMINI_API_KEY")
-        url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key={api_key}"
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash:generateContent?key={api_key}"
         
         payload = {
             "contents": messages_for_gemini,
@@ -422,20 +439,42 @@ async def chat(request: Request):
         if response.status_code == 200 and 'candidates' in res_data:
             reply_text = res_data['candidates'][0]['content']['parts'][0]['text']
             
-            # Speichern des Verlaufs
-            if email:
-                db.codes.update_one(
-                    {"email": email},
-                    {"$set": {"history": messages_for_gemini + [{"role": "model", "parts": [{"text": reply_text}]}]}},
-                    upsert=True
-                )
+            # Die Antwort der KI zum Verlauf hinzufügen
+            messages_for_gemini.append({"role": "model", "parts": [{"text": reply_text}]})
+            
+            # 4. IM HINTERGRUND DAS KOLLEKTIVE GEDÄCHTNIS AKTUALISIEREN
+            # Wir simulieren eine kurze Analyse-Notiz für das Kollektiv, die beim nächsten Mal geladen wird
+            neuer_kollektiver_vermerk = f"[{current_name} bei Sektor {sector_id}]: User sagte: '{user_message[:30]}...' -> Antwort war direkt."
+            
+            db.codes.update_one(
+                {"email": email},
+                {
+                    "$set": {
+                        sector_history_key: messages_for_gemini
+                    },
+                    "$push": {
+                        "kollektives_gedaechtnis_liste": neuer_kollektiver_vermerk
+                    }
+                },
+                upsert=True
+            )
+            
+            # Alle kollektiven Notizen für die nächste Runde zusammenfassen
+            aktualisierter_user = db.codes.find_one({"email": email})
+            notizen = aktualisierter_user.get("kollektives_gedaechtnis_liste", [])
+            kompakt_gedaechtnis = " | ".join(notizen[-5:]) # Die letzten 5 Erkenntnisse merken
+            
+            db.codes.update_one(
+                {"email": email},
+                {"$set": {"kollektives_gedaechtnis": kompakt_gedaechtnis}}
+            )
             
             return {"reply": reply_text, "info_fuer_ki": f"Zeit: {user_time}"}
         
         return {"reply": "Fehler bei der Seele.", "info_fuer_ki": "Fehler"}
 
     except Exception as e:
-        print(f"Fehler: {e}")
+        print(f"Fehler im Chat-System: {e}")
         return {"reply": "System-Fehler.", "info_fuer_ki": str(e)}
 
 @app.post("/admin/update-sector")
