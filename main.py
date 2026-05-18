@@ -38,7 +38,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# --- E-MAIL LOGIK ---
 def send_verification_email(user_email, code):
     SENDGRID_API_KEY = os.environ.get('SENDGRID_API_KEY')
     ABSENDER_EMAIL = "info@mm-community.online" 
@@ -65,11 +64,17 @@ def send_verification_email(user_email, code):
 
     try:
         response = requests.post(url, json=payload, headers=headers)
-        return response.status_code in [200, 201, 202]
+        
+        # HIER WIRD DER FEHLER AN RENDER WEITERGEGEBEN:
+        if response.status_code not in [200, 201, 202]:
+            print(f"!!! SENDGRID BLOCKIERT: Status {response.status_code} - Antwort: {response.text} !!!")
+            return False
+            
+        print(f"!!! SENDGRID ERFOLG: E-Mail an {user_email} übergeben !!!")
+        return True
     except Exception as e:
         print(f"Systemfehler beim Mail-Versand: {e}")
         return False
-
 
 @app.get("/")
 def read_root():
