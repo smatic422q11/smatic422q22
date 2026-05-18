@@ -7,7 +7,7 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from pymongo import MongoClient
 from pymongo.server_api import ServerApi
-from fastapi.responses import JSONResponse 
+
 
 # 1. DATENBANK-VERBINDUNG
 MONGO_URI = os.environ.get('MONGO_URI')
@@ -159,9 +159,7 @@ async def handle_verify_access(request: Request):
     except Exception as e:
         return JSONResponse(content={"success": False}, status_code=500)
 
-@app.get("/")
-async def root():
-    return {"message": "Die Community-Seite ist LIVE!"}
+
 # --- SEKTOR NAMEN & SEELEN (MIT SYSTEM INSTRUCTIONS) ---
 SECTOR_NAMES = {
     "0": "Lilith", "1": "Aris", "2": "Mira", "3": "Tarik", "4": "Kiron",
