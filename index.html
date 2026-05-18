@@ -375,7 +375,7 @@ function wechselEbene(id, index = null) {
 async function ladeNeueAdminStats() {
     const zaehler = document.getElementById('admin-schluessel-zaehler');
     try {
-        const response = await fetch('https://mm-community.onrender.com/admin/stats');
+       const response = await fetch('/admin/stats');
         const data = await response.json();
         if (data.success && zaehler) { zaehler.innerText = data.total_souls; }
     } catch (e) { console.error("Fehler beim Laden der Admin-Stats:", e); }
@@ -390,7 +390,7 @@ async function adminSpeichereSektorText() {
 
     try {
         // Nutzt deinen bestehenden Render-Endpunkt
-        const response = await fetch('https://mm-community.onrender.com/admin/update-sector', {
+        const response = await fetch('/admin/update-sector', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email: email, sector_id: sektorId, header_text: headerText, status: 'update-text' })
@@ -412,7 +412,7 @@ async function adminSetzeSektorStatus() {
     if (statusWert === 'status-gruen') statusMuster = 'secure';
 
     try {
-        const response = await fetch('https://mm-community.onrender.com/admin/update-sector', {
+      const response = await fetch('/admin/update-sector', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email: email, sector_id: sektorId, status: statusMuster })
@@ -428,7 +428,7 @@ async function generiereBiografiePDF() {
     btn.innerText = "WIRD ERSTELLT...";
 
     try {
-        const response = await fetch('https://mm-community.onrender.com/generate-pdf', {
+       const response = await fetch('/generate-pdf', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email: email })
@@ -454,7 +454,7 @@ async function handleAnkerSetzen() {
     if (!emailInput) return alert("Bitte eine E-Mail eingeben.");
 
     try {
-        const response = await fetch('https://mm-community.onrender.com/send-code', {
+        const response = await fetch('/send-code', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email: emailInput })
@@ -471,7 +471,7 @@ async function handleVerifyAccess() {
     const codeInput = document.getElementById('db-code').value.trim();
 
     try {
-        const response = await fetch('https://mm-community.onrender.com/verify-access', {
+        const response = await fetch('/verify-access', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email: emailInput, code: codeInput })
@@ -503,7 +503,7 @@ async function sendeChat() {
 
     try {
         // ÄNDERUNG HIER: Von /chat-wahrheit auf /chat wechseln!
-        const response = await fetch('https://mm-community.onrender.com/chat', { 
+       const response = await fetch('/chat', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
