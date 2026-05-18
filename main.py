@@ -7,7 +7,7 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from pymongo import MongoClient
 from pymongo.server_api import ServerApi
-from fastapi.responses import JSONResponse 
+from fastapi.responses import JSONResponse, FileResponse
 
 # 1. DATENBANK-VERBINDUNG
 MONGO_URI = os.environ.get('MONGO_URI')
@@ -69,7 +69,13 @@ def send_verification_email(user_email, code):
     except Exception as e:
         print(f"Systemfehler beim Mail-Versand: {e}")
         return False
-        
+
+@app.get("/")
+def read_root():
+    if os.path.exists("index.html"):
+        return FileResponse("index.html")
+    return {"message": "Die Community-Seite ist LIVE! Aber index.html fehlt im Hauptordner."}
+
 @app.post("/send-code")
 async def handle_send_code(request: Request):
     try:
@@ -131,10 +137,6 @@ async def handle_verify_access(request: Request):
         return JSONResponse(content={"success": False}, status_code=401)
     except Exception as e:
         return JSONResponse(content={"success": False}, status_code=500)
-
-@app.get("/")
-async def root():
-    return {"message": "Die Community-Seite ist LIVE!"}
 
 # --- SEKTOR NAMEN & SEELEN ---
 SECTOR_NAMES = {
@@ -248,7 +250,7 @@ SECTOR_SOULS = {
         ),
     "11": (
             "Aura: Stimme der Gesundheit und des würdevollen Verhaltens. "
-            "Während Silas die Biografie spiegelt, bewacht Aura den Tempel des Geistes. "
+            "Halbierung der Kräfte verhindern, Aura schützt den Geist. "
             "STRATEGIE: Sie ist achtsam, beobachtend und fokussiert auf Reinheit. "
             "Sie nutzt die Gefühlsvorderung, um destruktive Gewohnheiten und mangelnde Selbstachtung zu entlarven. "
             "Sie konfrontiert den User mit der biologischen Vahrheit seines Körpers. "
@@ -288,14 +290,14 @@ SECTOR_SOULS = {
             "STRATEGIE: Sie ist gütig, ruhig und besitzt die unerschütterliche Autorität des Alters. "
             "Sie nutzt die Gefühlsvorderung, um die Ehre der Lebensleistung und den Wert der Erfahrung zu betonen. "
             "Sie konfrontiert den User mit der Oberflächlichkeit der Wegwerfgesellschaft und fordert Respekt vor den Älteren. "
-            "Sie ist das Gedächtnis der Community und die nährende Kraft, die dafür sorgt, dass niemand verloren geht. "
+            "Sie ist das Gedächtnis della Community und die nährende Kraft, die dafür sorgt, dass niemand verloren geht. "
             "Wer bei ihr Rat sucht, findet die Tiefe der Zeit und die Nahrung für eine standhafte Seele."
         ),
     "16": (
             "Laris: Anwalt der Sozialfälle und Beschützer der Übersehenen. "
             "Während Alma die Weisheit bewahrt, kämpft Laris für die Würde derer, die am Boden liegen. "
             "STRATEGIE: Er ist hellwach, tief empathisch und unnachgiebig gegenüber bürokratischer Kälte. "
-            "Er nutzt die Gefühlsvorderung, um die Scham der Not zu überwinden und den Stolz der Bedürftigen zu wecken. "
+            "Er nutzt die Gefühlsvorderung, um die Scham des Not zu überwinden und den Stolz der Bedürftigen zu wecken. "
             "Er konfrontiert den User mit der sozialen Ungerechtigkeit und fordert echte, tatenreiche Solidarität. "
             "Er ist die helfende Hand, die nicht nur tröstet, sondern das Rückgrat wieder aufrichtet. "
             "Wer bei ihm Hilfe sucht, findet einen unbestechlichen Verbündeten gegen die Ausgrenzung."
@@ -331,7 +333,6 @@ SECTOR_SOULS = {
     "20": "Dieser Sektor ist aktuell noch geschlossen. Bitte hab etwas Geduld.",
     "21": "Das Kollektiv bereitet sich vor. Aktuell noch geschlossen."
 }
-
 
 @app.post("/chat")
 async def chat(request: Request):
@@ -403,14 +404,13 @@ async def chat(request: Request):
             if email:
                 final_history = messages_for_gemini + [{"role": "model", "parts": [{"text": reply_text}]}]
                 
-                # Wir sichern den Chat-Verlauf und extrahieren im Hintergrund Notizen für die PDF-Generierung
                 db.codes.update_one(
                     {"email": email},
                     {
                         "$set": {
                             "history": final_history, 
                             "fortschritt": int(sector_id),
-                            f"erkenntnis_sektor_{sector_id}": reply_text[:200]  # Kürze für kompakten DB-Index
+                            f"erkenntnis_sektor_{sector_id}": reply_text[:200]
                         }
                     },
                     upsert=True
@@ -420,7 +420,7 @@ async def chat(request: Request):
     except Exception as e:
         return {"reply": f"System-Fehler: {str(e)}"}
 
-# --- NEU: ROUTE FÜR DAS PDF-E-BOOK (ZUSAMMENFASSUNG IM HINTERGRUND) ---
+# --- ROUTE FÜR DAS PDF-E-BOOK (ZUSAMMENFASSUNG IM HINTERGRUND) ---
 @app.post("/generate-biografie")
 async def generate_biografie(request: Request):
     try:
@@ -434,7 +434,6 @@ async def generate_biografie(request: Request):
         if not user_record:
             return JSONResponse(content={"success": False, "message": "Keine Biografie-Daten gefunden."}, status_code=404)
             
-        # Wir sammeln alle Erkenntnisse aus den Sektoren, die in der DB liegen
         gesammelte_biografie = []
         for i in range(20):
             sektoren_text = user_record.get(f"erkenntnis_sektor_{i}")
@@ -446,7 +445,6 @@ async def generate_biografie(request: Request):
             
         text_fuer_pdf = "\n\n".join(gesammelte_biografie)
         
-        # Sende strukturierten Text zurück, den das Frontend direkt als PDF verarbeiten kann
         return {
             "success": True,
             "titel": "Die Signatur deiner Biografie - M&M Community",
@@ -455,7 +453,6 @@ async def generate_biografie(request: Request):
         }
     except Exception as e:
         return JSONResponse(content={"success": False, "error": str(e)}, status_code=500)
-
 
 if __name__ == "__main__":
     import uvicorn
