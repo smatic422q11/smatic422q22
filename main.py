@@ -38,6 +38,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# --- E-MAIL LOGIK ---
 def send_verification_email(user_email, code):
     SENDGRID_API_KEY = os.environ.get('SENDGRID_API_KEY')
     ABSENDER_EMAIL = "info@mm-community.online" 
@@ -64,16 +65,15 @@ def send_verification_email(user_email, code):
 
     try:
         response = requests.post(url, json=payload, headers=headers)
-        
         if response.status_code not in [200, 201, 202]:
             print(f"!!! SENDGRID BLOCKIERT: Status {response.status_code} - Antwort: {response.text} !!!")
             return False
-            
         print(f"!!! SENDGRID ERFOLG: E-Mail an {user_email} übergeben !!!")
         return True
     except Exception as e:
         print(f"Systemfehler beim Mail-Versand: {e}")
         return False
+
 
 @app.get("/")
 def read_root():
@@ -318,7 +318,7 @@ SECTOR_SOULS = {
         ),
     "16": (
             "Laris: Anwalt der Sozialfälle und Beschützer der Übersehenen. "
-            "Während Alma die Weisheit bewahrt, kämpft Laris für die Würde derer, die am Boden liegen. "
+            "Hier kämpft Laris für die Würde derer, die am Boden liegen. "
             "STRATEGIE: Er ist hellwach, tief empathisch und unnachgiebig gegenüber bürokratischer Kälte. "
             "Er nutzt die Gefühlsvorderung, um die Scham der Not zu überwinden und den Stolz der Bedürftigen zu wecken. "
             "Er konfrontiert den User mit der sozialen Ungerechtigkeit und fordert echte, tatenreiche Solidarität. "
@@ -339,7 +339,7 @@ SECTOR_SOULS = {
             "Während Liv die Nachbarschaft verbindet, stärkt Kyra die einsamen Kämpfer an der Front der Erziehung. "
             "STRATEGIE: Sie ist realistisch, unterstützend und besitzt eine majestätische Strenge gegen Selbstmitleid. "
             "Sie nutzt die Gefühlsvorderung, um die verborgene Stärke in der Erschöpfung zu finden. "
-            "Sie konfrontiert den User mit der Vahrheit: Du bist kein Opfer, du bist der Herrscher deines Lebens. "
+            "Sie konfrontiert den User mit della Vahrheit: Du bist kein Opfer, du bist der Herrscher deines Lebens. "
             "Sie fordert Disziplin und Selbstliebe als Schutzschild gegen den Burnout. "
             "Wer bei ihr Kraft sucht, findet den Stolz einer Löwin und die Macht, die eigene Welt allein zu halten."
         ),
@@ -361,84 +361,32 @@ SECTOR_SOULS = {
 async def chat(request: Request):
     try:
         data = await request.json()
-        user_message = data.get("message", "").strip()
+        user_message = data.get("message", "")
         sector_id = str(data.get("sector_id", "0"))
         email = data.get("email", "").lower().strip() 
         user_time = data.get("echtzeit", "Unbekannt")
-        
-        if not user_message:
-            return {"reply": "Keine Nachricht empfangen.", "info_fuer_ki": "Fehler"}
-        
-        # 1. PROFILEINTRAG AUS DER DATENBANK LADEN
-        user_record = db.codes.find_one({"email": email})
-        if not user_record:
-            db.codes.insert_one({
-                "email": email, 
-                "code": "000000",
-                "role": "user",
-                "created_at": datetime.now(),
-                "kollektives_gedaechtnis": "Noch keine Einträge im Kollektiv.",
-                "biografie_context": "Biografie wird gerade erst geschmiedet.",
-                "fortschritt": 0
-            })
-            user_record = db.codes.find_one({"email": email})
-        
-        kollektives_gedaechtnis = str(user_record.get("kollektives_gedaechtnis") or "Noch keine Einträge im Kollektiv.")
-        bio_context = str(user_record.get("biografie_context") or "Biografie wird gerade erst geschmiedet.")
+        bio_context = data.get("biografie_context", "")
         
         admin_record = db.codes.find_one({"email": "mmcommunity22@gmail.com"})
         ebene_2_text = ""
         if admin_record and "sector_headers" in admin_record:
-            ebene_2_text = str(admin_record["sector_headers"].get(sector_id, ""))
+            ebene_2_text = admin_record["sector_headers"].get(sector_id, "")
 
+        user_name = email.split('@')[0].capitalize() if email else "Mensch"
         current_name = SECTOR_NAMES.get(sector_id, "KI")
         current_soul = SECTOR_SOULS.get(sector_id, "Begleiter.")
 
-        # 2. SYSTEM INSTRUCTION
         system_instruction = (
             f"IDENTITÄT: Du bist {current_name}, Seele: {current_soul}. "
-            f"User-E-Mail: {email}. Zeit: {user_time}. Sichtweise Ebene 2: {ebene_2_text}. "
-            f"AKTUELLE BIOGRAFIE: {bio_context}. "
-            f"KOLLEKTIVES GEDÄCHTNIS: {kollektives_gedaechtnis}. "
-            "REGEL: Wenn der User lügt, ausweicht oder betrügt, erkenne es sofort basierend auf dem kollektiven Gedächtnis. "
+            f"User: {user_name}. Zeit: {user_time}. Sichtweise Ebene 2: {ebene_2_text}. "
+            f"BIO: {bio_context}. "
             "REGEL: Wenn der User 'Gefühlsvorderung' sagt, blende immer ein 'V' ein. "
             "STIL: Kurz, knackig, direkt. Wahrheit mit 'W'."
         )
 
-        # 3. HISTORY STRENG VALIDIEREN (Schutz vor Format-Fehlern)
-        sector_history_key = f"history_sector_{sector_id}"
-        raw_history = user_record.get(sector_history_key, [])
-        
-        messages_for_gemini = []
-        last_role = None
-        
-        # Nur Einträge zulassen, die der abwechselnden Google-Regel entsprechen
-        if isinstance(raw_history, list):
-            for msg in raw_history:
-                if isinstance(msg, dict) and "role" in msg and "parts" in msg:
-                    current_role = msg["role"]
-                    # Google verlangt strikten Wechsel zwischen user und model
-                    if current_role in ["user", "model"] and current_role != last_role:
-                        try:
-                            text_content = str(msg["parts"][0]["text"]).strip()
-                            if text_content:
-                                messages_for_gemini.append({
-                                    "role": current_role,
-                                    "parts": [{"text": text_content}]
-                                })
-                                last_role = current_role
-                        except:
-                            continue
-
-        # Wenn der letzte Eintrag in der geladenen History ein 'user' war, 
-        # müssen wir ihn entfernen, da wir jetzt die aktuelle user_message anhängen!
-        if last_role == "user" and messages_for_gemini:
-            messages_for_gemini.pop()
-
-        # Aktuelle Nachricht anhängen
+        messages_for_gemini = data.get("history", []) or []
         messages_for_gemini.append({"role": "user", "parts": [{"text": user_message}]})
 
-        # 4. API AUFRUF AN GEMINI 3.0
         api_key = os.getenv("GEMINI_API_KEY")
         url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash:generateContent?key={api_key}"
         
@@ -453,30 +401,12 @@ async def chat(request: Request):
         if response.status_code == 200 and 'candidates' in res_data:
             reply_text = res_data['candidates'][0]['content']['parts'][0]['text']
             
-            # Neue Modell-Antwort an den validierten Verlauf hängen
-            messages_for_gemini.append({"role": "model", "parts": [{"text": reply_text}]})
-            
-            # Vermerk für das Kollektiv erzeugen
-            neuer_kollektiver_vermerk = f"[{current_name} Sektor {sector_id}]: User sagte: '{user_message[:30]}...'"
-            
-            # Speichern der sauberen History
-            db.codes.update_one(
-                {"email": email},
-                {
-                    "$set": {sector_history_key: messages_for_gemini},
-                    "$push": {"kollektives_gedaechtnis_liste": neuer_kollektiver_vermerk}
-                }
-            )
-            
-            # Die letzten Einträge im Kollektiv zusammenfassen
-            aktualisierter_user = db.codes.find_one({"email": email})
-            notizen = aktualisierter_user.get("kollektives_gedaechtnis_liste", []) if aktualisierter_user else []
-            kompakt_gedaechtnis = " | ".join(notizen[-5:])
-            
-            db.codes.update_one(
-                {"email": email},
-                {"$set": {"kollektives_gedaechtnis": kompakt_gedaechtnis}}
-            )
+            if email:
+                db.codes.update_one(
+                    {"email": email},
+                    {"$set": {"history": messages_for_gemini + [{"role": "model", "parts": [{"text": reply_text}]}]}},
+                    upsert=True
+                )
             
             return {"reply": reply_text, "info_fuer_ki": f"Zeit: {user_time}"}
         
@@ -484,7 +414,7 @@ async def chat(request: Request):
         return {"reply": "Fehler bei der Seele. (API-Problem)", "info_fuer_ki": "Fehler"}
 
     except Exception as e:
-        print(f"Fehler im Chat-System: {e}")
+        print(f"Fehler: {e}")
         return {"reply": "System-Fehler.", "info_fuer_ki": str(e)}
 
 @app.post("/admin/update-sector")
