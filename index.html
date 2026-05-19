@@ -258,31 +258,33 @@
 function waehleSektor(id) {
     aktuelleSektorId = id.toString();
     const chatBox = document.getElementById('chat-box');
+    const headerSpace = document.querySelector('.scan-header-space');
     const mainTextArea = document.getElementById('main-text-area');
 
-    // 1. Sektor-Name und Live-Ermittlung dynamisch auf Ebene 2 setzen
-    const aktuellerSektorName = themen[id];
-    const aktuelleSeele = seelenNamen[id];
-    
-    // Hier bauen wir die M&M-Sichtweise live über dem Scan auf
-    mainTextArea.innerHTML = `
-        <span style="color:#ff0000; font-weight:900; animation: blink 1.5s infinite;">
-            ⚠️ KI-ERMITTLUNG IN GANGE...
-        </span><br><br>
-        <b style="color:#fff;">SEKTOR ${id + 1}: ${aktuellerSektorName.toUpperCase()}</b><br>
-        <span style="color:#ffd700;">Hüter/in: ${aktuelleSeele}</span><br><br>
-        <div id="live-sichtweise-text" style="color:#ccc; font-style:italic;">
-            Hole Sichtweisen aus der M&M Zentrale...
+    // 1. Oben (27.5%): Admin-Text & Sichtweise vorbereiten
+    headerSpace.innerHTML = `
+        <div style="text-align: center; padding: 10px; font-weight: bold; letter-spacing: 2px; line-height: 1.3;">
+            <div style="font-size: 0.75rem; color: #ffd700;">M&M SICHTWEISE (ZENTRALE)</div>
+            <div id="live-admin-sichtweise" style="font-size: 1.1rem; text-transform: none; font-weight: 500; text-shadow: none;">
+                Lade Anstupser aus der M&M Zentrale...
+            </div>
         </div>
     `;
 
-    // 2. Rufe die Sichtweise ab, die du im Admin-Panel gespeichert hast
-    holeSichtweiseAusBackend(aktuelleSektorId);
+    // 2. Unten: Live-Scan-Optik initialisieren
+    mainTextArea.innerHTML = `
+        <span style="color:#ff0000; font-weight:900; letter-spacing: 2px;">⚠️ KI-ERMITTLUNG LIVE IN GANGE...</span><br>
+        <span style="color:#00ff00; font-size:0.9rem;">Sektor ${id + 1}: ${themen[id]} wird gescannt...</span><br><br>
+        <div id="scan-lauftext" style="color:#ccc; font-family: monospace; font-size: 1rem; line-height: 1.5;"></div>
+    ```;
 
-    // 3. Bestehender Chat-Speicher-Code
+    // 3. Daten laden (Sichtweise für oben & Scan-Text für unten)
+    holeSichtweiseUndScanne(aktuelleSektorId);
+
+    // 4. Bestehende Chat-Historie für diesen Sektor laden
     if (!alleSektorenVerlaeufe[aktuelleSektorId]) {
         alleSektorenVerlaeufe[aktuelleSektorId] = [];
-        chatBox.innerHTML = `<i>Verbindung zu Sektor ${aktuellerSektorName} (${aktuelleSeele}) bereit...</i>`;
+        chatBox.innerHTML = `<i>Verbindung zu Sektor ${themen[id]} (${seelenNamen[id]}) bereit...</i>`;
     } else {
         chatBox.innerHTML = "";
         alleSektorenVerlaeufe[aktuelleSektorId].forEach(msg => {
@@ -293,7 +295,7 @@ function waehleSektor(id) {
         });
     }
 
-    // Ebene 2 aufrufen
+    // Ebene wechseln
     wechselEbene('ebene2', id);
 }
         const adminSelect = document.getElementById('admin-sektor-auswahl'); if (adminSelect) { themen.forEach((t, i) => { adminSelect.innerHTML += `<option value="${i}">Sektor ${i+1}: ${t}</option>`; }); }
@@ -316,6 +318,7 @@ function waehleSektor(id) {
 
 function starteScanOptik(themenIndex) {
     if (typeof scanSlideshow !== 'undefined') clearInterval(scanSlideshow);
+    // Wird jetzt komplett flexibel über holeSichtweiseUndScanne geregelt!
     
     const headerSpace = document.querySelector('.scan-header-space');
     headerSpace.style.backgroundImage = "none"; 
@@ -557,22 +560,48 @@ async function sendeChat() {
         console.error("Fehler beim Senden:", e);
     }
 }
-async function holeSichtweiseAusBackend(sektorId) {
-    const textFeld = document.getElementById('live-sichtweise-text');
+async function holeSichtweiseUndScanne(sektorId) {
+    const adminOben = document.getElementById('live-admin-sichtweise');
+    const scanUnten = document.getElementById('scan-lauftext');
+    
     try {
-        // Holt die Daten passend zu deinem Render-Backend
+        // Verbindung zum Render-Backend, um deinen Admin-Text abzufragen
         const response = await fetch(`/get-sector-text?sector_id=${sektorId}`);
         const data = await response.json();
         
         if (data.success && data.header_text) {
-            textFeld.innerHTML = `<span style="color:#fff; font-style:normal;">${data.header_text}</span>`;
+            adminOben.innerText = data.header_text;
         } else {
-            textFeld.innerHTML = "Keine spezifische M&M-Sichtweise für diesen Sektor hinterlegt. Bereit für deine Führung.";
+            adminOben.innerText = "Bereit für den geistigen Anstupser. Schreibe einen Text im Admin Panel.";
         }
     } catch (e) {
-        textFeld.innerHTML = "Verbindung zur M&M Zentrale aktiv. Verwende Standard-Führung.";
+        adminOben.innerText = "Keine Verbindung zum Admin-Speicher. Standard-Sichtweise aktiv.";
     }
-}     
+
+    // JETZT STARTET DER LIVE-SCAN UNTEN
+    let i = 0;
+    const scanText = `[INITIALISIERE SYSTEM-KERN]...\n[VERBINDE MIT SECTOR_SOUL: ${seelenNamen[sektorId].toUpperCase()}]\n[ANALYSIERE DIE GEFÜHLSVORDERUNG... OK]\n[SUCHE BIOGRAFIE-ANPÄSSE... Sektor-Ermittlung läuft auf Hochtouren.]\n\nDas System ist bereit. Gehe über das Dashboard oder den Navigations-Button weiter zu Ebene 3 (Chat), um die Wahrheit mit ${seelenNamen[sektorId]} zu vertiefen...`;
+    
+    scanUnten.innerHTML = "";
+    if (typeof scanSlideshow !== 'undefined') clearInterval(scanSlideshow);
+    
+    // Tipp-Effekt für den Live-Scan
+    scanSlideshow = setInterval(() => {
+        if (i < scanText.length) {
+            // Ersetzt Zeilenumbrüche für saubere HTML-Darstellung
+            if (scanText.charAt(i) === "\n") {
+                scanUnten.innerHTML += "<br>";
+            } else {
+                scanUnten.innerHTML += scanText.charAt(i);
+            }
+            i++;
+            // Automatisch nach unten scrollen beim Scannen
+            document.getElementById('main-text-area').scrollTop = document.getElementById('main-text-area').scrollHeight;
+        } else {
+            clearInterval(scanSlideshow);
+        }
+    }, 15); // Geschwindigkeit des Live-Scans
+}
  </script>
 </body>
 </html>  
