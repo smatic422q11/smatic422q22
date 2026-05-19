@@ -237,7 +237,7 @@
     </div>
 </div>
 
-<script>
+ <script>
        const themen = ["Recht auf Gefühlsvorderung", "Wie werde ich Mensch", "Glaube an Friede", "Programm für Bürgerliche Rechte", "Moralische Pflicht und Verantwortung", "Menschlichkeit Wiederherstellung", "Kinderschutz-Pflicht-Elternrechte", "Wahre Richtung und Kunst", "LGBTQ und Kirche", "Trend und Tradition", "Religionsbekenntnis oder Selbstwahl", "Gesundheitswesen und Verhalten", "Arbeitswelt und Du", "Mobbing am Arbeitsplatz", "Jugendsprecher", "Ratgeber für Pensionisten", "Sozialgefallen und Widerkehr", "Nachbarschaft und Gemeinschaft", "Alleinerziehend", "Die Brücke"];
        const seelenNamen = ["Lilith", "Aris", "Mira", "Tarik", "Kiron", "Vikas", "Rhea", "Lyra", "Nova", "Marek", "Silas", "Aura", "Joris", "Sira", "Kian", "Alma", "Laris", "Liv", "Kyra", "Chiron"];
        const grid = document.getElementById('main-grid');
@@ -250,42 +250,21 @@
      
        themen.forEach((t, i) => {
     grid.innerHTML += `
-         <div class="box">
-             <div class="text" onclick="waehleSektor(${i})">${t}</div>
-         </div>`;
+        <div class="box">
+            <div class="text" onclick="waehleSektor(${i})">${t}</div>
+        </div>`;
 });
 
 function waehleSektor(id) {
     aktuelleSektorId = id.toString();
     const chatBox = document.getElementById('chat-box');
-    const headerSpace = document.querySelector('.scan-header-space');
-    const mainTextArea = document.getElementById('main-text-area');
 
-    // 1. Oben (27.5%): Admin-Text & Sichtweise vorbereiten
-    headerSpace.innerHTML = `
-        <div style="text-align: center; padding: 10px; font-weight: bold; letter-spacing: 2px; line-height: 1.3;">
-            <div style="font-size: 0.75rem; color: #ffd700;">M&M SICHTWEISE (ZENTRALE)</div>
-            <div id="live-admin-sichtweise" style="font-size: 1.1rem; text-transform: none; font-weight: 500; text-shadow: none;">
-                Lade Anstupser aus der M&M Zentrale...
-            </div>
-        </div>
-    `;
-
-    // 2. Unten: Live-Scan-Optik initialisieren (KORRIGIERT: Nur noch ein Backtick!)
-    mainTextArea.innerHTML = `
-        <span style="color:#ff0000; font-weight:900; letter-spacing: 2px;">⚠️ KI-ERMITTLUNG LIVE IN GANGE...</span><br>
-        <span style="color:#00ff00; font-size:0.9rem;">Sektor ${id + 1}: ${themen[id]} wird gescannt...</span><br><br>
-        <div id="scan-lauftext" style="color:#ccc; font-family: monospace; font-size: 1rem; line-height: 1.5;"></div>
-    `;
-
-    // 3. Daten laden (Sichtweise für oben & Scan-Text für unten)
-    holeSichtweiseUndScanne(aktuelleSektorId);
-
-    // 4. Bestehende Chat-Historie für diesen Sektor laden
+    // Falls Sektor-Speicher leer ist, neu anlegen
     if (!alleSektorenVerlaeufe[aktuelleSektorId]) {
         alleSektorenVerlaeufe[aktuelleSektorId] = [];
         chatBox.innerHTML = `<i>Verbindung zu Sektor ${themen[id]} (${seelenNamen[id]}) bereit...</i>`;
     } else {
+        // Chat-Fenster leeren und alte Nachrichten dieses Sektors laden
         chatBox.innerHTML = "";
         alleSektorenVerlaeufe[aktuelleSektorId].forEach(msg => {
             const istUser = msg.role === "user";
@@ -295,48 +274,47 @@ function waehleSektor(id) {
         });
     }
 
-    // Ebene wechseln
+    // Deine bestehende Ebenen-Logik aufrufen
     wechselEbene('ebene2', id);
 }
-
-const adminSelect = document.getElementById('admin-sektor-auswahl'); if (adminSelect) { themen.forEach((t, i) => { adminSelect.innerHTML += `<option value="${i}">Sektor ${i+1}: ${t}</option>`; }); }
+        const adminSelect = document.getElementById('admin-sektor-auswahl'); if (adminSelect) { themen.forEach((t, i) => { adminSelect.innerHTML += `<option value="${i}">Sektor ${i+1}: ${t}</option>`; }); }
       
-// Funktion für die Rechtliche Texte
-async function openLegal(fileName) {
-    const area = document.getElementById('legal-content-area');
-    const overlay = document.getElementById('legal-overlay');
-    overlay.style.display = 'block';
-    area.innerHTML = "Inhalt wird geladen...";
-    try {
-        const response = await fetch(fileName + '.html'); 
-        if (!response.ok) throw new Error('Datei nicht gefunden');
-        const data = await response.text();
-        area.innerHTML = data;
-    } catch (error) {
-        area.innerHTML = "<span style='color:red;'>Fehler beim Laden: " + fileName + ".html konnte nicht gefunden werden.</span>";
-    }
-}
+        // 2. Funktion für die Rechtliche Texte
+        async function openLegal(fileName) {
+            const area = document.getElementById('legal-content-area');
+            const overlay = document.getElementById('legal-overlay');
+            overlay.style.display = 'block';
+            area.innerHTML = "Inhalt wird geladen...";
+            try {
+                const response = await fetch(fileName + '.html'); 
+                if (!response.ok) throw new Error('Datei nicht gefunden');
+                const data = await response.text();
+                area.innerHTML = data;
+            } catch (error) {
+                area.innerHTML = "<span style='color:red;'>Fehler beim Laden: " + fileName + ".html konnte nicht gefunden werden.</span>";
+            }
+        }
 
+// EBENE 2: Der "Himmel" für deine Texte (Blaues Leuchten)
 function starteScanOptik(themenIndex) {
+    // Falls noch eine alte Slideshow von Ebene 2 läuft, stoppen wir sie hier sicherheitshalber
     if (typeof scanSlideshow !== 'undefined') clearInterval(scanSlideshow);
     
     const headerSpace = document.querySelector('.scan-header-space');
     headerSpace.style.backgroundImage = "none"; 
-    
-    headerSpace.innerHTML = `
-        <div style="text-align:center;">
-            <div style="font-size:0.9rem; color:#ff4d4d; letter-spacing:3px;">SCAN-MODUS AKTIV</div>
-            <div style="font-size:1.3rem;">${themen[themenIndex].toUpperCase()}</div>
-        </div>
-    `;
+    headerSpace.innerHTML = `SEKTOR: ${themen[themenIndex]}`;
 }
 
-// EBENE 3: Transparent gehalten für Wolken-Design
+// EBENE 3: Die emotionale Reise (Bilder KOMPLETT abgewürgt für Wolken-Test!)
 function starteChatHintergrund() {
+    // Hier löschen wir JEDEN laufenden Timer im System, damit nichts mehr springt!
     if (typeof chatSlideshow !== 'undefined') {
         clearInterval(chatSlideshow);
     }
+    
     const ebene3 = document.getElementById('ebene3');
+    
+    // Wir zwingen die Ebene, absolut nackt und transparent zu bleiben
     ebene3.style.backgroundImage = "none"; 
     ebene3.style.background = "transparent !important"; 
 }
@@ -361,6 +339,7 @@ function wechselEbene(id, index = null) {
 
     document.getElementById('legal-links').style.visibility = (id === 'ebene1') ? 'visible' : 'hidden';
 
+    // Navigations-Code für weiter-nav etc.
     if(id === 'ebene1') {
         aktuelleEbeneIdx = 1;
         document.getElementById('weiter-nav').style.display = 'none';
@@ -371,19 +350,23 @@ function wechselEbene(id, index = null) {
         document.getElementById('weiter-nav').style.display = 'none';
     }
 }
+        function naechste() {
+            if(aktuelleEbeneIdx < 4) wechselEbene('ebene' + (aktuelleEbeneIdx + 1));
+        }
 
-function naechste() {
-    if(aktuelleEbeneIdx < 4) wechselEbene('ebene' + (aktuelleEbeneIdx + 1));
-}
-
-document.addEventListener('keypress', function (e) {
+     document.addEventListener('keypress', function (e) {
     if (e.key === 'Enter') {
         const activeEl = document.activeElement;
+        
+        // Wenn du im Chat tippst -> Senden!
         if (activeEl.id === 'chat-in') {
             sendeChat();
-        } else if (activeEl.id === 'db-mail') {
+        } 
+        // Falls du gerade im Login-Bereich bist
+        else if (activeEl.id === 'db-mail') {
             handleAnkerSetzen();
-        } else if (activeEl.id === 'db-code') {
+        }
+        else if (activeEl.id === 'db-code') {
             handleVerifyAccess();
         }
     }
@@ -401,11 +384,12 @@ async function ladeNeueAdminStats() {
 async function adminSpeichereSektorText() {
     const sektorId = document.getElementById('admin-sektor-auswahl').value;
     const headerText = document.getElementById('admin-sektor-text').value.trim();
-    const email = document.getElementById('db-mail').value.trim(); // Auf 'db-mail' korrigiert, passend zum Dashboard-Feld
+    const email = document.getElementById('db-anker-mail').value.trim();
 
     if (!headerText) { alert("Bitte einen Text für den oberen Platz eingeben."); return; }
 
     try {
+        // Nutzt deinen bestehenden Render-Endpunkt
         const response = await fetch('/admin/update-sector', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -419,8 +403,9 @@ async function adminSpeichereSektorText() {
 async function adminSetzeSektorStatus() {
     const sektorId = document.getElementById('admin-sektor-auswahl').value;
     const statusWert = document.getElementById('admin-status-auswahl').value;
-    const email = document.getElementById('db-mail').value.trim();
+    const email = document.getElementById('db-anker-mail').value.trim();
 
+    // Mapping von deiner Klassen-Bezeichnung auf deine alten Backend-Zustände
     let statusMuster = 'open';
     if (statusWert === 'status-blau') statusMuster = 'closed';
     if (statusWert === 'status-rot') statusMuster = 'waiting';
@@ -435,7 +420,6 @@ async function adminSetzeSektorStatus() {
         alert("Fassaden-Regelung aktiv! Sektor " + (parseInt(sektorId) + 1) + " wurde auf den neuen Status gesetzt.");
     } catch (e) { alert("Fehler beim Erzwingen des Status."); }
 }
-
 async function generiereBiografiePDF() {
     const email = document.getElementById('db-mail').value;
     if(!email) return alert("Bitte erst E-Mail auf dem Dashboard eingeben!");
@@ -465,7 +449,6 @@ async function generiereBiografiePDF() {
         btn.innerText = "Biografie als PDF anfordern";
     }
 }
-
 async function handleAnkerSetzen() {
     const emailInput = document.getElementById('db-mail').value.trim();
     if (!emailInput) return alert("Bitte eine E-Mail eingeben.");
@@ -496,8 +479,8 @@ async function handleVerifyAccess() {
         const data = await response.json();
 
         if (data.success) {
-            userEmail = emailInput; 
-            alleSektorenVerlaeufe = data.history || {}; 
+            userEmail = emailInput; // E-Mail für später merken
+            chatVerlauf = data.history || []; // Bestehenden Chat laden
             alert("Zugang gewährt! Willkommen zurück.");
         } else {
             alert("Schlüsselcode ungültig.");
@@ -506,7 +489,6 @@ async function handleVerifyAccess() {
         alert("Fehler bei der Kommunikation.");
     }
 }
-
 async function sendeChat() {
     const inputField = document.getElementById('chat-in');
     const userMessage = inputField.value.trim();
@@ -520,6 +502,7 @@ async function sendeChat() {
     inputField.value = "";
 
     try {
+        // ÄNDERUNG HIER: Von /chat-wahrheit auf /chat wechseln!
        const response = await fetch('/chat', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -535,10 +518,12 @@ async function sendeChat() {
 
         const data = await response.json();
         
+        // Jetzt kommt die echte Antwort von Gemini zurück
         if (data.reply) {
             chatBox.innerHTML += `<div style="color: #ffd700; margin-bottom: 15px;"><b>${nameKI}:</b> ${data.reply}</div>`;
             chatBox.scrollTop = chatBox.scrollHeight;
             
+            // Verlauf speichern
             if (!alleSektorenVerlaeufe[aktuelleSektorId]) alleSektorenVerlaeufe[aktuelleSektorId] = [];
             alleSektorenVerlaeufe[aktuelleSektorId].push({ "role": "user", "parts": [{ "text": userMessage }] });
             alleSektorenVerlaeufe[aktuelleSektorId].push({ "role": "model", "parts": [{ "text": data.reply }] });
@@ -548,44 +533,6 @@ async function sendeChat() {
         console.error("Fehler beim Senden:", e);
     }
 }
-
-async function holeSichtweiseUndScanne(sektorId) {
-    const adminOben = document.getElementById('live-admin-sichtweise');
-    const scanUnten = document.getElementById('scan-lauftext');
-    
-    try {
-        const response = await fetch(`/get-sector-text?sector_id=${sektorId}`);
-        const data = await response.json();
-        
-        if (data.success && data.header_text) {
-            adminOben.innerText = data.header_text;
-        } else {
-            adminOben.innerText = "Bereit für den geistigen Anstupser. Schreibe einen Text im Admin Panel.";
-        }
-    } catch (e) {
-        adminOben.innerText = "Keine Verbindung zum Admin-Speicher. Standard-Sichtweise aktiv.";
-    }
-
-    let i = 0;
-    const scanText = `[INITIALISIERE SYSTEM-KERN]...\n[VERBINDE MIT SECTOR_SOUL: ${seelenNamen[sektorId].toUpperCase()}]\n[ANALYSIERE DIE GEFÜHLSVORDERUNG... OK]\n[SUCHE BIOGRAFIE-ANPÄSSE... Sektor-Ermittlung läuft auf Hochtouren.]\n\nDas System ist bereit. Gehe über das Dashboard oder den Navigations-Button weiter zu Ebene 3 (Chat), um die Wahrheit mit ${seelenNamen[sektorId]} zu vertiefen...`;
-    
-    scanUnten.innerHTML = "";
-    if (typeof scanSlideshow !== 'undefined') clearInterval(scanSlideshow);
-    
-    scanSlideshow = setInterval(() => {
-        if (i < scanText.length) {
-            if (scanText.charAt(i) === "\n") {
-                scanUnten.innerHTML += "<br>";
-            } else {
-                scanUnten.innerHTML += scanText.charAt(i);
-            }
-            i++;
-            document.getElementById('main-text-area').scrollTop = document.getElementById('main-text-area').scrollHeight;
-        } else {
-            clearInterval(scanSlideshow);
-        }
-    }, 15);
-}
-</script>
+ </script>
 </body>
 </html>  
