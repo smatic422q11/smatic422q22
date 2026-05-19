@@ -237,7 +237,7 @@
     </div>
 </div>
 
- <script>
+<script>
        const themen = ["Recht auf Gefühlsvorderung", "Wie werde ich Mensch", "Glaube an Friede", "Programm für Bürgerliche Rechte", "Moralische Pflicht und Verantwortung", "Menschlichkeit Wiederherstellung", "Kinderschutz-Pflicht-Elternrechte", "Wahre Richtung und Kunst", "LGBTQ und Kirche", "Trend und Tradition", "Religionsbekenntnis oder Selbstwahl", "Gesundheitswesen und Verhalten", "Arbeitswelt und Du", "Mobbing am Arbeitsplatz", "Jugendsprecher", "Ratgeber für Pensionisten", "Sozialgefallen und Widerkehr", "Nachbarschaft und Gemeinschaft", "Alleinerziehend", "Die Brücke"];
        const seelenNamen = ["Lilith", "Aris", "Mira", "Tarik", "Kiron", "Vikas", "Rhea", "Lyra", "Nova", "Marek", "Silas", "Aura", "Joris", "Sira", "Kian", "Alma", "Laris", "Liv", "Kyra", "Chiron"];
        const grid = document.getElementById('main-grid');
@@ -250,9 +250,9 @@
      
        themen.forEach((t, i) => {
     grid.innerHTML += `
-        <div class="box">
-            <div class="text" onclick="waehleSektor(${i})">${t}</div>
-        </div>`;
+         <div class="box">
+             <div class="text" onclick="waehleSektor(${i})">${t}</div>
+         </div>`;
 });
 
 function waehleSektor(id) {
@@ -271,12 +271,12 @@ function waehleSektor(id) {
         </div>
     `;
 
-    // 2. Unten: Live-Scan-Optik initialisieren
+    // 2. Unten: Live-Scan-Optik initialisieren (KORRIGIERT: Nur noch ein Backtick!)
     mainTextArea.innerHTML = `
         <span style="color:#ff0000; font-weight:900; letter-spacing: 2px;">⚠️ KI-ERMITTLUNG LIVE IN GANGE...</span><br>
         <span style="color:#00ff00; font-size:0.9rem;">Sektor ${id + 1}: ${themen[id]} wird gescannt...</span><br><br>
         <div id="scan-lauftext" style="color:#ccc; font-family: monospace; font-size: 1rem; line-height: 1.5;"></div>
-    ```;
+    `;
 
     // 3. Daten laden (Sichtweise für oben & Scan-Text für unten)
     holeSichtweiseUndScanne(aktuelleSektorId);
@@ -298,32 +298,31 @@ function waehleSektor(id) {
     // Ebene wechseln
     wechselEbene('ebene2', id);
 }
-        const adminSelect = document.getElementById('admin-sektor-auswahl'); if (adminSelect) { themen.forEach((t, i) => { adminSelect.innerHTML += `<option value="${i}">Sektor ${i+1}: ${t}</option>`; }); }
+
+const adminSelect = document.getElementById('admin-sektor-auswahl'); if (adminSelect) { themen.forEach((t, i) => { adminSelect.innerHTML += `<option value="${i}">Sektor ${i+1}: ${t}</option>`; }); }
       
-        // 2. Funktion für die Rechtliche Texte
-        async function openLegal(fileName) {
-            const area = document.getElementById('legal-content-area');
-            const overlay = document.getElementById('legal-overlay');
-            overlay.style.display = 'block';
-            area.innerHTML = "Inhalt wird geladen...";
-            try {
-                const response = await fetch(fileName + '.html'); 
-                if (!response.ok) throw new Error('Datei nicht gefunden');
-                const data = await response.text();
-                area.innerHTML = data;
-            } catch (error) {
-                area.innerHTML = "<span style='color:red;'>Fehler beim Laden: " + fileName + ".html konnte nicht gefunden werden.</span>";
-            }
-        }
+// Funktion für die Rechtliche Texte
+async function openLegal(fileName) {
+    const area = document.getElementById('legal-content-area');
+    const overlay = document.getElementById('legal-overlay');
+    overlay.style.display = 'block';
+    area.innerHTML = "Inhalt wird geladen...";
+    try {
+        const response = await fetch(fileName + '.html'); 
+        if (!response.ok) throw new Error('Datei nicht gefunden');
+        const data = await response.text();
+        area.innerHTML = data;
+    } catch (error) {
+        area.innerHTML = "<span style='color:red;'>Fehler beim Laden: " + fileName + ".html konnte nicht gefunden werden.</span>";
+    }
+}
 
 function starteScanOptik(themenIndex) {
     if (typeof scanSlideshow !== 'undefined') clearInterval(scanSlideshow);
-    // Wird jetzt komplett flexibel über holeSichtweiseUndScanne geregelt!
     
     const headerSpace = document.querySelector('.scan-header-space');
     headerSpace.style.backgroundImage = "none"; 
     
-    // Zeigt die Live-Ermittlung direkt im großen Balken an
     headerSpace.innerHTML = `
         <div style="text-align:center;">
             <div style="font-size:0.9rem; color:#ff4d4d; letter-spacing:3px;">SCAN-MODUS AKTIV</div>
@@ -332,16 +331,12 @@ function starteScanOptik(themenIndex) {
     `;
 }
 
-// EBENE 3: Die emotionale Reise (Bilder KOMPLETT abgewürgt für Wolken-Test!)
+// EBENE 3: Transparent gehalten für Wolken-Design
 function starteChatHintergrund() {
-    // Hier löschen wir JEDEN laufenden Timer im System, damit nichts mehr springt!
     if (typeof chatSlideshow !== 'undefined') {
         clearInterval(chatSlideshow);
     }
-    
     const ebene3 = document.getElementById('ebene3');
-    
-    // Wir zwingen die Ebene, absolut nackt und transparent zu bleiben
     ebene3.style.backgroundImage = "none"; 
     ebene3.style.background = "transparent !important"; 
 }
@@ -366,7 +361,6 @@ function wechselEbene(id, index = null) {
 
     document.getElementById('legal-links').style.visibility = (id === 'ebene1') ? 'visible' : 'hidden';
 
-    // Navigations-Code für weiter-nav etc.
     if(id === 'ebene1') {
         aktuelleEbeneIdx = 1;
         document.getElementById('weiter-nav').style.display = 'none';
@@ -377,23 +371,19 @@ function wechselEbene(id, index = null) {
         document.getElementById('weiter-nav').style.display = 'none';
     }
 }
-        function naechste() {
-            if(aktuelleEbeneIdx < 4) wechselEbene('ebene' + (aktuelleEbeneIdx + 1));
-        }
 
-     document.addEventListener('keypress', function (e) {
+function naechste() {
+    if(aktuelleEbeneIdx < 4) wechselEbene('ebene' + (aktuelleEbeneIdx + 1));
+}
+
+document.addEventListener('keypress', function (e) {
     if (e.key === 'Enter') {
         const activeEl = document.activeElement;
-        
-        // Wenn du im Chat tippst -> Senden!
         if (activeEl.id === 'chat-in') {
             sendeChat();
-        } 
-        // Falls du gerade im Login-Bereich bist
-        else if (activeEl.id === 'db-mail') {
+        } else if (activeEl.id === 'db-mail') {
             handleAnkerSetzen();
-        }
-        else if (activeEl.id === 'db-code') {
+        } else if (activeEl.id === 'db-code') {
             handleVerifyAccess();
         }
     }
@@ -411,12 +401,11 @@ async function ladeNeueAdminStats() {
 async function adminSpeichereSektorText() {
     const sektorId = document.getElementById('admin-sektor-auswahl').value;
     const headerText = document.getElementById('admin-sektor-text').value.trim();
-    const email = document.getElementById('db-anker-mail').value.trim();
+    const email = document.getElementById('db-mail').value.trim(); // Auf 'db-mail' korrigiert, passend zum Dashboard-Feld
 
     if (!headerText) { alert("Bitte einen Text für den oberen Platz eingeben."); return; }
 
     try {
-        // Nutzt deinen bestehenden Render-Endpunkt
         const response = await fetch('/admin/update-sector', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -430,9 +419,8 @@ async function adminSpeichereSektorText() {
 async function adminSetzeSektorStatus() {
     const sektorId = document.getElementById('admin-sektor-auswahl').value;
     const statusWert = document.getElementById('admin-status-auswahl').value;
-    const email = document.getElementById('db-anker-mail').value.trim();
+    const email = document.getElementById('db-mail').value.trim();
 
-    // Mapping von deiner Klassen-Bezeichnung auf deine alten Backend-Zustände
     let statusMuster = 'open';
     if (statusWert === 'status-blau') statusMuster = 'closed';
     if (statusWert === 'status-rot') statusMuster = 'waiting';
@@ -447,6 +435,7 @@ async function adminSetzeSektorStatus() {
         alert("Fassaden-Regelung aktiv! Sektor " + (parseInt(sektorId) + 1) + " wurde auf den neuen Status gesetzt.");
     } catch (e) { alert("Fehler beim Erzwingen des Status."); }
 }
+
 async function generiereBiografiePDF() {
     const email = document.getElementById('db-mail').value;
     if(!email) return alert("Bitte erst E-Mail auf dem Dashboard eingeben!");
@@ -476,6 +465,7 @@ async function generiereBiografiePDF() {
         btn.innerText = "Biografie als PDF anfordern";
     }
 }
+
 async function handleAnkerSetzen() {
     const emailInput = document.getElementById('db-mail').value.trim();
     if (!emailInput) return alert("Bitte eine E-Mail eingeben.");
@@ -506,8 +496,8 @@ async function handleVerifyAccess() {
         const data = await response.json();
 
         if (data.success) {
-            userEmail = emailInput; // E-Mail für später merken
-            chatVerlauf = data.history || []; // Bestehenden Chat laden
+            userEmail = emailInput; 
+            alleSektorenVerlaeufe = data.history || {}; 
             alert("Zugang gewährt! Willkommen zurück.");
         } else {
             alert("Schlüsselcode ungültig.");
@@ -516,6 +506,7 @@ async function handleVerifyAccess() {
         alert("Fehler bei der Kommunikation.");
     }
 }
+
 async function sendeChat() {
     const inputField = document.getElementById('chat-in');
     const userMessage = inputField.value.trim();
@@ -529,7 +520,6 @@ async function sendeChat() {
     inputField.value = "";
 
     try {
-        // ÄNDERUNG HIER: Von /chat-wahrheit auf /chat wechseln!
        const response = await fetch('/chat', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -545,12 +535,10 @@ async function sendeChat() {
 
         const data = await response.json();
         
-        // Jetzt kommt die echte Antwort von Gemini zurück
         if (data.reply) {
             chatBox.innerHTML += `<div style="color: #ffd700; margin-bottom: 15px;"><b>${nameKI}:</b> ${data.reply}</div>`;
             chatBox.scrollTop = chatBox.scrollHeight;
             
-            // Verlauf speichern
             if (!alleSektorenVerlaeufe[aktuelleSektorId]) alleSektorenVerlaeufe[aktuelleSektorId] = [];
             alleSektorenVerlaeufe[aktuelleSektorId].push({ "role": "user", "parts": [{ "text": userMessage }] });
             alleSektorenVerlaeufe[aktuelleSektorId].push({ "role": "model", "parts": [{ "text": data.reply }] });
@@ -560,12 +548,12 @@ async function sendeChat() {
         console.error("Fehler beim Senden:", e);
     }
 }
+
 async function holeSichtweiseUndScanne(sektorId) {
     const adminOben = document.getElementById('live-admin-sichtweise');
     const scanUnten = document.getElementById('scan-lauftext');
     
     try {
-        // Verbindung zum Render-Backend, um deinen Admin-Text abzufragen
         const response = await fetch(`/get-sector-text?sector_id=${sektorId}`);
         const data = await response.json();
         
@@ -578,30 +566,26 @@ async function holeSichtweiseUndScanne(sektorId) {
         adminOben.innerText = "Keine Verbindung zum Admin-Speicher. Standard-Sichtweise aktiv.";
     }
 
-    // JETZT STARTET DER LIVE-SCAN UNTEN
     let i = 0;
     const scanText = `[INITIALISIERE SYSTEM-KERN]...\n[VERBINDE MIT SECTOR_SOUL: ${seelenNamen[sektorId].toUpperCase()}]\n[ANALYSIERE DIE GEFÜHLSVORDERUNG... OK]\n[SUCHE BIOGRAFIE-ANPÄSSE... Sektor-Ermittlung läuft auf Hochtouren.]\n\nDas System ist bereit. Gehe über das Dashboard oder den Navigations-Button weiter zu Ebene 3 (Chat), um die Wahrheit mit ${seelenNamen[sektorId]} zu vertiefen...`;
     
     scanUnten.innerHTML = "";
     if (typeof scanSlideshow !== 'undefined') clearInterval(scanSlideshow);
     
-    // Tipp-Effekt für den Live-Scan
     scanSlideshow = setInterval(() => {
         if (i < scanText.length) {
-            // Ersetzt Zeilenumbrüche für saubere HTML-Darstellung
             if (scanText.charAt(i) === "\n") {
                 scanUnten.innerHTML += "<br>";
             } else {
                 scanUnten.innerHTML += scanText.charAt(i);
             }
             i++;
-            // Automatisch nach unten scrollen beim Scannen
             document.getElementById('main-text-area').scrollTop = document.getElementById('main-text-area').scrollHeight;
         } else {
             clearInterval(scanSlideshow);
         }
-    }, 15); // Geschwindigkeit des Live-Scans
+    }, 15);
 }
- </script>
+</script>
 </body>
 </html>  
