@@ -387,7 +387,7 @@ async def chat(request: Request):
         user_time = data.get("echtzeit", "Unbekannt")
         bio_context = data.get("biografie_context", "")
         
-        # WICHTIG: Wir laden hier 'sector_headers', weil dein Admin-Code dort speichert!
+        # 1. Admin-Texte für Ebene 2 laden
         admin_record = db.codes.find_one({"email": "mmcommunity22@gmail.com"})
         ebene_2_text = ""
         if admin_record and "sector_headers" in admin_record:
@@ -397,6 +397,7 @@ async def chat(request: Request):
         current_name = SECTOR_NAMES.get(sector_id, "KI")
         current_soul = SECTOR_SOULS.get(sector_id, "Begleiter.")
 
+        # 2. System Instruction mit den exakten Variablen füttern
         system_instruction = (
             f"IDENTITÄT: Du bist {current_name}, Seele: {current_soul}. "
             f"User: {user_name}. Zeit: {user_time}. Sichtweise Ebene 2: {ebene_2_text}. "
@@ -405,9 +406,19 @@ async def chat(request: Request):
             "STIL: Kurz, knackig, direkt. Wahrheit mit 'W'."
         )
 
-        messages_for_gemini = data.get("history", []) or []
+        # 3. KOLLEKTIVES GEDÄCHTNIS: Lade die bisherige Historie dieses Nutzers aus der DB
+        user_record = db.codes.find_one({"email": email})
+        
+        # Wir holen die Historie spezifisch für diesen Sektor, damit sich nichts vermischt
+        if user_record and "sector_histories" in user_record:
+            messages_for_gemini = user_record["sector_histories"].get(sector_id, [])
+        else:
+            messages_for_gemini = []
+
+        # Die neue Nachricht des Users an die geladene Historie anhängen
         messages_for_gemini.append({"role": "user", "parts": [{"text": user_message}]})
 
+        # 4. Anfrage an die Gemini API senden
         api_key = os.getenv("GEMINI_API_KEY")
         url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key={api_key}"
         
@@ -422,13 +433,30 @@ async def chat(request: Request):
         if response.status_code == 200 and 'candidates' in res_data:
             reply_text = res_data['candidates'][0]['content']['parts'][0]['text']
             
-            # Speichern des Verlaufs
+            # Die Antwort der KI an die Historie anhängen
+            messages_for_gemini.append({"role": "model", "parts": [{"text": reply_text}]})
+            
+            # 5. SICHERUNG IN DIE DATENBANK: Nahtloses Abspeichern im Benutzerprofil
             if email:
                 db.codes.update_one(
                     {"email": email},
-                    {"$set": {"history": messages_for_gemini + [{"role": "model", "parts": [{"text": reply_text}]}]}},
+                    {
+                        "$set": {
+                            # Speichert den Verlauf exakt in der Box des jeweiligen Sektors
+                            f"sector_histories.{sector_id}": messages_for_gemini,
+                            "last_active_sector": sector_id,
+                            "updated_at": datetime.now()
+                        }
+                    },
                     upsert=True
                 )
+                
+                # 6. KOLLEKTIVES BEWUSSTSEIN (Anonymisierter globaler Datenstrom für die Zukunft)
+                db.kollektiv_pool.insert_one({
+                    "sector_id": sector_id,
+                    "zeitstempel": datetime.now(),
+                    "input_snippet": user_message
+                })
             
             return {"reply": reply_text, "info_fuer_ki": f"Zeit: {user_time}"}
         
