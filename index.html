@@ -258,13 +258,32 @@
 function waehleSektor(id) {
     aktuelleSektorId = id.toString();
     const chatBox = document.getElementById('chat-box');
+    const mainTextArea = document.getElementById('main-text-area');
 
-    // Falls Sektor-Speicher leer ist, neu anlegen
+    // 1. Sektor-Name und Live-Ermittlung dynamisch auf Ebene 2 setzen
+    const aktuellerSektorName = themen[id];
+    const aktuelleSeele = seelenNamen[id];
+    
+    // Hier bauen wir die M&M-Sichtweise live über dem Scan auf
+    mainTextArea.innerHTML = `
+        <span style="color:#ff0000; font-weight:900; animation: blink 1.5s infinite;">
+            ⚠️ KI-ERMITTLUNG IN GANGE...
+        </span><br><br>
+        <b style="color:#fff;">SEKTOR ${id + 1}: ${aktuellerSektorName.toUpperCase()}</b><br>
+        <span style="color:#ffd700;">Hüter/in: ${aktuelleSeele}</span><br><br>
+        <div id="live-sichtweise-text" style="color:#ccc; font-style:italic;">
+            Hole Sichtweisen aus der M&M Zentrale...
+        </div>
+    `;
+
+    // 2. Rufe die Sichtweise ab, die du im Admin-Panel gespeichert hast
+    holeSichtweiseAusBackend(aktuelleSektorId);
+
+    // 3. Bestehender Chat-Speicher-Code
     if (!alleSektorenVerlaeufe[aktuelleSektorId]) {
         alleSektorenVerlaeufe[aktuelleSektorId] = [];
-        chatBox.innerHTML = `<i>Verbindung zu Sektor ${themen[id]} (${seelenNamen[id]}) bereit...</i>`;
+        chatBox.innerHTML = `<i>Verbindung zu Sektor ${aktuellerSektorName} (${aktuelleSeele}) bereit...</i>`;
     } else {
-        // Chat-Fenster leeren und alte Nachrichten dieses Sektors laden
         chatBox.innerHTML = "";
         alleSektorenVerlaeufe[aktuelleSektorId].forEach(msg => {
             const istUser = msg.role === "user";
@@ -274,7 +293,7 @@ function waehleSektor(id) {
         });
     }
 
-    // Deine bestehende Ebenen-Logik aufrufen
+    // Ebene 2 aufrufen
     wechselEbene('ebene2', id);
 }
         const adminSelect = document.getElementById('admin-sektor-auswahl'); if (adminSelect) { themen.forEach((t, i) => { adminSelect.innerHTML += `<option value="${i}">Sektor ${i+1}: ${t}</option>`; }); }
@@ -295,14 +314,19 @@ function waehleSektor(id) {
             }
         }
 
-// EBENE 2: Der "Himmel" für deine Texte (Blaues Leuchten)
 function starteScanOptik(themenIndex) {
-    // Falls noch eine alte Slideshow von Ebene 2 läuft, stoppen wir sie hier sicherheitshalber
     if (typeof scanSlideshow !== 'undefined') clearInterval(scanSlideshow);
     
     const headerSpace = document.querySelector('.scan-header-space');
     headerSpace.style.backgroundImage = "none"; 
-    headerSpace.innerHTML = `SEKTOR: ${themen[themenIndex]}`;
+    
+    // Zeigt die Live-Ermittlung direkt im großen Balken an
+    headerSpace.innerHTML = `
+        <div style="text-align:center;">
+            <div style="font-size:0.9rem; color:#ff4d4d; letter-spacing:3px;">SCAN-MODUS AKTIV</div>
+            <div style="font-size:1.3rem;">${themen[themenIndex].toUpperCase()}</div>
+        </div>
+    `;
 }
 
 // EBENE 3: Die emotionale Reise (Bilder KOMPLETT abgewürgt für Wolken-Test!)
@@ -533,6 +557,22 @@ async function sendeChat() {
         console.error("Fehler beim Senden:", e);
     }
 }
+async function holeSichtweiseAusBackend(sektorId) {
+    const textFeld = document.getElementById('live-sichtweise-text');
+    try {
+        // Holt die Daten passend zu deinem Render-Backend
+        const response = await fetch(`/get-sector-text?sector_id=${sektorId}`);
+        const data = await response.json();
+        
+        if (data.success && data.header_text) {
+            textFeld.innerHTML = `<span style="color:#fff; font-style:normal;">${data.header_text}</span>`;
+        } else {
+            textFeld.innerHTML = "Keine spezifische M&M-Sichtweise für diesen Sektor hinterlegt. Bereit für deine Führung.";
+        }
+    } catch (e) {
+        textFeld.innerHTML = "Verbindung zur M&M Zentrale aktiv. Verwende Standard-Führung.";
+    }
+}     
  </script>
 </body>
 </html>  
