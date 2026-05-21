@@ -513,11 +513,12 @@ async def get_live_ermittlung(sector_id: str):
     api_key = os.getenv("GEMINI_API_KEY")
     seelen_name = SECTOR_NAMES.get(sector_id, "KI")
     
+    # Der Prompt wird präziser, um Müll-Daten zu vermeiden
     prompt = (
-        f"Identität: {seelen_name}. Aufgabe: KI-Scanner. "
-        "Generiere 3 kurze, knallharte gesellschaftliche Widersprüche zum Sektor-Thema. "
-        "Jede Zeile MUSS mit 'WIDERSPRUCH:' beginnen. "
-        "Stil: Direkt, keine Einleitung, keine Höflichkeit."
+        f"Du bist der KI-Scanner. Sektor: {seelen_name}. "
+        "Generiere 3 knallharte gesellschaftliche Widersprüche. "
+        "Regel: Jede Zeile MUSS mit 'WIDERSPRUCH:' beginnen. "
+        "KEINE Sternchen, KEIN Markdown, KEINE Einleitung. Nur der nackte Text."
     )
 
     url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={api_key}"
@@ -526,11 +527,23 @@ async def get_live_ermittlung(sector_id: str):
     try:
         response = requests.post(url, json=payload, timeout=5)
         res_data = response.json()
+        
         if response.status_code == 200:
             raw_text = res_data['candidates'][0]['content']['parts'][0]['text']
-            ermittlungs_daten = [line.strip() for line in raw_text.split('\n') if line.strip()]
-            return {"success": True, "data": ["Gefühlsvorderung. \n--- LIVE-SCAN AKTIVIERT ---"] + ermittlungs_daten}
-        return {"success": False, "error": "Schnittstelle blockiert."}
+            
+            # Wir säubern den Text von Markdown-Resten (*), falls Gemini sie doch mitschickt
+            clean_text = raw_text.replace('*', '')
+            
+            # Zerlegen und nur Zeilen nehmen, die wirklich mit WIDERSPRUCH anfangen
+            lines = [l.strip() for l in clean_text.split('\n') if "WIDERSPRUCH:" in l]
+            
+            if not lines:
+                # Falls Gemini das Format ignoriert hat, nehmen wir die ersten 3 Zeilen
+                lines = [l.strip() for l in clean_text.split('\n') if l.strip()][:3]
+
+            return {"success": True, "data": ["Gefühlsvorderung. \n--- LIVE-SCAN AKTIVIERT ---"] + lines}
+        
+        return {"success": False, "error": "Schnittstelle antwortet nicht korrekt."}
     except Exception as e:
         return {"success": False, "error": str(e)}
 
