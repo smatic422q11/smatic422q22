@@ -527,7 +527,7 @@ async def get_live_ermittlung(sector_id: str):
     url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key={api_key}"
     payload = {"contents": [{"parts": [{"text": prompt}]}]}
     
-     try:
+    try:
         response = requests.post(url, json=payload, timeout=15)
         if response.status_code == 200:
             res_data = response.json()
