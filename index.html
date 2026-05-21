@@ -242,9 +242,31 @@
     </div>
 </div>
 
- <script>
-       const themen = ["Recht auf Gefühlsvorderung", "Wie werde ich Mensch", "Glaube an Friede", "Programm für Bürgerliche Rechte", "Moralische Pflicht und Verantwortung", "Menschlichkeit Wiederherstellung", "Kinderschutz-Pflicht-Elternrechte", "Wahre Richtung und Kunst", "LGBTQ und Kirche", "Trend und Tradition", "Religionsbekenntnis oder Selbstwahl", "Gesundheitswesen und Verhalten", "Arbeitswelt und Du", "Mobbing am Arbeitsplatz", "Jugendsprecher", "Ratgeber für Pensionisten", "Sozialgefallen und Widerkehr", "Nachbarschaft und Gemeinschaft", "Alleinerziehend", "Die Brücke"];
-       const seelenNamen = ["Lilith", "Aris", "Mira", "Tarik", "Kiron", "Vikas", "Rhea", "Lyra", "Nova", "Marek", "Silas", "Aura", "Joris", "Sira", "Kian", "Alma", "Laris", "Liv", "Kyra", "Chiron"];
+<script>
+       // Auf 22 Einträge erweitert für Sektor 21 und Sektor 22
+       const themen = [
+           "Recht auf Gefühlsvorderung", "Wie werde ich Mensch", "Glaube an Friede", 
+           "Programm für Bürgerliche Rechte", "Moralische Pflicht und Verantwortung", 
+           "Menschlichkeit Wiederherstellung", "Kinderschutz-Pflicht-Elternrechte", 
+           "Wahre Richtung und Kunst", "LGBTQ und Kirche", "Trend und Tradition", 
+           "Religionsbekenntnis oder Selbstwahl", "Gesundheitswesen und Verhalten", 
+           "Arbeitswelt und Du", "Mobbing am Arbeitsplatz", "Jugendsprecher", 
+           "Ratgeber für Pensionisten", "Sozialgefallen und Widerkehr", 
+           "Nachbarschaft und Gemeinschaft", "Alleinerziehend", "Die Brücke",
+           "Das Manifest (E-Book-Ausgang)", // Sektor 21
+           "Das Kollektiv (Videobeweis)"     // Sektor 22
+       ];
+
+       // Passende Seelen-Namen für die neuen Sektoren hinzugefügt
+       const seelenNamen = [
+           "Lilith", "Aris", "Mira", "Tarik", "Kiron", 
+           "Vikas", "Rhea", "Lyra", "Nova", "Marek", 
+           "Silas", "Aura", "Joris", "Sira", "Kian", 
+           "Alma", "Laris", "Liv", "Kyra", "Chiron",
+           "Chronos",                       // Seele für Sektor 21 (Name frei anpassbar)
+           "Kollektiv-Kern"                 // Seele für Sektor 22 (Name frei anpassbar)
+       ];
+
        const grid = document.getElementById('main-grid');
        let aktuelleEbeneIdx = 1;
        let scanSlideshow;
@@ -253,11 +275,12 @@
        let alleSektorenVerlaeufe = {};
        let globaleBiografieDaten = "";
      
+       // Generiert nun automatisch alle 22 Boxen im Dashboard
        themen.forEach((t, i) => {
     grid.innerHTML += `
-        <div class="box">
-            <div class="text" onclick="waehleSektor(${i})">${t}</div>
-        </div>`;
+         <div class="box">
+             <div class="text" onclick="waehleSektor(${i})">${t}</div>
+         </div>`;
 });
 
 function waehleSektor(id) {
@@ -282,7 +305,14 @@ function waehleSektor(id) {
     // Deine bestehende Ebenen-Logik aufrufen
     wechselEbene('ebene2', id);
 }
-        const adminSelect = document.getElementById('admin-sektor-auswahl'); if (adminSelect) { themen.forEach((t, i) => { adminSelect.innerHTML += `<option value="${i}">Sektor ${i+1}: ${t}</option>`; }); }
+        // Lädt nun alle 22 Sektoren korrekt in das Admin-Dropdown
+        const adminSelect = document.getElementById('admin-sektor-auswahl'); 
+        if (adminSelect) { 
+            adminSelect.innerHTML = ""; // Altsubstanz leeren, um Doppelungen zu vermeiden
+            themen.forEach((t, i) => { 
+                adminSelect.innerHTML += `<option value="${i}">Sektor ${i+1}: ${t}</option>`; 
+            }); 
+        }
       
         // 2. Funktion für die Rechtliche Texte
 function openLegal(fileName) {
@@ -302,13 +332,13 @@ function openLegal(fileName) {
                 <p style="margin: 0 0 25px 0; color: #555; font-style: italic;">Plattform für digitale Evolution und Vernetzung</p>
                 
                 <h3 style="color: #003d8f; font-size: 1.2rem; margin-top: 25px; font-weight: 700;">Diensteanbieter & Medieninhaber:</h3>
-                <p style="margin: 6px 0;"><strong>Goran [DEIN NACHNAME]</strong></p>
+                <p style="margin: 6px 0;"><strong>Goran Petrovic</strong></p>
                 <p style="margin: 6px 0;">[DEINE STRASSE UND HAUSNUMMER]</p>
                 <p style="margin: 6px 0;">[DEINE PLZ] Wien</p>
                 <p style="margin: 6px 0;">Österreich</p>
                 
                 <h3 style="color: #003d8f; font-size: 1.2rem; margin-top: 25px; font-weight: 700;">Kontakt:</h3>
-                <p style="margin: 6px 0;">E-Mail: <span style="color: #003d8f; font-weight: 600; text-decoration: underline;">[DEINE EMAIL-ADRESSE]</span></p>
+                <p style="margin: 6px 0;">E-Mail: <span style="color: #003d8f; font-weight: 600; text-decoration: underline;">mmcommunity22@gmail.com</span></p>
                 
                 <h3 style="color: #003d8f; font-size: 1.2rem; margin-top: 25px; font-weight: 700;">Unternehmensgegenstand:</h3>
                 <p style="margin: 6px 0;">Entwicklung, Betrieb und Bereitstellung einer interaktiven Community-Plattform und datenbasierter Analyse-Systeme.</p>
@@ -327,7 +357,7 @@ function openLegal(fileName) {
                 <p style="margin-bottom: 20px;">Der Schutz deiner persönlichen Daten hat für die M&M Community oberste Priorität. Wir behandeln deine Daten vertraulich und streng nach den gesetzlichen Vorschriften der **DSGVO** sowie dem TKG.</p>
                 
                 <h3 style="color: #003d8f; font-size: 1.2rem; margin-top: 25px; font-weight: 700;">1. Verantwortlicher</h3>
-                <p style="margin: 6px 0;">Goran [DEIN NACHNAME], Wien, Österreich.</p>
+                <p style="margin: 6px 0;">Goran Petrovic, Wien, Österreich.</p>
                 
                 <h3 style="color: #003d8f; font-size: 1.2rem; margin-top: 25px; font-weight: 700;">2. Datenerfassung & Zweckbindung</h3>
                 <p style="margin: 6px 0;">Wir verarbeiten Daten, die zur Sicherung und Bereitstellung unserer Sektoren- und Plattformdienste notwendig sind:</p>
@@ -406,14 +436,11 @@ async function starteScanOptik(themenIndex) {
      
 // EBENE 3: Die emotionale Reise (Bilder KOMPLETT abgewürgt für Wolken-Test!)
 function starteChatHintergrund() {
-    // Hier löschen wir JEDEN laufenden Timer im System, damit nichts mehr springt!
     if (typeof chatSlideshow !== 'undefined') {
         clearInterval(chatSlideshow);
     }
     
     const ebene3 = document.getElementById('ebene3');
-    
-    // Wir zwingen die Ebene, absolut nackt und transparent zu bleiben
     ebene3.style.backgroundImage = "none"; 
     ebene3.style.background = "transparent !important"; 
 }
@@ -438,7 +465,6 @@ function wechselEbene(id, index = null) {
 
     document.getElementById('legal-links').style.visibility = (id === 'ebene1') ? 'visible' : 'hidden';
 
-    // Navigations-Code für weiter-nav etc.
     if(id === 'ebene1') {
         aktuelleEbeneIdx = 1;
         document.getElementById('weiter-nav').style.display = 'none';
@@ -449,19 +475,18 @@ function wechselEbene(id, index = null) {
         document.getElementById('weiter-nav').style.display = 'none';
     }
 }
-        function naechste() {
-            if(aktuelleEbeneIdx < 4) wechselEbene('ebene' + (aktuelleEbeneIdx + 1));
-        }
 
-     document.addEventListener('keypress', function (e) {
+function naechste() {
+    if(aktuelleEbeneIdx < 4) wechselEbene('ebene' + (aktuelleEbeneIdx + 1));
+}
+
+document.addEventListener('keypress', function (e) {
     if (e.key === 'Enter') {
         const activeEl = document.activeElement;
         
-        // Wenn du im Chat tippst -> Senden!
         if (activeEl.id === 'chat-in') {
             sendeChat();
         } 
-        // Falls du gerade im Login-Bereich bist
         else if (activeEl.id === 'db-mail') {
             handleAnkerSetzen();
         }
@@ -488,7 +513,6 @@ async function adminSpeichereSektorText() {
     if (!headerText) { alert("Bitte einen Text für den oberen Platz eingeben."); return; }
 
     try {
-        // Nutzt deinen bestehenden Render-Endpunkt
         const response = await fetch('/admin/update-sector', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -504,7 +528,6 @@ async function adminSetzeSektorStatus() {
     const statusWert = document.getElementById('admin-status-auswahl').value;
     const email = "mmcommunity22@gmail.com";
 
-    // Mapping von deiner Klassen-Bezeichnung auf deine alten Backend-Zustände
     let statusMuster = 'open';
     if (statusWert === 'status-blau') statusMuster = 'closed';
     if (statusWert === 'status-rot') statusMuster = 'waiting';
@@ -519,6 +542,7 @@ async function adminSetzeSektorStatus() {
         alert("Fassaden-Regelung aktiv! Sektor " + (parseInt(sektorId) + 1) + " wurde auf den neuen Status gesetzt.");
     } catch (e) { alert("Fehler beim Erzwingen des Status."); }
 }
+
 async function generiereBiografiePDF() {
     const email = document.getElementById('db-mail').value;
     if(!email) return alert("Bitte erst E-Mail auf dem Dashboard eingeben!");
@@ -548,6 +572,7 @@ async function generiereBiografiePDF() {
         btn.innerText = "Biografie als PDF anfordern";
     }
 }
+
 async function handleAnkerSetzen() {
     const emailInput = document.getElementById('db-mail').value.trim();
     if (!emailInput) return alert("Bitte eine E-Mail eingeben.");
@@ -578,8 +603,8 @@ async function handleVerifyAccess() {
         const data = await response.json();
 
         if (data.success) {
-            userEmail = emailInput; // E-Mail für später merken
-            chatVerlauf = data.history || []; // Bestehenden Chat laden
+            userEmail = emailInput; 
+            chatVerlauf = data.history || []; 
             alert("Zugang gewährt! Willkommen zurück.");
         } else {
             alert("Schlüsselcode ungültig.");
@@ -588,6 +613,7 @@ async function handleVerifyAccess() {
         alert("Fehler bei der Kommunikation.");
     }
 }
+
 async function sendeChat() {
     const inputField = document.getElementById('chat-in');
     const userMessage = inputField.value.trim();
@@ -601,7 +627,6 @@ async function sendeChat() {
     inputField.value = "";
 
     try {
-        // ÄNDERUNG HIER: Von /chat-wahrheit auf /chat wechseln!
        const response = await fetch('/chat', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -617,12 +642,10 @@ async function sendeChat() {
 
         const data = await response.json();
         
-        // Jetzt kommt die echte Antwort von Gemini zurück
         if (data.reply) {
             chatBox.innerHTML += `<div style="color: #ffd700; margin-bottom: 15px;"><b>${nameKI}:</b> ${data.reply}</div>`;
             chatBox.scrollTop = chatBox.scrollHeight;
             
-            // Verlauf speichern
             if (!alleSektorenVerlaeufe[aktuelleSektorId]) alleSektorenVerlaeufe[aktuelleSektorId] = [];
             alleSektorenVerlaeufe[aktuelleSektorId].push({ "role": "user", "parts": [{ "text": userMessage }] });
             alleSektorenVerlaeufe[aktuelleSektorId].push({ "role": "model", "parts": [{ "text": data.reply }] });
@@ -632,6 +655,6 @@ async function sendeChat() {
         console.error("Fehler beim Senden:", e);
     }
 }
- </script>
+</script>
 </body>
 </html>  
