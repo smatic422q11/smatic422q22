@@ -165,7 +165,10 @@
         </div>
     </div> 
 
-  <div id="admin_ebene" class="ebene">
+ <!-- ==========================================
+     ADMIN-EBENE (MIT AKTIVIERTEM ERWEITERUNGS-BUTTON)
+     ========================================== -->
+<div id="admin_ebene" class="ebene">
     <div class="special-content" style="border: 2px solid #ffd700; background-color: #000; padding: 25px; width: 90%; max-width: 1000px; margin-top: 100px; box-sizing: border-box;">
         <h1 style="color: #ffd700; letter-spacing: 5px; margin-bottom: 20px; font-size: 1.5rem; font-weight: 900;">ADMINISTRATIVE STEUERUNG (M&M ZENTRALE)</h1>
         
@@ -200,29 +203,65 @@
         </div>
 
         <div style="margin-top: 20px; text-align: right; display: flex; justify-content: flex-end; gap: 10px;">
-            <button class="nav-btn" style="background: #333; color: #fff;" onclick="alert('Hier klemmen wir morgen das nächste Kabel an!')">+ ERWEITERN</button>
+            <!-- Hier rufen wir jetzt die Konfiguration für die Spezial-Ebenen auf -->
+            <button class="nav-btn" style="background: #ffd700; color: #000; font-weight: bold;" onclick="adminOeffneSpezialKonfig()">+ ERWEITERN (S21/S22)</button>
             <button class="nav-btn" onclick="wechselEbene('ebene1')">ZURÜCK ZUM TURM</button>
         </div>
     </div>
 </div>
 
-    <div id="ebene21" class="ebene">
-        <div class="special-content">
-            <h1 style="color: #ffd700;">HERZLICHEN GLÜCKWUNSCH</h1>
-            <button class="action-btn" onclick="alert('PDF-Export...')">Biografie als PDF anfordern</button>
-        </div>
-    </div>
 
-    <div id="ebene22" class="ebene">
-        <div class="special-content">
-            <h1 style="color: #003d8f;">DAS KOLLEKTIV | VERIFIZIERUNG</h1>
-            <input type="text" class="form-input enter-trigger" placeholder="Name...">
-            <input type="text" class="form-input enter-trigger" placeholder="Konto...">
-            <br>
-            <button class="action-btn" style="background:#003d8f; color:#fff;" onclick="alert('Abo...')">Abonnement abschließen</button>
+<!-- ==========================================
+     EBENE 21: DAS MANIFEST (E-BOOK-AUSGANG)
+     ========================================== -->
+<div id="ebene21" class="ebene">
+    <div class="special-content" style="border: 2px solid #ffd700; background-color: #000; padding: 30px; width: 90%; max-width: 800px; margin-top: 50px; box-sizing: border-box; text-align: left;">
+        <h1 style="color: #ffd700; letter-spacing: 3px; font-size: 1.8rem; text-align: center; margin-bottom: 20px;">📖 SEKTOR 21: DAS MANIFEST</h1>
+        
+        <div style="background: #111; border-left: 4px solid #ffd700; padding: 15px; margin-bottom: 25px; color: #ccc; font-size: 0.95rem; line-height: 1.6;">
+            <strong>Herzlichen Glückwunsch, Du hast die KI-Ermittlung durchbrochen.</strong><br>
+            Deine eingetragenen Sichtweisen und Werte wurden erfolgreich analysiert und im System verankert. Dein persönliches E-Book steht nun als digitales Manifest deiner Reise bereit.
         </div>
-    </div>
 
+        <div style="background: #050505; border: 1px solid #222; padding: 20px; margin-bottom: 25px;">
+            <h4 style="color: #fff; margin: 0 0 10px 0; font-size: 1rem;">ℹ️ INFORMATION ZUR FREISCHALTUNG (EBENE 4)</h4>
+            <p style="color: #aaa; margin: 0; font-size: 0.9rem; line-height: 1.5;">
+                Mit dem Export deines Manifests erhält deine verifizierte Lizenz die Freigabe-Berechtigung für die nächste Stufe. Die Daten werden verschlüsselt an den Kollektiv-Kern übertragen, um den Zugang zu Ebene 4 vorzubereiten.
+            </p>
+        </div>
+
+        <button class="action-btn" style="width: 100%; background: #ffd700; color: #000; font-weight: bold; font-size: 1.1rem; padding: 12px;" onclick="alert('Generiere E-Book-Dokumentation und starte PDF-Export...')">Biografie als PDF anfordern & Manifest sichern</button>
+    </div>
+</div>
+
+
+<!-- ==========================================
+     EBENE 22: DAS KOLLEKTIV (VERIFIZIERUNG & ABO)
+     ========================================== -->
+<div id="ebene22" class="ebene">
+    <div class="special-content" style="border: 2px solid #003d8f; background-color: #000; padding: 30px; width: 90%; max-width: 800px; margin-top: 50px; box-sizing: border-box; text-align: left;">
+        <h1 style="color: #003d8f; letter-spacing: 3px; font-size: 1.8rem; text-align: center; margin-bottom: 20px;">🌐 SEKTOR 22: DAS KOLLEKTIV | VERIFIZIERUNG</h1>
+        
+        <div style="background: #111; border-left: 4px solid #003d8f; padding: 15px; margin-bottom: 25px; color: #ccc; font-size: 0.95rem; line-height: 1.6;">
+            <strong>ZUGANGSSCHLÜSSEL ERFORDERLICH</strong><br>
+            Um die vollständige Community-Synchronisation abzuschließen und die dauerhafte Verbindung zu Ebene 4 zu etablieren, ist eine eindeutige Identitäts-Verifizierung und die Aktivierung der System-Lizenz notwendig.
+        </div>
+
+        <div style="margin-bottom: 25px;">
+            <label style="color: #003d8f; font-weight: bold; font-size: 0.85rem; display: block; margin-bottom: 5px;">Vollständiger Name / Identität:</label>
+            <input type="text" class="form-input enter-trigger" style="width: 100%; background: #111; color: #fff; border: 1px solid #333; padding: 10px; box-sizing: border-box; outline: none; margin-bottom: 15px;" placeholder="Goran Petrovic...">
+            
+            <label style="color: #003d8f; font-weight: bold; font-size: 0.85rem; display: block; margin-bottom: 5px;">Verifizierungs-Konto / Lizenz-ID:</label>
+            <input type="text" class="form-input enter-trigger" style="width: 100%; background: #111; color: #fff; border: 1px solid #333; padding: 10px; box-sizing: border-box; outline: none;" placeholder="M&M-XXXX-XXXX...">
+        </div>
+
+        <div style="background: #050505; border: 1px solid #222; padding: 15px; margin-bottom: 25px; font-size: 0.85rem; color: #777;">
+            ⚠️ <strong>Hinweis zur Freischaltung:</strong> Nach erfolgreichem Abschluss des Abonnements wird dein System-Token innerhalb von 60 Sekunden permanent im dezentralen Netzwerk validiert.
+        </div>
+
+        <button class="action-btn" style="width: 100%; background: #003d8f; color: #fff; font-weight: bold; font-size: 1.1rem; padding: 12px;" onclick="alert('Verbinde mit Zahlungsanbieter... Abonnement-Prozess wird gestartet.')">Identität bestätigen & Abonnement aktivieren</button>
+    </div>
+</div>
   <div class="bottom-nav">
     <button class="nav-btn" onclick="wechselEbene('ebene1')">DASHBOARD</button>
     
