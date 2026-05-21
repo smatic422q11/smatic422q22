@@ -285,21 +285,34 @@ function waehleSektor(id) {
         const adminSelect = document.getElementById('admin-sektor-auswahl'); if (adminSelect) { themen.forEach((t, i) => { adminSelect.innerHTML += `<option value="${i}">Sektor ${i+1}: ${t}</option>`; }); }
       
         // 2. Funktion für die Rechtliche Texte
- async function openLegal(fileName) {
-    // Wir nehmen wieder den Haupt-Textbereich, der auch in der Scan-Optik aktiv ist
+ function openLegal(fileName) {
     const area = document.getElementById('main-text-area'); 
     const overlay = document.getElementById('legal-overlay');
     if (overlay) overlay.style.display = 'block';
     
-    area.innerHTML = "Inhalt wird geladen...";
-    try {
-        // Wir zwingen den Browser, ganz vorne im Hauptverzeichnis zu suchen
-        const response = await fetch('/' + fileName + '.html'); 
-        if (!response.ok) throw new Error('Datei nicht gefunden');
-        const data = await response.text();
-        area.innerHTML = data;
-    } catch (error) {
-        area.innerHTML = "<span style='color:red;'>Fehler beim Laden: " + fileName + ".html konnte nicht gefunden werden.</span>";
+    // Die Texte werden direkt hier im Frontend gespeichert, damit der Server nicht blockieren kann
+    const texte = {
+        impressum: `
+            <h2>Impressum</h2>
+            <p>M&M Community</p>
+            <p>Gründer: Goran Petrovic</p>
+            <!-- Trage hier den Rest deines Impressums ein -->
+        `,
+        datenschutz: `
+            <h2>Datenschutzerklärung</h2>
+            <p>Hier stehen deine Datenschutzbestimmungen...</p>
+        `,
+        nutzungsbedingungen: `
+            <h2>Nutzungsbedingungen</h2>
+            <p>Hier stehen deine Nutzungsbedingungen für die Community...</p>
+        `
+    };
+
+    // Prüfen, ob wir den Text direkt parat haben
+    if (texte[fileName]) {
+        area.innerHTML = texte[fileName];
+    } else {
+        area.innerHTML = "<span style='color:red;'>Fehler: Text für " + fileName + " konnte nicht geladen werden.</span>";
     }
 }
      
