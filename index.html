@@ -286,19 +286,22 @@ function waehleSektor(id) {
       
         // 2. Funktion für die Rechtliche Texte
      async function openLegal(fileName) {
-            const area = document.getElementById('legal-content-area');
-            const overlay = document.getElementById('legal-overlay');
-            overlay.style.display = 'block';
-            area.innerHTML = "Inhalt wird geladen...";
-            try {
-                const response = await fetch(fileName + '.html'); 
-                if (!response.ok) throw new Error('Datei nicht gefunden');
-                const data = await response.text();
-                area.innerHTML = data;
-            } catch (error) {
-                area.innerHTML = "<span style='color:red;'>Fehler beim Laden: " + fileName + ".html konnte nicht gefunden werden.</span>";
-            }
-        }
+    const area = document.getElementById('legal-content-area');
+    const overlay = document.getElementById('legal-overlay');
+    
+    overlay.style.display = 'block'; // Fenster öffnen
+    area.innerHTML = "Inhalt wird geladen..."; // Platzhalter
+
+    try {
+        // Ersetzt .html falls nötig und lädt die Datei aus dem gleichen Verzeichnis
+        const response = await fetch(fileName + '.html'); 
+        if (!response.ok) throw new Error('Datei nicht gefunden');
+        const data = await response.text();
+        area.innerHTML = data;
+    } catch (error) {
+        area.innerHTML = "<span style='color:red;'>Fehler beim Laden: " + fileName + ".html konnte nicht gefunden werden.</span>";
+    }
+}
      
 // EBENE 2: Der "Himmel" für deine Texte (Blaues Leuchten)
 async function starteScanOptik(themenIndex) {
