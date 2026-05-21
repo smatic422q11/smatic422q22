@@ -508,12 +508,12 @@ async def get_sector_text(sector_id: str):
 # ==========================================
 # EBENE 2: UNTERER BEREICH (Gemini-Scan)
 # ==========================================
-@app.post("/get-live-ermittlung/{sector_id}")
+@app.get("/get-live-ermittlung/{sector_id}")
 async def get_live_ermittlung(sector_id: str):
     api_key = os.getenv("GEMINI_API_KEY")
     seelen_name = SECTOR_NAMES.get(sector_id, "KI")
     
-    # Der Prompt wird präziser, um Müll-Daten zu vermeiden
+    # Der Prompt bleibt unerbittlich und präzise, genau nach deinen Regeln
     prompt = (
         f"Du bist der KI-Scanner. Sektor: {seelen_name}. "
         "Generiere 3 knallharte gesellschaftliche Widersprüche. "
@@ -521,7 +521,8 @@ async def get_live_ermittlung(sector_id: str):
         "KEINE Sternchen, KEIN Markdown, KEINE Einleitung. Nur der nackte Text."
     )
 
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={api_key}"
+    # KORREKTUR: Wir nutzen genau die URL mit dem Modell aus eurer funktionierenden /chat-Route!
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key={api_key}"
     payload = {"contents": [{"parts": [{"text": prompt}]}]}
 
     try:
@@ -531,7 +532,7 @@ async def get_live_ermittlung(sector_id: str):
         if response.status_code == 200:
             raw_text = res_data['candidates'][0]['content']['parts'][0]['text']
             
-            # Wir säubern den Text von Markdown-Resten (*), falls Gemini sie doch mitschickt
+            # Säubern von Markdown-Resten
             clean_text = raw_text.replace('*', '')
             
             # Zerlegen und nur Zeilen nehmen, die wirklich mit WIDERSPRUCH anfangen
@@ -541,12 +542,13 @@ async def get_live_ermittlung(sector_id: str):
                 # Falls Gemini das Format ignoriert hat, nehmen wir die ersten 3 Zeilen
                 lines = [l.strip() for l in clean_text.split('\n') if l.strip()][:3]
 
+            # Rückgabe exakt im erwarteten Format mit dem unerbittlichen Startwort
             return {"success": True, "data": ["Gefühlsvorderung. \n--- LIVE-SCAN AKTIVIERT ---"] + lines}
         
-        return {"success": False, "error": "Schnittstelle antwortet nicht korrekt."}
+        return {"success": False, "error": f"Schnittstelle antwortet nicht korrekt. Status: {response.status_code}"}
     except Exception as e:
+        print(f"Fehler im Live-Scan: {e}")
         return {"success": False, "error": str(e)}
-
 # ==========================================
 # ADMIN: UPDATE SECTOR
 # ==========================================
