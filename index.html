@@ -210,23 +210,24 @@
     </div>
 </div>
 <!-- ==========================================
-     EBENE 21: DAS MANIFEST (MAXIMALES BREITBILD-LAYOUT)
+     EBENE 21: DAS MANIFEST (MONITOR- & HANDY-OPTIMIERT)
      ========================================== -->
 <div id="ebene21" class="ebene">
-    <div class="special-content" style="border: 3px double #00ffcc; background: linear-gradient(135deg, #000 0%, #002b22 100%); padding: 30px; width: 98%; max-width: 1400px; margin-top: 20px; box-sizing: border-box; text-align: left; box-shadow: 0 0 30px rgba(0, 255, 210, 0.15);">
+    <!-- padding auf 5% und max-width auf 1400px gesetzt für perfekte Skalierung -->
+    <div class="special-content" style="border: 3px double #00ffcc; background: linear-gradient(135deg, #000 0%, #002b22 100%); padding: 5%; width: 98%; max-width: 1400px; margin-top: 20px; box-sizing: border-box; text-align: left; box-shadow: 0 0 30px rgba(0, 255, 210, 0.15);">
         
-        <!-- Titel-Bereich bleibt oben zentriert -->
+        <!-- Titel-Bereich -->
         <div style="text-align: center; margin-bottom: 25px;">
             <div style="font-size: 3rem; margin-bottom: 5px; filter: drop-shadow(0 0 10px #00ffcc);">📖</div>
             <h1 style="color: #00ffcc; letter-spacing: 6px; font-size: 2rem; font-weight: 900; margin: 0; text-transform: uppercase; text-shadow: 0 0 10px rgba(0,255,210,0.3);">Sektor 21: Das Manifest</h1>
             <p style="color: #ccc; letter-spacing: 3px; font-size: 0.85rem; font-weight: bold; margin-top: 5px; text-transform: uppercase;">Dein geschriebenes Vermächtnis ist vollendet</p>
         </div>
 
-        <!-- Das flexible Zwei-Spalten-System für volle Monitor-Breite -->
-        <div style="display: flex; gap: 30px; align-items: stretch; margin-bottom: 25px;">
+        <!-- flex-wrap: wrap; sorgt dafür, dass sich die Boxen am Handy untereinanderlegen -->
+        <div style="display: flex; flex-wrap: wrap; gap: 30px; margin-bottom: 25px;">
             
-            <!-- LINKE SPALTE: Würdigung der Arbeit -->
-            <div style="flex: 1.2; background: rgba(10, 10, 10, 0.95); border-left: 5px solid #00ffcc; padding: 25px; border-radius: 4px; box-shadow: inset 0 0 20px rgba(0,0,0,0.6); display: flex; flex-direction: column; justify-content: space-between;">
+            <!-- LINKE BOX: Würdigung (min-width sorgt für Stabilität) -->
+            <div style="flex: 1.2; min-width: 300px; background: rgba(10, 10, 10, 0.95); border-left: 5px solid #00ffcc; padding: 25px; border-radius: 4px; box-shadow: inset 0 0 20px rgba(0,0,0,0.6); display: flex; flex-direction: column; justify-content: space-between;">
                 <div>
                     <h3 style="color: #00ffcc; margin: 0 0 10px 0; font-size: 1.15rem; letter-spacing: 1px; font-weight: bold;">Es ist vollbracht. Du hast erschaffen.</h3>
                     <p style="color: #e0e0e0; margin: 0; font-size: 0.95rem; line-height: 1.7; font-style: italic;">
@@ -238,8 +239,8 @@
                 </div>
             </div>
 
-            <!-- RECHTE SPALTE: Gewissensfrage & Aktion -->
-            <div style="flex: 1; background: rgba(5, 5, 5, 0.9); border: 1px solid #111; padding: 25px; border-radius: 4px; border-left: 4px solid #fff; display: flex; flex-direction: column; justify-content: space-between;">
+            <!-- RECHTE BOX: Gewissensfrage -->
+            <div style="flex: 1; min-width: 300px; background: rgba(5, 5, 5, 0.9); border: 1px solid #111; padding: 25px; border-radius: 4px; border-left: 4px solid #fff; display: flex; flex-direction: column; justify-content: space-between;">
                 <div>
                     <h4 style="color: #fff; margin: 0 0 10px 0; font-size: 1.1rem; letter-spacing: 1px; text-transform: uppercase;">Die Frage an dich: Was geschieht jetzt?</h4>
                     <p style="color: #b5b5b5; font-size: 0.95rem; margin: 0; line-height: 1.6;">
@@ -252,81 +253,105 @@
 
         </div>
 
-        <!-- Der Triumph-Button: Zieht sich jetzt flach und breit über die ganze Monitor-Fläche, weit oben positioniert -->
-        <button class="action-btn" style="width: 100%; background: linear-gradient(90deg, #00ffcc 0%, #008b8b 100%); color: #000; font-weight: 900; font-size: 1.25rem; padding: 16px; border: none; letter-spacing: 2px; text-transform: uppercase; cursor: pointer; box-shadow: 0 5px 20px rgba(0, 255, 210, 0.4); border-radius: 4px;" onclick="alert('M&M Generator aktiv:\nDeine geopferte Zeit wird nun in Materie gegossen.\nDein Manifest wird als hochauflösendes PDF kompiliert und gesichert!')">
+        <!-- Der Triumph-Button -->
+        <button class="action-btn" style="width: 100%; background: linear-gradient(90deg, #00ffcc 0%, #008b8b 100%); color: #000; font-weight: 900; font-size: 1.25rem; padding: 16px; border: none; letter-spacing: 2px; text-transform: uppercase; cursor: pointer; box-shadow: 0 5px 20px rgba(0, 255, 210, 0.4); border-radius: 4px;" onclick="alert('M&M Generator aktiv...')">
             Mein digitales Manifest versiegeln & Biografie als PDF anfordern
         </button>
 
     </div>
 </div>
-
 <!-- ==========================================
-     EBENE 22: DAS KOLLEKTIV (DIE ANTWORT & VERIFIZIERUNG)
+     EBENE 22: DAS KOLLEKTIV (MONITOR- & HANDY-OPTIMIERT)
      ========================================== -->
 <div id="ebene22" class="ebene">
-    <div class="special-content" style="border: 3px double #003d8f; background: linear-gradient(135deg, #000 0%, #001a3a 100%); padding: 45px; width: 98%; max-width: 1050px; margin-top: 40px; box-sizing: border-box; text-align: left; box-shadow: 0 0 30px rgba(0, 61, 143, 0.2);">
+    <div class="special-content" style="border: 3px double #003d8f; background: linear-gradient(135deg, #000 0%, #001a3a 100%); padding: 5%; width: 98%; max-width: 1400px; margin-top: 20px; box-sizing: border-box; text-align: left; box-shadow: 0 0 30px rgba(0, 61, 143, 0.2);">
         
         <!-- Das monumentale Kollektiv-Symbol & Titel -->
-        <div style="text-align: center; margin-bottom: 35px;">
+        <div style="text-align: center; margin-bottom: 25px;">
             <div style="font-size: 3.5rem; margin-bottom: 10px; filter: drop-shadow(0 0 15px #003d8f);">🌐</div>
             <h1 style="color: #003d8f; letter-spacing: 6px; font-size: 2.2rem; font-weight: 900; margin: 0; text-transform: uppercase; text-shadow: 0 0 10px rgba(0,61,143,0.3);">Sektor 22: Das Kollektiv</h1>
             <p style="color: #ccc; letter-spacing: 3px; font-size: 0.9rem; font-weight: bold; margin-top: 5px; text-transform: uppercase;">Willkommen im Kreis derer, die den Mut besitzen</p>
         </div>
 
-        <!-- Emotionale Antwort auf die Gewissensfrage aus Sektor 21 -->
-        <div style="background: rgba(10, 10, 10, 0.95); border-left: 5px solid #003d8f; padding: 30px; margin-bottom: 35px; border-radius: 4px; box-shadow: inset 0 0 20px rgba(0,0,0,0.6);">
-            <h3 style="color: #003d8f; margin: 0 0 12px 0; font-size: 1.2rem; letter-spacing: 1px; font-weight: bold;">Ein starkes Zeichen. Du hast dich für die Offenbarung entschieden.</h3>
-            <p style="color: #e0e0e0; margin: 0; font-size: 1rem; line-height: 1.8; font-style: italic;">
-                "Es gehört unbändiger Mut dazu, seine eigene Wahrheit nicht im Verborgenen einzusperren. Du hast dich dagegen entschieden, mit deiner Biografie alleine zu bleiben. Indem du deine Reise, deine Kämpfe und deine Erkenntnisse mit den anderen Teilnehmern der M&M Community teilst, wirst du vom bloßen Beobachter zu einem tragenden Pfeiler unseres Kollektivs. Deine Geschichte inspiriert, bricht Barrieren und verbindet uns auf einer völlig neuen Ebene. Das ist der Moment, in dem aus deiner persönlichen Wahrheit eine gemeinsame Kraft wird."
-            </p>
-            <div style="margin-top: 20px; border-top: 1px solid #222; padding-top: 15px; color: #888; font-size: 0.85rem; text-align: right; letter-spacing: 1px;">
-                ENTSCHEIDUNG: <span style="color: #003d8f; font-weight: bold; text-shadow: 0 0 5px rgba(0,61,143,0.5);">GEMEINSCHAFTS-SYNCHRONISATION AKTIV ✓</span>
+        <!-- Das flexible Zwei-Spalten-System für volle Monitor- & Handy-Kompatibilität -->
+        <div style="display: flex; flex-wrap: wrap; gap: 30px; margin-bottom: 25px;">
+            
+            <!-- LINKE BOX: Emotionale Antwort (min-width für Handy-Kippeffekt) -->
+            <div style="flex: 1.2; min-width: 320px; background: rgba(10, 10, 10, 0.95); border-left: 5px solid #003d8f; padding: 25px; border-radius: 4px; box-shadow: inset 0 0 20px rgba(0,0,0,0.6); display: flex; flex-direction: column; justify-content: space-between;">
+                <div>
+                    <h3 style="color: #003d8f; margin: 0 0 12px 0; font-size: 1.2rem; letter-spacing: 1px; font-weight: bold;">Ein starkes Zeichen. Du hast dich für die Offenbarung entschieden.</h3>
+                    <p style="color: #e0e0e0; margin: 0; font-size: 0.95rem; line-height: 1.7; font-style: italic;">
+                        "Es gehört unbändiger Mut dazu, seine eigene Wahrheit nicht im Verborgenen einzusperren. Du hast dich dagegen entschieden, mit deiner Biografie alleine zu bleiben. Indem du deine Reise, deine Kämpfe und deine Erkenntnisse mit den anderen Teilnehmern der M&M Community teilst, wirst du vom bloßen Beobachter zu einem tragenden Pfeiler unseres Kollektivs. Deine Geschichte inspiriert, bricht Barrieren und verbindet uns auf einer völlig neuen Ebene. Das ist der Moment, in dem aus deiner persönlichen Wahrheit eine gemeinsame Kraft wird."
+                    </p>
+                </div>
+                <div style="margin-top: 20px; border-top: 1px solid #222; padding-top: 15px; color: #888; font-size: 0.85rem; text-align: right; letter-spacing: 1px;">
+                    ENTSCHEIDUNG: <span style="color: #003d8f; font-weight: bold; text-shadow: 0 0 5px rgba(0,61,143,0.5);">GEMEINSCHAFTS-SYNCHRONISATION AKTIV ✓</span>
+                </div>
             </div>
-        </div>
 
-        <!-- Das edle Aktivierungs-Zentrum (Stammdaten) -->
-        <div style="background: rgba(5, 5, 5, 0.95); border: 1px solid #111; padding: 30px; border-radius: 4px; margin-bottom: 35px;">
-            <h4 style="color: #fff; margin: 0 0 20px 0; font-size: 1.1rem; border-bottom: 1px solid #003d8f; padding-bottom: 10px; letter-spacing: 1px; text-transform: uppercase;">✍️ DEINE SYSTEM-LIZENZ VERIFIZIEREN (ABONNEMENT)</h4>
-            
-            <!-- Bereich 1: Identität -->
-            <div style="margin-bottom: 20px;">
-                <label style="color: #003d8f; font-weight: bold; font-size: 0.85rem; display: block; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 1px;">Vollständiger Name (Kontoinhaber):</label>
-                <input type="text" id="abo-name" class="form-input enter-trigger" style="width: 100%; background: #000; color: #fff; border: 1px solid #003d8f; padding: 12px; box-sizing: border-box; outline: none; font-size: 1rem; border-radius: 2px;" placeholder="Vor- und Nachname">
-            </div>
-            
-            <!-- Bereich 2: Anschrift -->
-            <div style="margin-bottom: 20px;">
-                <label style="color: #003d8f; font-weight: bold; font-size: 0.85rem; display: block; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 1px;">Rechnungsanschrift (Straße, Hausnummer):</label>
-                <input type="text" id="abo-adresse" class="form-input enter-trigger" style="width: 100%; background: #000; color: #fff; border: 1px solid #003d8f; padding: 12px; box-sizing: border-box; outline: none; margin-bottom: 15px; font-size: 1rem; border-radius: 2px;" placeholder="Musterstraße 12 / Tür 3">
-                
-                <div style="display: flex; gap: 20px;">
-                    <div style="flex: 1;">
-                        <label style="color: #003d8f; font-weight: bold; font-size: 0.8rem; display: block; margin-bottom: 5px;">PLZ:</label>
-                        <input type="text" id="abo-plz" class="form-input enter-trigger" style="width: 100%; background: #000; color: #fff; border: 1px solid #003d8f; padding: 12px; box-sizing: border-box; outline: none; font-size: 1rem; border-radius: 2px;" placeholder="1020">
+            <!-- RECHTE BOX: Das kompakte Formularzentrum -->
+            <div style="flex: 1; min-width: 320px; background: rgba(5, 5, 5, 0.95); border: 1px solid #111; padding: 25px; border-radius: 4px; display: flex; flex-direction: column; justify-content: space-between;">
+                <div>
+                    <h4 style="color: #fff; margin: 0 0 15px 0; font-size: 1.05rem; border-bottom: 1px solid #003d8f; padding-bottom: 8px; letter-spacing: 1px; text-transform: uppercase;">✍️ MITGLIEDSCHAFT AKTIVIEREN</h4>
+                    
+                    <!-- Bereich 1: Identität -->
+                    <div style="margin-bottom: 12px;">
+                        <label style="color: #003d8f; font-weight: bold; font-size: 0.8rem; display: block; margin-bottom: 4px; text-transform: uppercase;">Vollständiger Name:</label>
+                        <input type="text" id="abo-name" class="form-input enter-trigger" style="width: 100%; background: #000; color: #fff; border: 1px solid #003d8f; padding: 10px; box-sizing: border-box; outline: none; font-size: 0.95rem; border-radius: 2px;" placeholder="Vor- und Nachname">
                     </div>
-                    <div style="flex: 2;">
-                        <label style="color: #003d8f; font-weight: bold; font-size: 0.8rem; display: block; margin-bottom: 5px;">ORT:</label>
-                        <input type="text" id="abo-ort" class="form-input enter-trigger" style="width: 000; width: 100%; background: #000; color: #fff; border: 1px solid #003d8f; padding: 12px; box-sizing: border-box; outline: none; font-size: 1rem; border-radius: 2px;" placeholder="Wien">
+                    
+                    <!-- Bereich 2: Anschrift -->
+                    <div style="margin-bottom: 12px;">
+                        <label style="color: #003d8f; font-weight: bold; font-size: 0.8rem; display: block; margin-bottom: 4px; text-transform: uppercase;">Rechnungsanschrift:</label>
+                        <input type="text" id="abo-adresse" class="form-input enter-trigger" style="width: 100%; background: #000; color: #fff; border: 1px solid #003d8f; padding: 10px; box-sizing: border-box; outline: none; margin-bottom: 10px; font-size: 0.95rem; border-radius: 2px;" placeholder="Straße, Hausnummer, Tür">
+                        
+                        <div style="display: flex; gap: 15px;">
+                            <div style="flex: 1;">
+                                <input type="text" id="abo-plz" class="form-input enter-trigger" style="width: 100%; background: #000; color: #fff; border: 1px solid #003d8f; padding: 10px; box-sizing: border-box; outline: none; font-size: 0.95rem; border-radius: 2px;" placeholder="PLZ (z.B. 1020)">
+                            </div>
+                            <div style="flex: 1.5;">
+                                <input type="text" id="abo-ort" class="form-input enter-trigger" style="width: 100%; background: #000; color: #fff; border: 1px solid #003d8f; padding: 10px; box-sizing: border-box; outline: none; font-size: 0.95rem; border-radius: 2px;" placeholder="Ort (z.B. Wien)">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Bereich 3: Bankdaten -->
+                    <div style="margin-bottom: 15px;">
+                        <label style="color: #003d8f; font-weight: bold; font-size: 0.8rem; display: block; margin-bottom: 4px; text-transform: uppercase;">Kontoverbindung (IBAN):</label>
+                        <input type="text" id="abo-iban" class="form-input enter-trigger" style="width: 100%; background: #000; color: #fff; border: 1px solid #003d8f; padding: 10px; box-sizing: border-box; outline: none; font-size: 0.95rem; border-radius: 2px;" placeholder="ATXX XXXX XXXX XXXX XXXX">
                     </div>
                 </div>
             </div>
 
-            <!-- Bereich 3: Bankdaten -->
-            <div>
-                <label style="color: #003d8f; font-weight: bold; font-size: 0.85rem; display: block; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 1px;">Kontoverbindung (IBAN):</label>
-                <input type="text" id="abo-iban" class="form-input enter-trigger" style="width: 100%; background: #000; color: #fff; border: 1px solid #003d8f; padding: 12px; box-sizing: border-box; outline: none; font-size: 1rem; letter-spacing: 1px; border-radius: 2px;" placeholder="ATXX XXXX XXXX XXXX XXXX">
-            </div>
         </div>
 
-        <!-- Vertrauens- & Sicherheits-Footer -->
-        <div style="margin: 25px 0; padding: 15px; background: rgba(0, 61, 143, 0.05); border-left: 3px solid #003d8f; font-size: 0.85rem; color: #aaa; line-height: 1.5;">
-            🔒 <strong>Datenschutz-Verschlüsselung:</strong> Deine Angaben werden direkt über eine gesicherte SSL-Verbindung verarbeitet. Nach der Validierung wird der System-Token für die Freischaltung von Ebene 4 generiert.
+        <!-- Vertrauens-Footer -->
+        <div style="margin: 15px 0; padding: 12px; background: rgba(0, 61, 143, 0.05); border-left: 3px solid #003d8f; font-size: 0.8rem; color: #aaa; line-height: 1.4;">
+            🔒 <strong>Datenschutz-Protokoll:</strong> Übertragung erfolgt SSL-verschlüsselt. Nach der Validierung wird der Token für Ebene 4 permanent freigeschaltet.
         </div>
 
-        <!-- Der mächtige Erfolgs-Button (Sicher platziert in der Breite) -->
-        <button class="action-btn" style="width: 100%; background: linear-gradient(90deg, #003d8f 0%, #001a3a 100%); color: #fff; font-weight: 900; font-size: 1.25rem; padding: 18px; border: 1px solid #003d8f; letter-spacing: 2px; text-transform: uppercase; cursor: pointer; box-shadow: 0 5px 20px rgba(0, 61, 143, 0.4); border-radius: 4px;" onclick="alert('Verbindung zum M&M Kern hergestellt.\nDeine Daten werden verschlüsselt übertragen.\nWillkommen im Kollektiv, Mitglied!')">
+        <!-- Der mächtige Erfolgs-Button -->
+        <button class="action-btn" style="width: 100%; background: linear-gradient(90deg, #003d8f 0%, #001a3a 100%); color: #fff; font-weight: 900; font-size: 1.25rem; padding: 16px; border: 1px solid #003d8f; letter-spacing: 2px; text-transform: uppercase; cursor: pointer; box-shadow: 0 5px 20px rgba(0, 61, 143, 0.4); border-radius: 4px;" onclick="alert('Verbindung zum M&M Kern hergestellt.\nDeine Daten werden verschlüsselt übertragen.\nWillkommen im Kollektiv, Mitglied!')">
             Meinen Platz im Kollektiv einnehmen & Ebene 4 freischalten
         </button>
+    </div>
+</div>
+    <div class="bottom-nav">
+    <button class="nav-btn" onclick="wechselEbene('ebene1')">DASHBOARD</button>
+    
+    <div id="legal-links" style="position: absolute; left: 50%; transform: translateX(-50%); display: flex; gap: 25px; font-size: 0.65rem; text-transform: uppercase; color: #666; font-weight: bold; white-space: nowrap;">
+        <span style="cursor:pointer" onclick="openLegal('impressum')">Impressum</span>
+       <span style="cursor:pointer" onclick="openLegal('nutzungsbedingungen')">Nutzungsbedingungen</span>
+        <span style="cursor:pointer" onclick="openLegal('datenschutz')">Datenschutz</span>
+    </div>
+
+    <button id="weiter-nav" class="nav-btn" style="display:none; margin-left:15px;" onclick="naechste()">WEITER →</button>
+    <button class="nav-btn exit-btn" onclick="window.location.reload()">EXIT / ABMELDEN</button>
+</div>
+    <div id="legal-overlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.95); z-index:5000; overflow-y:auto; padding:30px; box-sizing:border-box;">
+    <button onclick="this.parentElement.style.display='none'" style="float:right; background:#ff4d4d; color:#fff; border:none; padding:10px 20px; cursor:pointer; font-weight:bold; font-size:1rem;">SCHLIESSEN X</button>
+    <div id="legal-content-area" style="max-width:900px; margin:50px auto; color:#fff; font-size:1.1rem; line-height:1.6;">
+        Wird geladen...
     </div>
 </div>
 
