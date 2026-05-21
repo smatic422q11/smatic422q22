@@ -2,13 +2,16 @@ import os
 import re
 import json
 import requests
+import random  # <--- HIER ERGÄNZT
+import certifi # <--- HIER ERGÄNZT
 from datetime import datetime
 from fastapi import FastAPI, Request
-from fastapi.responses import JSONResponse, StreamingResponse
-from pymongo import MongoClient  # Import für MongoDB
+from fastapi.responses import JSONResponse, StreamingResponse, FileResponse # <--- HIER ERGÄNZT
+from fastapi.middleware.cors import CORSMiddleware # <--- HIER ERGÄNZT
+from pymongo import MongoClient
+from pymongo.server_api import ServerApi # <--- HIER ERGÄNZT
 
-app = FastAPI()
-
+app = FastAPI() # Nur EINMAL hier oben definieren!
 def perform_google_search(query):
     api_key = os.getenv('GOOGLE_API_KEY')
     cx_id = os.getenv('GOOGLE_CX')
@@ -540,8 +543,7 @@ async def get_live_ermittlung(sector_id: str):
             res_data = response.json()
             raw_text = res_data['candidates'][0]['content']['parts'][0]['text']
             
-            j1 = raw_text.replace('```json', '').replace('
-```', '')
+            j1 = raw_text.replace('```json', '').replace('```', '')
             j2 = j1.replace('\n', ' ')
             clean_json = j2.replace("'", '"').strip()
             
