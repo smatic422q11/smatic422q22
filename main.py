@@ -11,7 +11,11 @@ from fastapi.middleware.cors import CORSMiddleware # <--- HIER ERGÄNZT
 from pymongo import MongoClient
 from pymongo.server_api import ServerApi # <--- HIER ERGÄNZT
 
-app = FastAPI() # Nur EINMAL hier oben definieren!
+# ==========================================
+# APP-INITIALISIERUNG (NUR EINMAL HIER OBEN!)
+# ==========================================
+app = FastAPI() 
+
 def perform_google_search(query):
     api_key = os.getenv('GOOGLE_API_KEY')
     cx_id = os.getenv('GOOGLE_SEARCH_CX')  # <--- Jetzt exakt wie auf Render!
@@ -45,9 +49,7 @@ except Exception as e:
 
 db = client['mm-community']
 
-# 2. APP-INITIALISIERUNG
-app = FastAPI()
-
+# 2. MIDDLEWARE-EINSTELLUNGEN
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -55,7 +57,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
 def send_verification_email(user_email, code):
     SENDGRID_API_KEY = os.environ.get('SENDGRID_API_KEY')
     ABSENDER_EMAIL = "info@mm-community.online" 
