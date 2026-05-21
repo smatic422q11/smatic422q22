@@ -419,9 +419,7 @@ SECTOR_SOULS = {
     "20": "Dieser Sektor ist aktuell noch geschlossen. Bitte hab etwas Geduld.",
     "21": "Das Kollektiv bereitet sich vor. Aktuell noch geschlossen."
 }
-MONGO_URI = os.getenv("MONGO_URI", "DEIN_MONGODB_ATLAS_CONNECTION_STRING")
-client = MongoClient(MONGO_URI)
-db = client.get_database("DEIN_DATENBANK_NAME")  # Name deiner Datenbank
+
 @app.post("/chat")
 async def chat(request: Request):
     try:
