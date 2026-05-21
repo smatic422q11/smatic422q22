@@ -508,14 +508,16 @@ async def get_sector_text(sector_id: str):
         admin_record = db.codes.find_one({"email": "mmcommunity22@gmail.com"})
         text = admin_record.get("sector_headers", {}).get(sector_id, "Gefühlsvorderung. \nKeine Admin-Sichtweise hinterlegt.") if admin_record else "Gefühlsvorderung. \nKeine Admin-Sichtweise hinterlegt."
         return {"success": True, "text": text}
-   @app.get("/test")
+    except Exception as e:
+        return {"success": False, "error": str(e)}
+
+@app.get("/test")
 async def test():
     return {"status": "ok"}
-        return {"success": False, "error": str(e)}
-        
+
 @app.post("/get-live-ermittlung/{sector_id}")
 async def get_live_ermittlung(sector_id: str):
-    import json, re
+    import json, re, os, requests
     api_key = os.getenv("GEMINI_API_KEY")
     seelen_name = SECTOR_NAMES.get(sector_id, "KI")
     prompt = (f"Du bist der KI-Scanner für Sektor: {seelen_name}. "
@@ -525,7 +527,7 @@ async def get_live_ermittlung(sector_id: str):
     url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key={api_key}"
     payload = {"contents": [{"parts": [{"text": prompt}]}]}
     
-    try:
+     try:
         response = requests.post(url, json=payload, timeout=15)
         if response.status_code == 200:
             res_data = response.json()
