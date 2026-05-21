@@ -540,11 +540,11 @@ async def get_live_ermittlung(sector_id: str):
             res_data = response.json()
             raw_text = res_data['candidates'][0]['content']['parts'][0]['text']
             
-            j1 = raw_text.replace('```json', '')
-            j2 = j1.replace('\n', ' ')
+            # Hier säubern wir den Text, damit wir nur noch das JSON-Format haben
+            j1 = raw_text.replace('```json', '').replace('
 ```', '')
-            j3 = j2.replace('\n', ' ')
-            clean_json = j3.replace("'", '"').strip()
+            j2 = j1.replace('\n', ' ')
+            clean_json = j2.replace("'", '"').strip()
             
             match = re.search(r'\{.*\}', clean_json, re.DOTALL)
             if match:
