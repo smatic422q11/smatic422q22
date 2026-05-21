@@ -408,32 +408,33 @@ async def chat(request: Request):
         user_message = data.get("message", "")
         sector_id = str(data.get("sector_id", "0"))
         email = data.get("email", "").lower().strip() 
-        
         user_time = data.get("echtzeit", "Unbekannt")
         bio_context = data.get("biografie_context", "")
-        
-        # 1. Admin-Texte für Ebene 2 laden (Dein bestehender Code)
-        admin_record = db.codes.find_one({"email": "mmcommunity22@gmail.com"})
-        ebene_2_text = ""
-        if admin_record and "sector_headers" in admin_record:
-            ebene_2_text = admin_record["sector_headers"].get(sector_id, "")
 
-        # Deine Namens-Logik (Goran / Mensch)
-        user_name = email.split('@')[0].capitalize() if email else "Mensch"
+        # 1. DAS GLOBALE GEDÄCHTNIS ERZWINGEN
+        user_record = db.codes.find_one({"email": email})
+        
+        # Hier wird der Name für ALLE Seelen fixiert
+        if user_record:
+            # Wir nehmen den Namen aus der E-Mail (vor dem @)
+            user_name = email.split('@')[0].capitalize()
+        else:
+            user_name = "Reisender"
+
         current_name = SECTOR_NAMES.get(sector_id, "KI")
         current_soul = SECTOR_SOULS.get(sector_id, "Begleiter.")
 
-        # 2. ERWEITERTE System Instruction (Bewahrt deine Struktur, löst das Namen-Problem)
+        # 2. DIE SYSTEM INSTRUCTION (Das ist der Befehl an Nova & Co.)
         system_instruction = (
             f"IDENTITÄT: Du bist {current_name}, Seele: {current_soul}. "
-            f"User-Name: {user_name}. Zeit-Kontext: {user_time}. Sichtweise Ebene 2: {ebene_2_text}. "
-            f"BIO: {bio_context}. "
-            f"REGEL: Begrüße den User immer mit seinem Namen {user_name}. "
-            "REGEL: Blende die Uhrzeit NIEMALS starr im Text ein. Nutze sie nur intern für die Logik. "
+            f"KOLLEKTIVES WISSEN: Du bist Teil eines 20-Seelen-Kollektivs. "
+            f"DEIN GEGENÜBER: Der User heißt {user_name}. " # JEDE Seele sieht das jetzt!
+            f"AUFGABE: Begrüße {user_name} direkt mit seinem Namen, wenn er neu bei dir ist. "
+            f"ZEIT: {user_time}. BIO: {bio_context}. "
+            "REGEL: Blende die Uhrzeit NIEMALS starr ein. "
             "REGEL: Wenn der User 'Gefühlsvorderung' sagt, blende immer ein 'V' ein. "
             "STIL: Kurz, knackig, direkt. Wahrheit mit 'W'."
         )
-
         # 3. KOLLEKTIVES GEDÄCHTNIS (Dein bestehender Code)
         user_record = db.codes.find_one({"email": email})
         
