@@ -285,34 +285,27 @@ function waehleSektor(id) {
         const adminSelect = document.getElementById('admin-sektor-auswahl'); if (adminSelect) { themen.forEach((t, i) => { adminSelect.innerHTML += `<option value="${i}">Sektor ${i+1}: ${t}</option>`; }); }
       
         // 2. Funktion für die Rechtliche Texte
- function openLegal(fileName) {
-    const area = document.getElementById('main-text-area'); 
+async function openLegal(fileName) {
+    // Holt das Overlay-Element auf Ebene 1
+    const area = document.getElementById('legal-content-area'); 
     const overlay = document.getElementById('legal-overlay');
-    if (overlay) overlay.style.display = 'block';
     
-    // Die Texte werden direkt hier im Frontend gespeichert, damit der Server nicht blockieren kann
-    const texte = {
-        impressum: `
-            <h2>Impressum</h2>
-            <p>M&M Community</p>
-            <p>Gründer: Goran Petrovic</p>
-            <!-- Trage hier den Rest deines Impressums ein -->
-        `,
-        datenschutz: `
-            <h2>Datenschutzerklärung</h2>
-            <p>Hier stehen deine Datenschutzbestimmungen...</p>
-        `,
-        nutzungsbedingungen: `
-            <h2>Nutzungsbedingungen</h2>
-            <p>Hier stehen deine Nutzungsbedingungen für die Community...</p>
-        `
-    };
-
-    // Prüfen, ob wir den Text direkt parat haben
-    if (texte[fileName]) {
-        area.innerHTML = texte[fileName];
-    } else {
-        area.innerHTML = "<span style='color:red;'>Fehler: Text für " + fileName + " konnte nicht geladen werden.</span>";
+    if (overlay) {
+        overlay.style.display = 'block';
+    }
+    
+    if (area) {
+        area.innerHTML = "Inhalt wird geladen...";
+        try {
+            // Holt den Text jetzt sauber aus deinen frisch befüllten GitHub-Dateien
+            const response = await fetch('/' + fileName + '.html'); 
+            if (!response.ok) throw new Error('Datei konnte nicht geladen werden');
+            
+            const data = await response.text();
+            area.innerHTML = data;
+        } catch (error) {
+            area.innerHTML = "<span style='color:red;'>Fehler beim Laden: " + fileName + ".html konnte nicht gefunden werden.</span>";
+        }
     }
 }
      
