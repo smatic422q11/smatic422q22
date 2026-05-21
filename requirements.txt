@@ -5,3 +5,5 @@ google-genai
 pymongo
 dnspython
 certifi
+requests
+fpdf
