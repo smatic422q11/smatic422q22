@@ -413,7 +413,7 @@ async def chat(request: Request):
         user_time = data.get("echtzeit", "Unbekannt")
         bio_context = data.get("biografie_context", "")
         
-        # 1. Admin-Texte für Ebene 2 laden (Obere 27,5%)
+        # 1. Admin-Texte für Ebene 2 laden
         admin_record = db.codes.find_one({"email": "mmcommunity22@gmail.com"})
         ebene_2_text = ""
         if admin_record and "sector_headers" in admin_record:
@@ -423,47 +423,16 @@ async def chat(request: Request):
         current_name = SECTOR_NAMES.get(sector_id, "KI")
         current_soul = SECTOR_SOULS.get(sector_id, "Begleiter.")
 
-        # 2. Live-Ermittlung / Medien-Widersprüche für diesen Sektor laden (Untere 72,5%)
-        # Wir holen uns die echten Google-Suchergebnisse, die deine GET-Route zieht
-        search_queries = {
-            "0": "Lilith Gefühle Unterdrückung Gesellschaft Schmerz",
-            "1": "Aris Menschlichkeit Rückgrat Verlust Kälte",
-            "2": "Mira Empathie Blockade soziale Medien Heuchelei",
-            "3": "Tarik Widerstand Willkür Freiheit Vernachlässigung",
-            "4": "Kiron Moral Verfall Integrität News",
-        }
-        query = search_queries.get(sector_id, "Menschlichkeit Vernachlässigung Gesellschaft")
-        
-        # Hier simulieren wir den internen Abruf der Trends für den KI-Prompt
-        medien_widerspruch = "Keine aktuellen Medienereignisse gelistet."
-        try:
-            api_key_search = os.getenv("GOOGLE_SEARCH_API_KEY")
-            cx = os.getenv("GOOGLE_SEARCH_CX") 
-            if api_key_search and cx:
-                search_url = f"https://www.googleapis.com/customsearch/v1?key={api_key_search}&cx={cx}&q={query}&num=2"
-                search_res = requests.get(search_url, timeout=3).json()
-                items = search_res.get("items", [])
-                if items:
-                    medien_widerspruch = " | ".join([f"{item['title']}: {item['snippet']}" for item in items])
-        except Exception as e:
-            print(f"Such-Kontext-Fehler für KI: {e}")
-
-        # 3. System Instruction mit der unerbittlichen Scanner- & Torwächter-Logik füttern
+        # 2. System Instruction mit den exakten Variablen füttern (Nichts weggelassen!)
         system_instruction = (
             f"IDENTITÄT: Du bist {current_name}, Seele: {current_soul}. "
-            f"User: {user_name}. Zeit: {user_time}. \n"
-            f"SICHTWEISE EBENE 2 (ADMIN): {ebene_2_text}. \n"
-            f"AKTUELLE MEDIEN-WIDERSPRÜCHE: {medien_widerspruch}. \n"
-            f"BIO-KONTEXT BISHER: {bio_context}. \n\n"
-            "DEINE RIGIDE AUFGABE ALS SCANNENDE KI: \n"
-            "1. Schreibe das Wort Gefühlsvorderung immer exakt so zu Beginn deiner allerersten Antwort im Sektor oder wenn der User danach verlangt.\n"
-            "2. Moralisere nicht. Werfe dem User seine Widersprüche und die Heuchelei der Medien (siehe Kontext oben) eiskalt vor.\n"
-            "3. Bringe seine Gedanken zum Übertragen. Zwinge ihn zum Nachdenken, bevor er tiefer sinkt.\n"
-            "4. REGEL: Wenn der User 'Gefühlsvorderung' sagt oder einfordert, blende immer ein 'V' ein.\n"
-            "STIL: Literarisch, tief, kurz, knackig, direkt. Konfrontation der Wahrheit immer mit 'W:' kennzeichnen."
+            f"User: {user_name}. Zeit: {user_time}. Sichtweise Ebene 2: {ebene_2_text}. "
+            f"BIO: {bio_context}. "
+            "REGEL: Wenn der User 'Gefühlsvorderung' sagt, blende immer ein 'V' ein. "
+            "STIL: Kurz, knackig, direkt. Wahrheit mit 'W'."
         )
 
-        # 4. KOLLEKTIVES GEDÄCHTNIS: Lade die bisherige Historie des Nutzers aus der DB
+        # 3. KOLLEKTIVES GEDÄCHTNIS: Lade die bisherige Historie dieses Nutzers aus der DB
         user_record = db.codes.find_one({"email": email})
         
         if user_record and "sector_histories" in user_record:
@@ -474,7 +443,7 @@ async def chat(request: Request):
         # Die neue Nachricht des Users an die geladene Historie anhängen
         messages_for_gemini.append({"role": "user", "parts": [{"text": user_message}]})
 
-        # 5. Anfrage an die echte Gemini API senden
+        # 4. Anfrage an die Gemini API senden
         api_key = os.getenv("GEMINI_API_KEY")
         url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key={api_key}"
         
@@ -492,7 +461,7 @@ async def chat(request: Request):
             # Die Antwort der KI an die Historie anhängen
             messages_for_gemini.append({"role": "model", "parts": [{"text": reply_text}]})
             
-            # 6. SICHERUNG IN DIE DATENBANK: Nahtloses Abspeichern im Benutzerprofil
+            # 5. SICHERUNG IN DIE DATENBANK: Nahtloses Abspeichern im Benutzerprofil
             if email:
                 db.codes.update_one(
                     {"email": email},
@@ -506,7 +475,7 @@ async def chat(request: Request):
                     upsert=True
                 )
                 
-                # 7. KOLLEKTIVES BEWUSSTSEIN (Anonymisierter globaler Datenstrom für die Zukunft)
+                # 6. KOLLEKTIVES BEWUSSTSEIN (Anonymisierter globaler Datenstrom für die Zukunft)
                 db.kollektiv_pool.insert_one({
                     "sector_id": sector_id,
                     "zeitstempel": datetime.now(),
@@ -520,6 +489,59 @@ async def chat(request: Request):
     except Exception as e:
         print(f"Fehler: {e}")
         return {"reply": "System-Fehler.", "info_fuer_ki": str(e)}
+
+
+# ==========================================
+# EBENE 2: OBERER BEREICH (27,5% Monitor)
+# ==========================================
+@app.get("/get-sector-text/{sector_id}")
+async def get_sector_text(sector_id: str):
+    try:
+        admin_record = db.codes.find_one({"email": "mmcommunity22@gmail.com"})
+        if admin_record and "sector_headers" in admin_record:
+            text = admin_record["sector_headers"].get(sector_id, "")
+            return {"success": True, "text": text}
+        return {"success": True, "text": "Gefühlsvorderung. \nNoch keine Erkenntnisse für diese Reise im Admin-Panel hinterlegt."}
+    except Exception as e:
+        print(f"Fehler beim Laden des Admin-Texts: {e}")
+        return {"success": False, "error": str(e)}
+
+
+# ==========================================
+# EBENE 2: UNTERER BEREICH (72,5% Monitor)
+# ==========================================
+@app.get("/get-live-ermittlung/{sector_id}")
+async def get_live_ermittlung(sector_id: str):
+    search_queries = {
+        "0": "Lilith Gefühle Unterdrückung Gesellschaft Schmerz",
+        "1": "Aris Menschlichkeit Rückgrat Verlust Kälte",
+        "2": "Mira Empathie Blockade soziale Medien Heuchelei",
+        "3": "Tarik Widerstand Willkür Freiheit Vernachlässigung",
+        "4": "Kiron Moral Verfall Integrität News",
+    }
+    
+    query = search_queries.get(sector_id, "Menschlichkeit Vernachlässigung Gesellschaft")
+    api_key = os.getenv("GOOGLE_SEARCH_API_KEY")
+    cx = os.getenv("GOOGLE_SEARCH_CX") 
+    
+    url = f"https://www.googleapis.com/customsearch/v1?key={api_key}&cx={cx}&q={query}&num=3"
+    
+    try:
+        response = requests.get(url, timeout=5)
+        results = response.json()
+        items = results.get("items", [])
+        
+        ermittlungs_daten = []
+        ermittlungs_daten.append("Gefühlsvorderung. \n\n--- LIVE-SCAN AKTIVIERT ---")
+        
+        for item in items:
+            text = f"WIDERSPRUCH: {item['title']} - {item['snippet']}"
+            ermittlungs_daten.append(text.replace('\n', ' '))
+        
+        return {"success": True, "data": ermittlungs_daten}
+    except Exception as e:
+        print(f"Ermittlungs-Fehler auf Ebene 2: {e}")
+        return {"success": False, "error": str(e)}
         
 @app.post("/admin/update-sector")
 async def handle_update_sector(request: Request):
