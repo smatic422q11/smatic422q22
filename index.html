@@ -285,14 +285,16 @@ function waehleSektor(id) {
         const adminSelect = document.getElementById('admin-sektor-auswahl'); if (adminSelect) { themen.forEach((t, i) => { adminSelect.innerHTML += `<option value="${i}">Sektor ${i+1}: ${t}</option>`; }); }
       
         // 2. Funktion für die Rechtliche Texte
-  async function openLegal(fileName) {
-    const area = document.getElementById('legal-content-area');
+ async function openLegal(fileName) {
+    // Wir nehmen wieder den Haupt-Textbereich, der auch in der Scan-Optik aktiv ist
+    const area = document.getElementById('main-text-area'); 
     const overlay = document.getElementById('legal-overlay');
-    overlay.style.display = 'block';
+    if (overlay) overlay.style.display = 'block';
+    
     area.innerHTML = "Inhalt wird geladen...";
     try {
-        // Hier das / entfernen, genau wie im alten Code:
-        const response = await fetch('/' + fileName + '.html');
+        // Wir zwingen den Browser, ganz vorne im Hauptverzeichnis zu suchen
+        const response = await fetch('/' + fileName + '.html'); 
         if (!response.ok) throw new Error('Datei nicht gefunden');
         const data = await response.text();
         area.innerHTML = data;
