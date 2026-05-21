@@ -33,8 +33,10 @@
         .mm-fundament-final { width: 98%; max-width: 1550px; height: 60px; background-color: #000; border: 3px solid #003d8f; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 25px rgba(0, 61, 143, 0.4); margin-bottom: 60px; flex-shrink: 0; }
 
         /* EBENE 2: SCAN (27.5% PLATZ OBEN) */
-       .scan-header-space { width: 100%; height: 27.5vh; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 900; letter-spacing: 5px; background: radial-gradient(circle, #003d8f 0%, #000 80%) !important; border-bottom: 2px solid #003d8f; text-shadow: 0 0 20px #fff; text-transform: uppercase; }
-        #main-text-area { width: 100vw; height: calc(100vh - 27.5vh - 60px); overflow-y: auto; color: #ccc; font-size: 1.1rem; border: none; padding: 20px; background: rgba(255,0,0,0.03); margin-bottom: 0; box-sizing: border-box; position: relative; }
+        .scan-header-space { width: 100%; height: 35vh; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #fff; background: radial-gradient(circle, #003d8f 0%, #000 80%) !important; border-bottom: 2px solid #003d8f; text-transform: uppercase; padding: 20px; box-sizing: border-box; z-index: 10; }
+         #sector-title-starr { font-weight: 900; letter-spacing: 5px; font-size: 1.4rem; text-shadow: 0 0 20px #fff; margin-bottom: 15px; }
+         #admin-text-zentrum { color: #ffd700; font-size: 1.1rem; letter-spacing: 2px; max-width: 80%; text-align: center; line-height: 1.4; }
+         #main-text-area { width: 100vw; height: calc(100vh - 35vh - 60px); overflow-y: auto; color: #ccc; font-size: 1.1rem; border: none; padding: 20px; background: rgba(255,0,0,0.03); box-sizing: border-box; position: relative; }
         
         /* EBENE 3: CHAT */
         #ebene3 { width: 100%; height: 100vh; background-size: cover; background-position: center; transition: background-image 3s ease-in-out; position: relative; }
@@ -130,12 +132,15 @@
     </div>
 
     <div id="ebene2" class="ebene">
-        <div class="scan-header-space">M&M COMMUNITY TEXTE & SICHTWEISEN (27.5% PLATZ)</div>
-        <div id="main-text-area">
-            <span style="color:#ff0000; font-weight:900;">KI-ERMITTLUNG AKTIV</span><br><br>
-            Initialisiere Sektor-Daten...
-        </div>
+    <div class="scan-header-space">
+        <div id="sector-title-starr">LÄDT...</div>
+        <div id="admin-text-zentrum">Gefühlsvorderung.</div>
     </div>
+    <div id="main-text-area">
+        <span style="color:#ff0000; font-weight:900;">KI-ERMITTLUNG AKTIV</span><br><br>
+        Warte auf Scan-Ergebnisse...
+    </div>
+</div>
 
     <div id="ebene3" class="ebene">
         <div class="chat-ebene-container">
@@ -297,42 +302,39 @@ function waehleSektor(id) {
 
 // EBENE 2: Der "Himmel" für deine Texte (Blaues Leuchten)
 async function starteScanOptik(themenIndex) {
-    if (typeof scanSlideshow !== 'undefined') clearInterval(scanSlideshow);
-    
-    const headerSpace = document.querySelector('.scan-header-space');
+    const titleEl = document.getElementById('sector-title-starr');
+    const adminEl = document.getElementById('admin-text-zentrum');
     const textArea = document.getElementById('main-text-area');
-    
-    headerSpace.style.backgroundImage = "none"; 
-    headerSpace.innerHTML = `SEKTOR: ${themen[themenIndex]}`;
-    
-    // 1. Admin-Sichtweise laden (Ebene 2 Oben)
+
+    // 1. Starr setzen
+    titleEl.innerText = `SEKTOR: ${themen[themenIndex]}`;
+    adminEl.innerText = "Lade Admin-Sichtweise...";
+    textArea.innerHTML = `<span style="color:#ff4d4d; font-weight:900;">KI-ERMITTLUNG AKTIV...</span>`;
+
+    // 2. Admin-Text holen
     try {
         const resText = await fetch(`/get-sector-text/${themenIndex}`);
         const dataText = await resText.json();
         if (dataText.success) {
-            // Wir setzen den Admin-Text oben ein
-            headerSpace.innerHTML = `SEKTOR: ${themen[themenIndex]}<br><span style="font-size:0.8rem; letter-spacing:2px; color:#ffd700;">${dataText.text}</span>`;
+            adminEl.innerText = dataText.text; 
         }
-    } catch (e) { console.error("Fehler beim Laden des Header-Texts"); }
+    } catch (e) { adminEl.innerText = "Fehler beim Laden der Sichtweise."; }
 
-    // 2. Live-Ermittlung / Google-Scan laden (Ebene 2 Unten)
-    textArea.innerHTML = `<span style="color:#ff4d4d; font-weight:900;">KI-ERMITTLUNG AKTIV...</span><br><br>Scanne Sektor ${themen[themenIndex]} nach Widersprüchen...`;
-    
+    // 3. Live-Scan (Google) holen
     try {
         const resLive = await fetch(`/get-live-ermittlung/${themenIndex}`);
         const dataLive = await resLive.json();
-        
-        if (dataLive.success) {
+        if (dataLive.success && dataLive.data) {
             textArea.innerHTML = `<span style="color:#00ff00; font-weight:900;">SCAN ABGESCHLOSSEN</span><br><br>`;
             dataLive.data.forEach(zeile => {
-                textArea.innerHTML += `<div style="margin-bottom:15px; border-left: 2px solid #003d8f; padding-left: 10px;">${zeile}</div>`;
+                textArea.innerHTML += `<div style="margin-bottom:12px; border-left: 2px solid #003d8f; padding-left: 10px; color:#ccc;">${zeile}</div>`;
             });
+        } else {
+            textArea.innerHTML = "Keine Live-Widersprüche im Sektor gefunden.";
         }
-    } catch (e) { 
-        textArea.innerHTML = "Scanner-Verbindung unterbrochen."; 
-    }
+    } catch (e) { textArea.innerHTML = "Scanner-Verbindung fehlgeschlagen."; }
 }
-
+     
 // EBENE 3: Die emotionale Reise (Bilder KOMPLETT abgewürgt für Wolken-Test!)
 function starteChatHintergrund() {
     // Hier löschen wir JEDEN laufenden Timer im System, damit nichts mehr springt!
