@@ -540,7 +540,7 @@ async def get_live_ermittlung(sector_id: str):
             
             # Die Bereinigung wurde in kurze Zeilen zerlegt, um Render-Fehler zu vermeiden:
             j1 = raw_text.replace('```json', '')
-            j2 = j1.replace('
+            j2 = j1.replace('\n', ' ')
 ```', '')
             clean_json = j2.replace("'", '"').strip()
             
