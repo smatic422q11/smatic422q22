@@ -537,6 +537,41 @@ async def handle_update_sector(request: Request):
         return {"success": True, "message": "Status gesetzt."}
     except Exception as e:
         return JSONResponse(content={"success": False, "error": str(e)}, status_code=500)
+        
+  @app.post("/generate-pdf")
+async def generate_pdf(request: Request):
+    try:
+        data = await request.json()
+        email = data.get("email", "").lower().strip()
+        user_record = db.codes.find_one({"email": email})
+        
+        if not user_record:
+            return {"success": False, "message": "User nicht gefunden"}
+
+        # Hier wird der PDF-Inhalt erstellt
+        from fpdf import FPDF
+        pdf = FPDF()
+        pdf.add_page()
+        pdf.set_font("Arial", size=12)
+        
+        pdf.cell(200, 10, txt=f"Biografie fuer: {email}", ln=True, align='C')
+        pdf.ln(10)
+        
+        # Beispiel: Biografie-Daten aus der DB holen
+        bio_text = user_record.get("biografie", "Keine Biografie hinterlegt.")
+        pdf.multi_cell(0, 10, txt=str(bio_text))
+        
+        # PDF in den Speicher schreiben
+        from io import BytesIO
+        output = BytesIO()
+        pdf.output(output)
+        output.seek(0)
+        
+        from fastapi.responses import StreamingResponse
+        return StreamingResponse(output, media_type="application/pdf", headers={"Content-Disposition": "attachment; filename=Biografie.pdf"})
+        
+    except Exception as e:
+        return {"success": False, "error": str(e)}      
 
 if __name__ == "__main__":
     import uvicorn
