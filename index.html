@@ -236,30 +236,47 @@
 
 
 <!-- ==========================================
-     EBENE 22: DAS KOLLEKTIV (VERIFIZIERUNG & ABO)
+     EBENE 22: DAS KOLLEKTIV (PROFESSIONELLE VERIFIZIERUNG & ABO)
      ========================================== -->
 <div id="ebene22" class="ebene">
     <div class="special-content" style="border: 2px solid #003d8f; background-color: #000; padding: 30px; width: 90%; max-width: 800px; margin-top: 50px; box-sizing: border-box; text-align: left;">
         <h1 style="color: #003d8f; letter-spacing: 3px; font-size: 1.8rem; text-align: center; margin-bottom: 20px;">🌐 SEKTOR 22: DAS KOLLEKTIV | VERIFIZIERUNG</h1>
         
         <div style="background: #111; border-left: 4px solid #003d8f; padding: 15px; margin-bottom: 25px; color: #ccc; font-size: 0.95rem; line-height: 1.6;">
-            <strong>ZUGANGSSCHLÜSSEL ERFORDERLICH</strong><br>
-            Um die vollständige Community-Synchronisation abzuschließen und die dauerhafte Verbindung zu Ebene 4 zu etablieren, ist eine eindeutige Identitäts-Verifizierung und die Aktivierung der System-Lizenz notwendig.
+            <strong>M&M SYSTEM-SYNCHRONISATION</strong><br>
+            Um die Verifizierung abzuschließen und die Freischaltung für die Ebene 4 zu autorisieren, hinterlege bitte deine gültigen Stammdaten für das System-Abonnement.
         </div>
 
         <div style="margin-bottom: 25px;">
-            <label style="color: #003d8f; font-weight: bold; font-size: 0.85rem; display: block; margin-bottom: 5px;">Vollständiger Name / Identität:</label>
-            <input type="text" class="form-input enter-trigger" style="width: 100%; background: #111; color: #fff; border: 1px solid #333; padding: 10px; box-sizing: border-box; outline: none; margin-bottom: 15px;" placeholder="Goran Petrovic...">
+            <!-- Bereich 1: Identität -->
+            <label style="color: #003d8f; font-weight: bold; font-size: 0.85rem; display: block; margin-bottom: 5px;">Vollständiger Name (Kontoinhaber):</label>
+            <input type="text" id="abo-name" class="form-input enter-trigger" style="width: 100%; background: #111; color: #fff; border: 1px solid #333; padding: 10px; box-sizing: border-box; outline: none; margin-bottom: 15px;" placeholder="Vor- und Nachname">
             
-            <label style="color: #003d8f; font-weight: bold; font-size: 0.85rem; display: block; margin-bottom: 5px;">Verifizierungs-Konto / Lizenz-ID:</label>
-            <input type="text" class="form-input enter-trigger" style="width: 100%; background: #111; color: #fff; border: 1px solid #333; padding: 10px; box-sizing: border-box; outline: none;" placeholder="M&M-XXXX-XXXX...">
+            <!-- Bereich 2: Anschrift -->
+            <label style="color: #003d8f; font-weight: bold; font-size: 0.85rem; display: block; margin-bottom: 5px;">Rechnungsanschrift (Straße, Hausnummer):</label>
+            <input type="text" id="abo-adresse" class="form-input enter-trigger" style="width: 100%; background: #111; color: #fff; border: 1px solid #333; padding: 10px; box-sizing: border-box; outline: none; margin-bottom: 15px;" placeholder="Musterstraße 12 / Tür 3">
+            
+            <div style="display: flex; gap: 15px; margin-bottom: 15px;">
+                <div style="flex: 1;">
+                    <label style="color: #003d8f; font-weight: bold; font-size: 0.85rem; display: block; margin-bottom: 5px;">PLZ:</label>
+                    <input type="text" id="abo-plz" class="form-input enter-trigger" style="width: 100%; background: #111; color: #fff; border: 1px solid #333; padding: 10px; box-sizing: border-box; outline: none;" placeholder="1020">
+                </div>
+                <div style="flex: 2;">
+                    <label style="color: #003d8f; font-weight: bold; font-size: 0.85rem; display: block; margin-bottom: 5px;">Ort:</label>
+                    <input type="text" id="abo-ort" class="form-input enter-trigger" style="width: 100%; background: #111; color: #fff; border: 1px solid #333; padding: 10px; box-sizing: border-box; outline: none;" placeholder="Wien">
+                </div>
+            </div>
+
+            <!-- Bereich 3: Bankdaten -->
+            <label style="color: #003d8f; font-weight: bold; font-size: 0.85rem; display: block; margin-bottom: 5px;">Kontoverbindung (IBAN):</label>
+            <input type="text" id="abo-iban" class="form-input enter-trigger" style="width: 100%; background: #111; color: #fff; border: 1px solid #333; padding: 10px; box-sizing: border-box; outline: none;" placeholder="ATXX XXXX XXXX XXXX XXXX">
         </div>
 
-        <div style="background: #050505; border: 1px solid #222; padding: 15px; margin-bottom: 25px; font-size: 0.85rem; color: #777;">
-            ⚠️ <strong>Hinweis zur Freischaltung:</strong> Nach erfolgreichem Abschluss des Abonnements wird dein System-Token innerhalb von 60 Sekunden permanent im dezentralen Netzwerk validiert.
+        <div style="background: #050505; border: 1px solid #222; padding: 15px; margin-bottom: 25px; font-size: 0.85rem; color: #777; line-height: 1.4;">
+            🔒 <strong>Datenschutz-Verschlüsselung:</strong> Deine Angaben werden direkt über eine gesicherte SSL-Verbindung verarbeitet. Nach der Validierung wird der System-Token für die Freischaltung von Ebene 4 generiert.
         </div>
 
-        <button class="action-btn" style="width: 100%; background: #003d8f; color: #fff; font-weight: bold; font-size: 1.1rem; padding: 12px;" onclick="alert('Verbinde mit Zahlungsanbieter... Abonnement-Prozess wird gestartet.')">Identität bestätigen & Abonnement aktivieren</button>
+        <button class="action-btn" style="width: 100%; background: #003d8f; color: #fff; font-weight: bold; font-size: 1.1rem; padding: 12px;" onclick="alert('Verbinde mit dem M&M Gateway... Daten werden sicher geprüft.')">Zahlungspflichtiges Abonnement aktivieren</button>
     </div>
 </div>
   <div class="bottom-nav">
