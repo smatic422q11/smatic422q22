@@ -9,6 +9,21 @@ from fastapi.responses import JSONResponse, FileResponse
 from pymongo import MongoClient
 from pymongo.server_api import ServerApi
 
+def perform_google_search(query):
+    api_key = os.getenv('GOOGLE_API_KEY')
+    cx_id = os.getenv('GOOGLE_CX')
+    url = f"https://www.googleapis.com/customsearch/v1?key={api_key}&cx={cx_id}&q={query}"
+    
+    try:
+        response = requests.get(url)
+        if response.status_code == 200:
+            results = response.json().get("items", [])
+            snippet = "\n".join([item.get("snippet", "") for item in results[:3]])
+            return snippet
+        return "Keine Suchergebnisse gefunden."
+    except Exception as e:
+        return f"Fehler bei der Suche: {str(e)}"
+        
 # 1. DATENBANK-VERBINDUNG
 MONGO_URI = os.environ.get('MONGO_URI')
 ca = certifi.where()
@@ -493,7 +508,9 @@ async def get_sector_text(sector_id: str):
         admin_record = db.codes.find_one({"email": "mmcommunity22@gmail.com"})
         text = admin_record.get("sector_headers", {}).get(sector_id, "Gefühlsvorderung. \nKeine Admin-Sichtweise hinterlegt.") if admin_record else "Gefühlsvorderung. \nKeine Admin-Sichtweise hinterlegt."
         return {"success": True, "text": text}
-    except Exception as e:
+   @app.get("/test")
+async def test():
+    return {"status": "ok"}
         return {"success": False, "error": str(e)}
         
 @app.post("/get-live-ermittlung/{sector_id}")
