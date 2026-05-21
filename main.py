@@ -545,46 +545,42 @@ async def get_sector_text(sector_id: str):
 # ==========================================
 @app.post("/get-live-ermittlung/{sector_id}")
 async def get_live_ermittlung(sector_id: str):
+    import json
+    import re
+    
     api_key = os.getenv("GEMINI_API_KEY")
     seelen_name = SECTOR_NAMES.get(sector_id, "KI")
     
-    # Der Prompt bleibt unerbittlich und präzise
+    # Der Prompt erzwingt genau deine Struktur
     prompt = (
-        f"Du bist der KI-Scanner. Sektor: {seelen_name}. "
-        "Generiere 3 knallharte gesellschaftliche Widersprüche. "
-        "Regel: Jede Zeile MUSS mit 'WIDERSPRUCH:' beginnen. "
-        "KEINE Sternchen, KEIN Markdown, KEINE Einleitung. Nur der nackte Text."
+        f"Du bist der KI-Scanner für Sektor: {seelen_name}. "
+        "Erstelle eine Analyse im exakten JSON-Format. "
+        "Verwende NUR diese 4 Schlüssel: 'lagebericht', 'akteure', 'kontrast', 'fazit'. "
+        "Schreibe die Inhalte in dem Stil: provokant, tiefgründig, M&M Community Stil. "
+        "WICHTIG: Antworte ausschließlich als JSON ohne Einleitung und ohne Markdown."
     )
-
-    # Deine exakte URL
+    
     url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key={api_key}"
     payload = {"contents": [{"parts": [{"text": prompt}]}]}
 
     try:
-        # Erhöhter Timeout für Gemini 3.0 Stabilität
-        response = requests.post(url, json=payload, timeout=10)
-        res_data = response.json()
-        
+        response = requests.post(url, json=payload, timeout=20)
         if response.status_code == 200:
+            res_data = response.json()
             raw_text = res_data['candidates'][0]['content']['parts'][0]['text']
             
-            # Säubern von Markdown-Resten
-            clean_text = raw_text.replace('*', '')
+            # Alles entfernen, was kein JSON ist
+            clean_json = raw_text.replace('```json', '').replace('
+```', '').strip()
+            match = re.search(r'\{.*\}', clean_json, re.DOTALL)
             
-            # Zerlegen und Validieren der Zeilen
-            lines = [l.strip() for l in clean_text.split('\n') if "WIDERSPRUCH:" in l]
+            if match:
+                data = json.loads(match.group(0))
+                return {"success": True, "data": data}
             
-            if not lines:
-                # Fallback, falls das Format leicht abweicht
-                lines = [l.strip() for l in clean_text.split('\n') if l.strip()][:3]
-
-            # Rückgabe exakt in deinem Format
-            return {"success": True, "data": ["Gefühlsvorderung. \n--- LIVE-SCAN AKTIVIERT ---"] + lines}
-        
-        return {"success": False, "error": f"Schnittstelle antwortet nicht korrekt. Status: {response.status_code}"}
+        return {"success": False, "error": "Fehler beim Scan."}
     except Exception as e:
-        print(f"Fehler im Live-Scan: {e}")
-        return {"success": True, "data": ["Gefühlsvorderung. \nScanner wird durch Gemini 3.0 kalibriert..."]}
+        return {"success": False, "error": str(e)}
 # ==========================================
 # ADMIN: UPDATE SECTOR
 # ==========================================
