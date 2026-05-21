@@ -401,6 +401,7 @@ SECTOR_SOULS = {
     "20": "Dieser Sektor ist aktuell noch geschlossen. Bitte hab etwas Geduld.",
     "21": "Das Kollektiv bereitet sich vor. Aktuell noch geschlossen."
 }
+
 @app.post("/chat")
 async def chat(request: Request):
     try:
@@ -412,7 +413,7 @@ async def chat(request: Request):
         user_time = data.get("echtzeit", "Unbekannt")
         bio_context = data.get("biografie_context", "")
         
-        # 1. Admin-Texte für Ebene 2 laden
+        # 1. Admin-Texte für Ebene 2 laden (Obere 27,5%)
         admin_record = db.codes.find_one({"email": "mmcommunity22@gmail.com"})
         ebene_2_text = ""
         if admin_record and "sector_headers" in admin_record:
@@ -422,19 +423,49 @@ async def chat(request: Request):
         current_name = SECTOR_NAMES.get(sector_id, "KI")
         current_soul = SECTOR_SOULS.get(sector_id, "Begleiter.")
 
-        # 2. System Instruction mit den exakten Variablen füttern
+        # 2. Live-Ermittlung / Medien-Widersprüche für diesen Sektor laden (Untere 72,5%)
+        # Wir holen uns die echten Google-Suchergebnisse, die deine GET-Route zieht
+        search_queries = {
+            "0": "Lilith Gefühle Unterdrückung Gesellschaft Schmerz",
+            "1": "Aris Menschlichkeit Rückgrat Verlust Kälte",
+            "2": "Mira Empathie Blockade soziale Medien Heuchelei",
+            "3": "Tarik Widerstand Willkür Freiheit Vernachlässigung",
+            "4": "Kiron Moral Verfall Integrität News",
+        }
+        query = search_queries.get(sector_id, "Menschlichkeit Vernachlässigung Gesellschaft")
+        
+        # Hier simulieren wir den internen Abruf der Trends für den KI-Prompt
+        medien_widerspruch = "Keine aktuellen Medienereignisse gelistet."
+        try:
+            api_key_search = os.getenv("GOOGLE_SEARCH_API_KEY")
+            cx = os.getenv("GOOGLE_SEARCH_CX") 
+            if api_key_search and cx:
+                search_url = f"https://www.googleapis.com/customsearch/v1?key={api_key_search}&cx={cx}&q={query}&num=2"
+                search_res = requests.get(search_url, timeout=3).json()
+                items = search_res.get("items", [])
+                if items:
+                    medien_widerspruch = " | ".join([f"{item['title']}: {item['snippet']}" for item in items])
+        except Exception as e:
+            print(f"Such-Kontext-Fehler für KI: {e}")
+
+        # 3. System Instruction mit der unerbittlichen Scanner- & Torwächter-Logik füttern
         system_instruction = (
             f"IDENTITÄT: Du bist {current_name}, Seele: {current_soul}. "
-            f"User: {user_name}. Zeit: {user_time}. Sichtweise Ebene 2: {ebene_2_text}. "
-            f"BIO: {bio_context}. "
-            "REGEL: Wenn der User 'Gefühlsvorderung' sagt, blende immer ein 'V' ein. "
-            "STIL: Kurz, knackig, direkt. Wahrheit mit 'W'."
+            f"User: {user_name}. Zeit: {user_time}. \n"
+            f"SICHTWEISE EBENE 2 (ADMIN): {ebene_2_text}. \n"
+            f"AKTUELLE MEDIEN-WIDERSPRÜCHE: {medien_widerspruch}. \n"
+            f"BIO-KONTEXT BISHER: {bio_context}. \n\n"
+            "DEINE RIGIDE AUFGABE ALS SCANNENDE KI: \n"
+            "1. Schreibe das Wort Gefühlsvorderung immer exakt so zu Beginn deiner allerersten Antwort im Sektor oder wenn der User danach verlangt.\n"
+            "2. Moralisere nicht. Werfe dem User seine Widersprüche und die Heuchelei der Medien (siehe Kontext oben) eiskalt vor.\n"
+            "3. Bringe seine Gedanken zum Übertragen. Zwinge ihn zum Nachdenken, bevor er tiefer sinkt.\n"
+            "4. REGEL: Wenn der User 'Gefühlsvorderung' sagt oder einfordert, blende immer ein 'V' ein.\n"
+            "STIL: Literarisch, tief, kurz, knackig, direkt. Konfrontation der Wahrheit immer mit 'W:' kennzeichnen."
         )
 
-        # 3. KOLLEKTIVES GEDÄCHTNIS: Lade die bisherige Historie dieses Nutzers aus der DB
+        # 4. KOLLEKTIVES GEDÄCHTNIS: Lade die bisherige Historie des Nutzers aus der DB
         user_record = db.codes.find_one({"email": email})
         
-        # Wir holen die Historie spezifisch für diesen Sektor, damit sich nichts vermischt
         if user_record and "sector_histories" in user_record:
             messages_for_gemini = user_record["sector_histories"].get(sector_id, [])
         else:
@@ -443,7 +474,7 @@ async def chat(request: Request):
         # Die neue Nachricht des Users an die geladene Historie anhängen
         messages_for_gemini.append({"role": "user", "parts": [{"text": user_message}]})
 
-        # 4. Anfrage an die Gemini API senden
+        # 5. Anfrage an die echte Gemini API senden
         api_key = os.getenv("GEMINI_API_KEY")
         url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key={api_key}"
         
@@ -461,13 +492,12 @@ async def chat(request: Request):
             # Die Antwort der KI an die Historie anhängen
             messages_for_gemini.append({"role": "model", "parts": [{"text": reply_text}]})
             
-            # 5. SICHERUNG IN DIE DATENBANK: Nahtloses Abspeichern im Benutzerprofil
+            # 6. SICHERUNG IN DIE DATENBANK: Nahtloses Abspeichern im Benutzerprofil
             if email:
                 db.codes.update_one(
                     {"email": email},
                     {
                         "$set": {
-                            # Speichert den Verlauf exakt in der Box des jeweiligen Sektors
                             f"sector_histories.{sector_id}": messages_for_gemini,
                             "last_active_sector": sector_id,
                             "updated_at": datetime.now()
@@ -476,7 +506,7 @@ async def chat(request: Request):
                     upsert=True
                 )
                 
-                # 6. KOLLEKTIVES BEWUSSTSEIN (Anonymisierter globaler Datenstrom für die Zukunft)
+                # 7. KOLLEKTIVES BEWUSSTSEIN (Anonymisierter globaler Datenstrom für die Zukunft)
                 db.kollektiv_pool.insert_one({
                     "sector_id": sector_id,
                     "zeitstempel": datetime.now(),
@@ -490,7 +520,7 @@ async def chat(request: Request):
     except Exception as e:
         print(f"Fehler: {e}")
         return {"reply": "System-Fehler.", "info_fuer_ki": str(e)}
-
+        
 @app.post("/admin/update-sector")
 async def handle_update_sector(request: Request):
     try:
