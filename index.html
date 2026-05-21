@@ -559,6 +559,10 @@ async function adminSetzeSektorStatus() {
         alert("Fassaden-Regelung aktiv! Sektor " + (parseInt(sektorId) + 1) + " wurde auf den neuen Status gesetzt.");
     } catch (e) { alert("Fehler beim Erzwingen des Status."); }
 }
+ function adminOeffneSpezialKonfig() {
+    // Hier kannst du später Einstellungen für die beiden starren Sektoren einbauen
+    alert("M&M System-Hinweis:\nSektor 21 (Manifest) und Sektor 22 (Kollektiv) laufen über feste Protokolle für den E-Book-Export und die Abo-Struktur. Die Ebene 4 Freischaltungs-Parameter sind aktiv hinterlegt!");
+}    
 async function generiereBiografiePDF() {
     const email = document.getElementById('db-mail').value;
     if(!email) return alert("Bitte erst E-Mail auf dem Dashboard eingeben!");
