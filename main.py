@@ -541,7 +541,7 @@ async def get_live_ermittlung(sector_id: str):
             raw_text = res_data['candidates'][0]['content']['parts'][0]['text']
             
             j1 = raw_text.replace('```json', '')
-            j2 = j1.replace('
+            j2 = j1.replace('\n', ' ')
 ```', '')
             j3 = j2.replace('\n', ' ')
             clean_json = j3.replace("'", '"').strip()
