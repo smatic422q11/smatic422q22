@@ -538,17 +538,14 @@ async def get_live_ermittlung(sector_id: str, request: Request):
             
         seelen_name = SECTOR_NAMES.get(sector_id, "KI")
         
-       # Die flexiblere Suche, damit Google garantiert Treffer ausgibt
+        # 3. Die flexiblere Suche, damit Google garantiert Treffer ausgibt
         such_anfrage = f'{user_name} news OR {user_name} social media OR {user_name} aussagen'
-        
-        # Echte Google-Daten abrufen
-        google_ergebnisse = perform_google_search(such_anfrage)
-        
-        # KONTROLL-BEFEHL: Druckt das Ergebnis direkt in dein Render-Log
-        print(f"--- GOOGLE ERGEBNISSE FÜR {user_name}: {google_ergebnisse} ---")
         
         # 4. Echte Google-Daten abrufen
         google_ergebnisse = perform_google_search(such_anfrage)
+        
+        # KONTROLL-BEFEHL 1: Zeigt das Google-Suchergebnis im Render-Log
+        print(f"--- 1. GOOGLE ERGEBNIS FÜR {user_name}: {google_ergebnisse} ---")
         
         # 5. Den Prompt für den KI-Scanner mit den echten Live-Fakten füttern
         prompt = (
@@ -565,15 +562,22 @@ async def get_live_ermittlung(sector_id: str, request: Request):
             '{"widersprueche": ["Punkt 1", "Punkt 2"], "lagebericht": "Text", "akteure": "Text", "kontrast": "Text", "fazit": "Text"}'
         )
         
-        # 6. Gemini-API aufrufen
+        # 6. Gemini-API aufrufen (JETZT werden die Variablen sauber vorbereitet)
         api_key = os.getenv("GEMINI_API_KEY")
         url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key={api_key}"
         payload = {"contents": [{"parts": [{"text": prompt}]}]}
         
         response = requests.post(url, json=payload, timeout=15)
+        
+        # KONTROLL-BEFEHL 2: Zeigt den Statuscode der Gemini-Verbindung im Log (Sollte 200 sein)
+        print(f"--- 2. GEMINI STATUS: {response.status_code} ---")
+        
         if response.status_code == 200:
             res_data = response.json()
             raw_text = res_data['candidates'][0]['content']['parts'][0]['text']
+            
+            # KONTROLL-BEFEHL 3: Zeigt den Roh-Text, den Gemini zurückgibt
+            print(f"--- 3. GEMINI TEXT RAW: {raw_text} ---")
             
             # JSON-Säuberung
             j1 = raw_text.replace('```json', '').replace('```', '')
