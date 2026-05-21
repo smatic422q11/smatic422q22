@@ -293,70 +293,70 @@ function openLegal(fileName) {
         overlay.style.display = 'block';
     }
     
-    // Die Texte leben direkt hier im Frontend – der Server hat Sendepause!
+    // Texte direkt im Code – optimiert im edlen M&M-Design für perfekte Lesbarkeit
     const texte = {
         impressum: `
-            <div style="font-family: 'Segoe UI', sans-serif; color: #333; line-height: 1.6; padding: 10px;">
-                <h2 style="color: #003d8f; border-bottom: 2px solid #003d8f; padding-bottom: 8px; margin-bottom: 20px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px;">Impressum</h2>
-                <p style="font-weight: 700; font-size: 1.2rem; margin-bottom: 5px;">M&M Community</p>
-                <p style="margin: 0 0 20px 0; color: #666; font-style: italic;">Plattform für digitale Evolution und Vernetzung</p>
+            <div style="font-family: 'Segoe UI', Arial, sans-serif; color: #1a1a1a; line-height: 1.7; padding: 15px; font-size: 1.05rem;">
+                <h1 style="color: #003d8f; border-bottom: 3px solid #003d8f; padding-bottom: 12px; margin-bottom: 25px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; font-size: 1.8rem;">Impressum</h1>
+                <p style="font-weight: 700; font-size: 1.3rem; margin-bottom: 5px; color: #003d8f;">M&M Community</p>
+                <p style="margin: 0 0 25px 0; color: #555; font-style: italic;">Plattform für digitale Evolution und Vernetzung</p>
                 
-                <h3 style="color: #333; font-size: 1.1rem; margin-top: 20px;">Diensteanbieter & Medieninhaber:</h3>
-                <p style="margin: 5px 0;"><strong>Goran [DEIN NACHNAME]</strong></p>
-                <p style="margin: 5px 0;">[DEINE STRASSE UND HAUSNUMMER]</p>
-                <p style="margin: 5px 0;">[DEINE PLZ] Wien</p>
-                <p style="margin: 5px 0;">Österreich</p>
+                <h3 style="color: #003d8f; font-size: 1.2rem; margin-top: 25px; font-weight: 700;">Diensteanbieter & Medieninhaber:</h3>
+                <p style="margin: 6px 0;"><strong>Goran [DEIN NACHNAME]</strong></p>
+                <p style="margin: 6px 0;">[DEINE STRASSE UND HAUSNUMMER]</p>
+                <p style="margin: 6px 0;">[DEINE PLZ] Wien</p>
+                <p style="margin: 6px 0;">Österreich</p>
                 
-                <h3 style="color: #333; font-size: 1.1rem; margin-top: 20px;">Kontakt:</h3>
-                <p style="margin: 5px 0;">E-Mail: <span style="color: #003d8f; font-weight: 600;">[DEINE EMAIL-ADRESSE]</span></p>
+                <h3 style="color: #003d8f; font-size: 1.2rem; margin-top: 25px; font-weight: 700;">Kontakt:</h3>
+                <p style="margin: 6px 0;">E-Mail: <span style="color: #003d8f; font-weight: 600; text-decoration: underline;">[DEINE EMAIL-ADRESSE]</span></p>
                 
-                <h3 style="color: #333; font-size: 1.1rem; margin-top: 20px;">Unternehmensgegenstand:</h3>
-                <p style="margin: 5px 0;">Entwicklung, Betrieb und Bereitstellung einer interaktiven Community-Plattform und datenbasierter Analyse-Systeme.</p>
+                <h3 style="color: #003d8f; font-size: 1.2rem; margin-top: 25px; font-weight: 700;">Unternehmensgegenstand:</h3>
+                <p style="margin: 6px 0;">Entwicklung, Betrieb und Bereitstellung einer interaktiven Community-Plattform und datenbasierter Analyse-Systeme.</p>
                 
-                <h3 style="color: #333; font-size: 1.1rem; margin-top: 20px;">Anwendbare Rechtsvorschriften:</h3>
-                <p style="margin: 5px 0;">Gewerbeordnung (GewO), E-Commerce-Gesetz (ECG), Mediengesetz.</p>
+                <h3 style="color: #003d8f; font-size: 1.2rem; margin-top: 25px; font-weight: 700;">Anwendbare Rechtsvorschriften:</h3>
+                <p style="margin: 6px 0;">Gewerbeordnung (GewO), E-Commerce-Gesetz (ECG), Mediengesetz.</p>
                 
-                <h3 style="color: #333; font-size: 1.1rem; margin-top: 20px;">Online-Streitbeilegung:</h3>
-                <p style="margin: 5px 0;">Verbraucher haben die Möglichkeit, Beschwerden an die Online-Streitbeilegungsplattform der EU zu richten: <a href="http://ec.europa.eu/odr" target="_blank" style="color: #003d8f; text-decoration: none; font-weight: 600;">http://ec.europa.eu/odr</a>.</p>
+                <h3 style="color: #003d8f; font-size: 1.2rem; margin-top: 25px; font-weight: 700;">Online-Streitbeilegung:</h3>
+                <p style="margin: 6px 0;">Verbraucher haben die Möglichkeit, Beschwerden an die Online-Streitbeilegungsplattform der EU zu richten: <a href="http://ec.europa.eu/odr" target="_blank" style="color: #003d8f; text-decoration: none; font-weight: 600; border-bottom: 1px dashed #003d8f;">http://ec.europa.eu/odr</a>.</p>
             </div>
         `,
         
         datenschutz: `
-            <div style="font-family: 'Segoe UI', sans-serif; color: #333; line-height: 1.6; padding: 10px;">
-                <h2 style="color: #003d8f; border-bottom: 2px solid #003d8f; padding-bottom: 8px; margin-bottom: 20px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px;">Datenschutzerklärung</h2>
-                <p style="margin-bottom: 15px;">Der Schutz deiner persönlichen Daten hat für die M&M Community oberste Priorität. Wir behandeln deine Daten vertraulich und streng nach den gesetzlichen Vorschriften der **DSGVO** sowie dem TKG.</p>
+            <div style="font-family: 'Segoe UI', Arial, sans-serif; color: #1a1a1a; line-height: 1.7; padding: 15px; font-size: 1.05rem;">
+                <h1 style="color: #003d8f; border-bottom: 3px solid #003d8f; padding-bottom: 12px; margin-bottom: 25px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; font-size: 1.8rem;">Datenschutzerklärung</h1>
+                <p style="margin-bottom: 20px;">Der Schutz deiner persönlichen Daten hat für die M&M Community oberste Priorität. Wir behandeln deine Daten vertraulich und streng nach den gesetzlichen Vorschriften der **DSGVO** sowie dem TKG.</p>
                 
-                <h3 style="color: #333; font-size: 1.1rem; margin-top: 20px;">1. Verantwortlicher</h3>
-                <p style="margin: 5px 0;">Goran [DEIN NACHNAME], Wien, Österreich.</p>
+                <h3 style="color: #003d8f; font-size: 1.2rem; margin-top: 25px; font-weight: 700;">1. Verantwortlicher</h3>
+                <p style="margin: 6px 0;">Goran [DEIN NACHNAME], Wien, Österreich.</p>
                 
-                <h3 style="color: #333; font-size: 1.1rem; margin-top: 20px;">2. Datenerfassung & Zweckbindung</h3>
-                <p style="margin: 5px 0;">Wir verarbeiten Daten, die zur Sicherung und Bereitstellung unserer Sektoren- und Plattformdienste notwendig sind:</p>
-                <ul style="padding-left: 20px; margin: 5px 0;">
-                    <li><strong>Zugriffsdaten & Logfiles:</strong> IP-Adresse, Datum/Uhrzeit der Anfrage. Dies dient der Systemsicherheit (berechtigtes Interesse gem. Art. 6 Abs. 1 lit. f DSGVO).</li>
-                    <li><strong>Community-Interaktionen:</strong> Daten aus der Sektoren-Nutzung und Verifizierungsprozessen.</li>
+                <h3 style="color: #003d8f; font-size: 1.2rem; margin-top: 25px; font-weight: 700;">2. Datenerfassung & Zweckbindung</h3>
+                <p style="margin: 6px 0;">Wir verarbeiten Daten, die zur Sicherung und Bereitstellung unserer Sektoren- und Plattformdienste notwendig sind:</p>
+                <ul style="padding-left: 22px; margin: 10px 0;">
+                    <li style="margin-bottom: 8px;"><strong>Zugriffsdaten & Logfiles:</strong> IP-Adresse, Datum/Uhrzeit der Anfrage. Dies dient der Systemsicherheit (berechtigtes Interesse gem. Art. 6 Abs. 1 lit. f DSGVO).</li>
+                    <li style="margin-bottom: 8px;"><strong>Community-Interaktionen:</strong> Daten aus der Sektoren-Nutzung und Verifizierungsprozessen.</li>
                 </ul>
                 
-                <h3 style="color: #333; font-size: 1.1rem; margin-top: 20px;">3. Datenspeicherung</h3>
-                <p style="margin: 5px 0;">Deine Daten werden auf sicheren Infrastrukturen (u.a. MongoDB Atlas) verarbeitet und geschützt.</p>
+                <h3 style="color: #003d8f; font-size: 1.2rem; margin-top: 25px; font-weight: 700;">3. Datenspeicherung</h3>
+                <p style="margin: 6px 0;">Deine Daten werden auf sicheren Infrastrukturen (u.a. MongoDB Atlas) verarbeitet und geschützt.</p>
                 
-                <h3 style="color: #333; font-size: 1.1rem; margin-top: 20px;">4. Deine Rechte</h3>
-                <p style="margin: 5px 0;">Dir stehen die Rechte auf Auskunft, Berichtigung, Löschung und Widerruf zu. Beschwerden können an die österreichische Datenschutzbehörde (DSB) gerichtet werden.</p>
+                <h3 style="color: #003d8f; font-size: 1.2rem; margin-top: 25px; font-weight: 700;">4. Deine Rechte</h3>
+                <p style="margin: 6px 0;">Dir stehen die Rechte auf Auskunft, Berichtigung, Löschung und Widerruf zu. Beschwerden können an die österreichische Datenschutzbehörde (DSB) gerichtet werden.</p>
             </div>
         `,
         
         nutzungsbedingungen: `
-            <div style="font-family: 'Segoe UI', sans-serif; color: #333; line-height: 1.6; padding: 10px;">
-                <h2 style="color: #003d8f; border-bottom: 2px solid #003d8f; padding-bottom: 8px; margin-bottom: 20px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px;">Nutzungsbedingungen</h2>
-                <p style="margin-bottom: 15px;">Willkommen in der **M&M Community**. Diese Bedingungen regeln den Zugriff auf die Plattform, die Sektoren und die Analyse-Systeme.</p>
+            <div style="font-family: 'Segoe UI', Arial, sans-serif; color: #1a1a1a; line-height: 1.7; padding: 15px; font-size: 1.05rem;">
+                <h1 style="color: #003d8f; border-bottom: 3px solid #003d8f; padding-bottom: 12px; margin-bottom: 25px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; font-size: 1.8rem;">Nutzungsbedingungen</h1>
+                <p style="margin-bottom: 20px;">Willkommen in der **M&M Community**. Diese Bedingungen regeln den Zugriff auf die Plattform, die Sektoren und die Analyse-Systeme.</p>
                 
-                <h3 style="color: #333; font-size: 1.1rem; margin-top: 20px;">1. Akzeptanz</h3>
-                <p style="margin: 5px 0;">Mit der Nutzung der Ebenen erklärst du dich mit diesen Bedingungen einverstanden.</p>
+                <h3 style="color: #003d8f; font-size: 1.2rem; margin-top: 25px; font-weight: 700;">1. Akzeptanz</h3>
+                <p style="margin: 6px 0;">Mit der Nutzung der Ebenen erklärst du dich mit diesen Bedingungen einverstanden.</p>
                 
-                <h2>2. Sicherheit</h2>
-                <p style="margin: 5px 0;">Die Weitergabe von Zugriffscodes an Dritte ist strikt untersagt.</p>
+                <h3 style="color: #003d8f; font-size: 1.2rem; margin-top: 25px; font-weight: 700;">2. Sicherheit</h3>
+                <p style="margin: 6px 0;">Die Weitergabe von Zugriffscodes an Dritte ist strikt untersagt.</p>
                 
-                <h2>3. Haftungsausschluss</h2>
-                <p style="margin: 5px 0;">Die KI-Ermittlungen dienen der Information. Der Betreiber übernimmt keine Haftung für ständige Verfügbarkeit.</p>
+                <h3 style="color: #003d8f; font-size: 1.2rem; margin-top: 25px; font-weight: 700;">3. Haftungsausschluss</h3>
+                <p style="margin: 6px 0;">Die KI-Ermittlungen dienen der Information. Der Betreiber übernimmt keine Haftung für ständige Verfügbarkeit.</p>
             </div>
         `
     };
