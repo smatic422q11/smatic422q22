@@ -294,7 +294,7 @@ function waehleSektor(id) {
 
     try {
         // Das '/' sorgt dafür, dass die Datei im Hauptverzeichnis gefunden wird
-        const response = await fetch('/' + fileName + '.html'); 
+        const response = await fetch(fileName + '.html');
         if (!response.ok) throw new Error('Datei nicht gefunden');
         const data = await response.text();
         area.innerHTML = data;
