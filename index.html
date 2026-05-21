@@ -285,20 +285,20 @@ function waehleSektor(id) {
         const adminSelect = document.getElementById('admin-sektor-auswahl'); if (adminSelect) { themen.forEach((t, i) => { adminSelect.innerHTML += `<option value="${i}">Sektor ${i+1}: ${t}</option>`; }); }
       
         // 2. Funktion für die Rechtliche Texte
-        async function openLegal(fileName) {
-            const area = document.getElementById('legal-content-area');
-            const overlay = document.getElementById('legal-overlay');
-            overlay.style.display = 'block';
-            area.innerHTML = "Inhalt wird geladen...";
-            try {
-                const response = await fetch(fileName + '.html'); 
-                if (!response.ok) throw new Error('Datei nicht gefunden');
-                const data = await response.text();
-                area.innerHTML = data;
-            } catch (error) {
-                area.innerHTML = "<span style='color:red;'>Fehler beim Laden: " + fileName + ".html konnte nicht gefunden werden.</span>";
-            }
-        }
+       async function openLegal(fileName) {
+    const area = document.getElementById('legal-content-area');
+    const overlay = document.getElementById('legal-overlay');
+    overlay.style.display = 'block';
+    area.innerHTML = "Inhalt wird geladen...";
+    try {
+        const response = await fetch('/' + fileName + '.html'); 
+        if (!response.ok) throw new Error('Datei nicht gefunden');
+        const data = await response.text();
+        area.innerHTML = data;
+    } catch (error) {
+        area.innerHTML = "<span style='color:red;'>Fehler beim Laden: " + fileName + ".html konnte nicht gefunden werden.</span>";
+    }
+}
 
 // EBENE 2: Der "Himmel" für deine Texte (Blaues Leuchten)
 async function starteScanOptik(themenIndex) {
