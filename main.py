@@ -523,25 +523,54 @@ async def test():
     return {"status": "ok"}
 
 @app.post("/get-live-ermittlung/{sector_id}")
-async def get_live_ermittlung(sector_id: str):
-    api_key = os.getenv("GEMINI_API_KEY")
-    seelen_name = SECTOR_NAMES.get(sector_id, "KI")
-    prompt = (
-        f"Du bist der KI-Scanner für Sektor: {seelen_name}. "
-        'Erstelle ein JSON: {"widersprueche": [], "lagebericht": "", '
-        '"akteure": "", "kontrast": "", "fazit": ""}. '
-        "Antworte NUR mit dem JSON-Objekt."
-    )
-    
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key={api_key}"
-    payload = {"contents": [{"parts": [{"text": prompt}]}]}
-    
+async def get_live_ermittlung(sector_id: str, request: Request):
     try:
+        # 1. Daten vom Frontend empfangen (E-Mail des aktuellen Users)
+        data = await request.json()
+        email = data.get("email", "").lower().strip()
+        
+        # 2. User-Daten aus MongoDB holen für den exakten Namen
+        user_record = db.codes.find_one({"email": email})
+        if user_record and user_record.get("name"):
+            user_name = user_record.get("name")
+        else:
+            user_name = email.split('@')[0].capitalize()
+            
+        seelen_name = SECTOR_NAMES.get(sector_id, "KI")
+        
+        # 3. Professionelle Suchanfrage bauen (Fokus auf News, Social Media, Statements)
+        # Suchbegriff kombiniert den Namen mit Filtern für öffentliche Präsenz
+        such_anfrage = f'"{user_name}" news OR "öffentliche aussagen" OR site:instagram.com OR site:linkedin.com'
+        
+        # 4. Echte Google-Daten abrufen
+        google_ergebnisse = perform_google_search(such_anfrage)
+        
+        # 5. Den Prompt für den KI-Scanner mit den echten Live-Fakten füttern
+        prompt = (
+            f"Du bist der hochprofessionelle KI-Scanner für Sektor: {seelen_name}.\n"
+            f"Deine Aufgabe ist eine knallharte Live-Ermittlung über die Person: {user_name}.\n\n"
+            f"HIER SIND DIE AKTUELLEN ECHTEN GOOGLE-SUCHERGEBNISSE (NEWS & SOCIAL MEDIA):\n"
+            f"--------------------------------------------------\n"
+            f"{google_ergebnisse}\n"
+            f"--------------------------------------------------\n\n"
+            f"Analysiere diese Daten präzise auf öffentliche Statements, Widersprüche, "
+            f"Medienberichte und Social-Media-Präsenz passend zur Seele {seelen_name}.\n\n"
+            f"REGEL: Antworte AUSSCHLIESSLICH mit einem validen JSON-Objekt in exakt diesem Format, "
+            f"ohne zusätzlichen Text, ohne Markups:\n"
+            '{"widersprueche": ["Punkt 1", "Punkt 2"], "lagebericht": "Text", "akteure": "Text", "kontrast": "Text", "fazit": "Text"}'
+        )
+        
+        # 6. Gemini-API aufrufen
+        api_key = os.getenv("GEMINI_API_KEY")
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key={api_key}"
+        payload = {"contents": [{"parts": [{"text": prompt}]}]}
+        
         response = requests.post(url, json=payload, timeout=15)
         if response.status_code == 200:
             res_data = response.json()
             raw_text = res_data['candidates'][0]['content']['parts'][0]['text']
             
+            # JSON-Säuberung
             j1 = raw_text.replace('```json', '').replace('```', '')
             j2 = j1.replace('\n', ' ')
             clean_json = j2.replace("'", '"').strip()
@@ -549,8 +578,10 @@ async def get_live_ermittlung(sector_id: str):
             match = re.search(r'\{.*\}', clean_json, re.DOTALL)
             if match:
                 return {"success": True, "data": json.loads(match.group(0))}
-            return {"success": False, "error": "Fehler beim Scan."}
-        return {"success": False, "error": "Keine Verbindung zum Scan-Dienst."}
+            return {"success": False, "error": f"Ungültiges JSON von KI geliefert: {raw_text}"}
+            
+        return {"success": False, "error": f"Fehler bei Gemini-Verbindung: Status {response.status_code}"}
+        
     except Exception as e:
         return {"success": False, "error": str(e)}
         
