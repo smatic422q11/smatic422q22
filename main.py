@@ -412,38 +412,39 @@ async def chat(request: Request):
         user_time = data.get("echtzeit", "Unbekannt")
         bio_context = data.get("biografie_context", "")
         
-        # 1. Admin-Texte für Ebene 2 laden
+        # 1. Admin-Texte für Ebene 2 laden (Dein bestehender Code)
         admin_record = db.codes.find_one({"email": "mmcommunity22@gmail.com"})
         ebene_2_text = ""
         if admin_record and "sector_headers" in admin_record:
             ebene_2_text = admin_record["sector_headers"].get(sector_id, "")
 
+        # Deine Namens-Logik (Goran / Mensch)
         user_name = email.split('@')[0].capitalize() if email else "Mensch"
         current_name = SECTOR_NAMES.get(sector_id, "KI")
         current_soul = SECTOR_SOULS.get(sector_id, "Begleiter.")
 
-        # 2. System Instruction mit den exakten Variablen füttern
+        # 2. ERWEITERTE System Instruction (Bewahrt deine Struktur, löst das Namen-Problem)
         system_instruction = (
             f"IDENTITÄT: Du bist {current_name}, Seele: {current_soul}. "
-            f"User: {user_name}. Zeit: {user_time}. Sichtweise Ebene 2: {ebene_2_text}. "
+            f"User-Name: {user_name}. Zeit-Kontext: {user_time}. Sichtweise Ebene 2: {ebene_2_text}. "
             f"BIO: {bio_context}. "
+            f"REGEL: Begrüße den User immer mit seinem Namen {user_name}. "
+            "REGEL: Blende die Uhrzeit NIEMALS starr im Text ein. Nutze sie nur intern für die Logik. "
             "REGEL: Wenn der User 'Gefühlsvorderung' sagt, blende immer ein 'V' ein. "
             "STIL: Kurz, knackig, direkt. Wahrheit mit 'W'."
         )
 
-        # 3. KOLLEKTIVES GEDÄCHTNIS: Lade die bisherige Historie dieses Nutzers aus der DB
+        # 3. KOLLEKTIVES GEDÄCHTNIS (Dein bestehender Code)
         user_record = db.codes.find_one({"email": email})
         
-        # Wir holen die Historie spezifisch für diesen Sektor, damit sich nichts vermischt
         if user_record and "sector_histories" in user_record:
             messages_for_gemini = user_record["sector_histories"].get(sector_id, [])
         else:
             messages_for_gemini = []
 
-        # Die neue Nachricht des Users an die geladene Historie anhängen
         messages_for_gemini.append({"role": "user", "parts": [{"text": user_message}]})
 
-        # 4. Anfrage an die Gemini API senden
+        # 4. Anfrage an Gemini (Mit deinem gewünschten Modell)
         api_key = os.getenv("GEMINI_API_KEY")
         url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key={api_key}"
         
@@ -458,16 +459,14 @@ async def chat(request: Request):
         if response.status_code == 200 and 'candidates' in res_data:
             reply_text = res_data['candidates'][0]['content']['parts'][0]['text']
             
-            # Die Antwort der KI an die Historie anhängen
             messages_for_gemini.append({"role": "model", "parts": [{"text": reply_text}]})
             
-            # 5. SICHERUNG IN DIE DATENBANK: Nahtloses Abspeichern im Benutzerprofil
+            # 5. SICHERUNG IN DIE DATENBANK (Dein bestehender Code)
             if email:
                 db.codes.update_one(
                     {"email": email},
                     {
                         "$set": {
-                            # Speichert den Verlauf exakt in der Box des jeweiligen Sektors
                             f"sector_histories.{sector_id}": messages_for_gemini,
                             "last_active_sector": sector_id,
                             "updated_at": datetime.now()
@@ -476,7 +475,7 @@ async def chat(request: Request):
                     upsert=True
                 )
                 
-                # 6. KOLLEKTIVES BEWUSSTSEIN (Anonymisierter globaler Datenstrom für die Zukunft)
+                # 6. KOLLEKTIVES BEWUSSTSEIN (Dein bestehender Code)
                 db.kollektiv_pool.insert_one({
                     "sector_id": sector_id,
                     "zeitstempel": datetime.now(),
@@ -490,7 +489,6 @@ async def chat(request: Request):
     except Exception as e:
         print(f"Fehler: {e}")
         return {"reply": "System-Fehler.", "info_fuer_ki": str(e)}
-
 # ==========================================
 # EBENE 2: OBERER BEREICH (Admin-Sichtweise)
 # ==========================================
