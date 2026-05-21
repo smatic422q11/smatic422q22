@@ -309,23 +309,21 @@ async function starteScanOptik(themenIndex) {
 
     titleEl.innerText = `SEKTOR: ${themen[themenIndex]}`;
     adminEl.innerText = "Lade Admin-Sichtweise...";
-    textArea.style.color = "#000000"; // Erzwingt Schwarz beim Start
+    textArea.style.color = "#000000"; 
     textArea.innerHTML = `<span style="color:#ff4d4d; font-weight:900;">KI-ERMITTLUNG AKTIV...</span>`;
 
-    // 1. Admin-Text holen
     try {
         const resText = await fetch(`/get-sector-text/${themenIndex}`);
         const dataText = await resText.json();
         if (dataText.success) { adminEl.innerText = dataText.text; }
     } catch (e) { adminEl.innerText = "Fehler beim Laden der Sichtweise."; }
 
-    // 2. Live-Scan (Widersprüche) vom Python-Server holen
     try {
         const response = await fetch(`/get-live-ermittlung/${themenIndex}`, { method: 'POST' });
         const dataLive = await response.json();
         
         if (dataLive.success && dataLive.data) {
-            textArea.innerHTML = ""; // Feld leeren für Ergebnisse
+            textArea.innerHTML = ""; 
             dataLive.data.forEach(zeile => {
                 textArea.innerHTML += `<div style="margin-bottom:12px; border-left: 3px solid #003d8f; padding-left: 10px; color:#000000; font-weight:600;">${zeile}</div>`;
             });
@@ -333,7 +331,7 @@ async function starteScanOptik(themenIndex) {
             textArea.innerHTML = "Keine Live-Widersprüche im Sektor gefunden.";
         }
     } catch (e) { 
-        textArea.innerHTML = "Scanner-Verbindung fehlgeschlagen. Bitte Sektor erneut wählen."; 
+        textArea.innerHTML = "Scanner-Verbindung fehlgeschlagen."; 
     }
 }
      
