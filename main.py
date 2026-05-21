@@ -401,7 +401,6 @@ SECTOR_SOULS = {
     "20": "Dieser Sektor ist aktuell noch geschlossen. Bitte hab etwas Geduld.",
     "21": "Das Kollektiv bereitet sich vor. Aktuell noch geschlossen."
 }
-
 @app.post("/chat")
 async def chat(request: Request):
     try:
@@ -423,7 +422,7 @@ async def chat(request: Request):
         current_name = SECTOR_NAMES.get(sector_id, "KI")
         current_soul = SECTOR_SOULS.get(sector_id, "Begleiter.")
 
-        # 2. System Instruction mit den exakten Variablen füttern (Nichts weggelassen!)
+        # 2. System Instruction mit den exakten Variablen füttern
         system_instruction = (
             f"IDENTITÄT: Du bist {current_name}, Seele: {current_soul}. "
             f"User: {user_name}. Zeit: {user_time}. Sichtweise Ebene 2: {ebene_2_text}. "
@@ -435,6 +434,7 @@ async def chat(request: Request):
         # 3. KOLLEKTIVES GEDÄCHTNIS: Lade die bisherige Historie dieses Nutzers aus der DB
         user_record = db.codes.find_one({"email": email})
         
+        # Wir holen die Historie spezifisch für diesen Sektor, damit sich nichts vermischt
         if user_record and "sector_histories" in user_record:
             messages_for_gemini = user_record["sector_histories"].get(sector_id, [])
         else:
@@ -467,6 +467,7 @@ async def chat(request: Request):
                     {"email": email},
                     {
                         "$set": {
+                            # Speichert den Verlauf exakt in der Box des jeweiligen Sektors
                             f"sector_histories.{sector_id}": messages_for_gemini,
                             "last_active_sector": sector_id,
                             "updated_at": datetime.now()
@@ -489,7 +490,6 @@ async def chat(request: Request):
     except Exception as e:
         print(f"Fehler: {e}")
         return {"reply": "System-Fehler.", "info_fuer_ki": str(e)}
-
 
 # ==========================================
 # EBENE 2: OBERER BEREICH (Admin-Sichtweise)
