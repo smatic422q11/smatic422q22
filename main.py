@@ -1,13 +1,13 @@
-import os  
-import certifi
+import os
+import re
+import json
 import requests
-import random
 from datetime import datetime
 from fastapi import FastAPI, Request
-from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse, FileResponse
-from pymongo import MongoClient
-from pymongo.server_api import ServerApi
+from fastapi.responses import JSONResponse, StreamingResponse
+from pymongo import MongoClient  # Import für MongoDB
+
+app = FastAPI()
 
 def perform_google_search(query):
     api_key = os.getenv('GOOGLE_API_KEY')
@@ -416,8 +416,9 @@ SECTOR_SOULS = {
     "20": "Dieser Sektor ist aktuell noch geschlossen. Bitte hab etwas Geduld.",
     "21": "Das Kollektiv bereitet sich vor. Aktuell noch geschlossen."
 }
-db = None  # Wird durch deine MongoDB-Initialisierung besetzt
-
+MONGO_URI = os.getenv("MONGO_URI", "DEIN_MONGODB_ATLAS_CONNECTION_STRING")
+client = MongoClient(MONGO_URI)
+db = client.get_database("DEIN_DATENBANK_NAME")  # Name deiner Datenbank
 @app.post("/chat")
 async def chat(request: Request):
     try:
@@ -521,7 +522,6 @@ async def test():
 
 @app.post("/get-live-ermittlung/{sector_id}")
 async def get_live_ermittlung(sector_id: str):
-    import json, re, os, requests
     api_key = os.getenv("GEMINI_API_KEY")
     seelen_name = SECTOR_NAMES.get(sector_id, "KI")
     prompt = (
@@ -540,7 +540,6 @@ async def get_live_ermittlung(sector_id: str):
             res_data = response.json()
             raw_text = res_data['candidates'][0]['content']['parts'][0]['text']
             
-            # Fehlerhafte Zeilen korrigiert und sauber strukturiert
             j1 = raw_text.replace('```json', '')
             j2 = j1.replace('
 ```', '')
@@ -599,7 +598,6 @@ async def generate_pdf(request: Request):
         pdf.output(output)
         output.seek(0)
         
-        from fastapi.responses import StreamingResponse
         return StreamingResponse(output, media_type="application/pdf", headers={"Content-Disposition": "attachment; filename=Biografie.pdf"})
         
     except Exception as e:
