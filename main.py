@@ -508,20 +508,24 @@ async def get_live_ermittlung(sector_id: str):
     url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key={api_key}"
     payload = {"contents": [{"parts": [{"text": prompt}]}]}
 
-    try:
-        response = requests.post(url, json=payload, timeout=15)
-        if response.status_code == 200:
-            res_data = response.json()
-            raw_text = res_data['candidates'][0]['content']['parts'][0]['text']
-            clean_json = raw_text.replace('```json', '').replace('
+   try:
+            response = requests.post(url, json=payload, timeout=15)
+            if response.status_code == 200:
+                res_data = response.json()
+                raw_text = res_data['candidates'][0]['content']['parts'][0]['text']
+                
+                # Hier die Zeile in einer Zeile oder korrekt verbunden:
+                clean_json = raw_text.replace('```json', '').replace('
 ```', '').replace("'", '"').strip()
-            match = re.search(r'\{.*\}', clean_json, re.DOTALL)
-            if match:
-                return {"success": True, "data": json.loads(match.group(0))}
-        return {"success": False, "error": "Fehler beim Scan."}
-    except Exception as e:
-        return {"success": False, "error": str(e)}
-
+                
+                match = re.search(r'\{.*\}', clean_json, re.DOTALL)
+                if match:
+                    return {"success": True, "data": json.loads(match.group(0))}
+            
+            return {"success": False, "error": "Fehler beim Scan."}
+        except Exception as e:
+            return {"success": False, "error": str(e)}
+            
 @app.post("/admin/update-sector")
 async def handle_update_sector(request: Request):
     try:
