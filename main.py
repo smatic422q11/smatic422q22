@@ -14,7 +14,7 @@ from pymongo.server_api import ServerApi # <--- HIER ERGÄNZT
 app = FastAPI() # Nur EINMAL hier oben definieren!
 def perform_google_search(query):
     api_key = os.getenv('GOOGLE_API_KEY')
-    cx_id = os.getenv('GOOGLE_CX')
+    cx_id = os.getenv('GOOGLE_SEARCH_CX')  # <--- Jetzt exakt wie auf Render!
     url = f"https://www.googleapis.com/customsearch/v1?key={api_key}&cx={cx_id}&q={query}"
     
     try:
