@@ -165,46 +165,46 @@
         </div>
     </div> 
 
-   <div id="admin_ebene" class="ebene">
-        <div class="special-content" style="border: 2px solid #ffd700; background-color: #000; padding: 25px; width: 90%; max-width: 1000px; margin-top: 100px; box-sizing: border-box;">
-            <h1 style="color: #ffd700; letter-spacing: 5px; margin-bottom: 20px; font-size: 1.5rem; font-weight: 900;">ADMINISTRATIVE STEUERUNG (M&M ZENTRALE)</h1>
-            
-            <div style="background: #111; border: 1px solid #333; padding: 15px; margin-bottom: 20px; text-align: left;">
-                <h3 style="color: #fff; margin: 0 0 5px 0; font-size: 1rem;">🔑 AKTIVE ANKER & SCHLÜSSEL</h3>
-                <p style="margin: 0; color: #ffd700; font-size: 1.2rem; font-weight: bold;">Bereits verifizierte User-Lizenzen: <span id="admin-schluessel-zaehler">0</span></p>
+  <div id="admin_ebene" class="ebene">
+    <div class="special-content" style="border: 2px solid #ffd700; background-color: #000; padding: 25px; width: 90%; max-width: 1000px; margin-top: 100px; box-sizing: border-box;">
+        <h1 style="color: #ffd700; letter-spacing: 5px; margin-bottom: 20px; font-size: 1.5rem; font-weight: 900;">ADMINISTRATIVE STEUERUNG (M&M ZENTRALE)</h1>
+        
+        <div style="background: #111; border: 1px solid #333; padding: 15px; margin-bottom: 20px; text-align: left;">
+            <h3 style="color: #fff; margin: 0 0 5px 0; font-size: 1rem;">🔑 AKTIVE ANKER & SCHLÜSSEL</h3>
+            <p style="margin: 0; color: #ffd700; font-size: 1.2rem; font-weight: bold;">Bereits verifizierte User-Lizenzen: <span id="admin-schluessel-zaehler">0</span></p>
+        </div>
+
+        <div style="display: flex; gap: 20px; text-align: left;">
+            <div style="flex: 2; background: #111; border: 1px solid #003d8f; padding: 15px; box-sizing: border-box;">
+                <h3 style="color: #003d8f; margin: 0 0 10px 0; font-size: 1rem;">📝 HEADER-TEXTER FÜR EBENE 2</h3>
+                <label style="color: #ccc; font-size: 0.8rem; font-weight: bold;">Sektor auswählen:</label>
+                <select id="admin-sektor-auswahl" style="width: 100%; background: #222; color: #fff; border: 1px solid #003d8f; padding: 8px; margin: 5px 0 15px 0; outline: none;"></select>
+                
+                <label style="color: #ccc; font-size: 0.8rem; font-weight: bold;">Überschrift / Sichtweise für den oberen Platz (27.5% Bereich):</label>
+                <textarea id="admin-sektor-text" style="width: 100%; height: 180px; background: #222; color: #fff; border: 1px solid #003d8f; padding: 10px; margin-top: 5px; box-sizing: border-box; outline: none; font-family: sans-serif; resize: none;" placeholder="Schreibe hier den Text für die KI-Ermittlung hinein..."></textarea>
+                
+                <button class="action-btn" style="width: 100%; margin-top: 15px;" onclick="adminSpeichereSektorText()">In Datenbank & Sektor übertragen</button>
             </div>
 
-            <div style="display: flex; gap: 20px; text-align: left;">
-                <div style="flex: 2; background: #111; border: 1px solid #003d8f; padding: 15px; box-sizing: border-box;">
-                    <h3 style="color: #003d8f; margin: 0 0 10px 0; font-size: 1rem;">📝 HEADER-TEXTER FÜR EBENE 2</h3>
-                    <label style="color: #ccc; font-size: 0.8rem; font-weight: bold;">Sektor auswählen:</label>
-                    <select id="admin-sektor-auswahl" style="width: 100%; background: #222; color: #fff; border: 1px solid #003d8f; padding: 8px; margin: 5px 0 15px 0; outline: none;"></select>
-                    
-                    <label style="color: #ccc; font-size: 0.8rem; font-weight: bold;">Überschrift / Sichtweise für den oberen Platz (27.5% Bereich):</label>
-                    <textarea id="admin-sektor-text" style="width: 100%; height: 180px; background: #222; color: #fff; border: 1px solid #003d8f; padding: 10px; margin-top: 5px; box-sizing: border-box; outline: none; font-family: sans-serif; resize: none;" placeholder="Schreibe hier den Text für die KI-Ermittlung hinein..."></textarea>
-                    
-                    <button class="action-btn" style="width: 100%; margin-top: 15px;" onclick="adminSpeichereSektorText()">In Datenbank & Sektor übertragen</button>
-                </div>
-
-                <div style="flex: 1; background: #111; border: 1px solid #ff4d4d; padding: 15px; display: flex; flex-direction: column; box-sizing: border-box;">
-                    <h3 style="color: #ff4d4d; margin: 0 0 10px 0; font-size: 1rem;">🔒 FASSADEN-REGELUNG</h3>
-                    <label style="color: #ccc; font-size: 0.8rem; font-weight: bold;">Status für gewählten Sektor:</label>
-                    <select id="admin-status-auswahl" style="width: 100%; background: #222; color: #fff; border: 1px solid #ff4d4d; padding: 8px; margin: 5px 0 15px 0; outline: none;">
-                        <option value="status-blau">🔵 BLAU: GESCHLOSSEN (Wartung)</option>
-                        <option value="status-gelb">🟡 GELB: ARBEIT (Geöffnet)</option>
-                        <option value="status-rot">🔴 ROT: WARTET</option>
-                        <option value="status-gruen">🟢 GRÜN: ERLEDIGT</option>
-                    </select>
-                    <button class="action-btn" style="background: #ff4d4d; color: #fff; margin-top: auto; width: 100%;" onclick="adminSetzeSektorStatus()">Status erzwingen</button>
-                </div>
-            </div>
-
-            <div style="margin-top: 20px; text-align: right; display: flex; justify-content: flex-end; gap: 10px;">
-                <button class="nav-btn" style="background: #333; color: #fff;" onclick="alert('Hier klemmen wir morgen das nächste Kabel an!')">+ ERWEITERN</button>
-                <button class="nav-btn" onclick="wechselEbene('ebene1')">ZURÜCK ZUM TURM</button>
+            <div style="flex: 1; background: #111; border: 1px solid #ff4d4d; padding: 15px; display: flex; flex-direction: column; box-sizing: border-box;">
+                <h3 style="color: #ff4d4d; margin: 0 0 10px 0; font-size: 1rem;">🔒 FASSADEN-REGELUNG</h3>
+                <label style="color: #ccc; font-size: 0.8rem; font-weight: bold;">Status für gewählten Sektor:</label>
+                <select id="admin-status-auswahl" style="width: 100%; background: #222; color: #fff; border: 1px solid #ff4d4d; padding: 8px; margin: 5px 0 15px 0; outline: none;">
+                    <option value="status-blau">🔵 BLAU: GESCHLOSSEN (Wartung)</option>
+                    <option value="status-gelb">🟡 GELB: ARBEIT (Geöffnet)</option>
+                    <option value="status-rot">🔴 ROT: WARTET</option>
+                    <option value="status-gruen">🟢 GRÜN: ERLEDIGT</option>
+                </select>
+                <button class="action-btn" style="background: #ff4d4d; color: #fff; margin-top: auto; width: 100%;" onclick="adminSetzeSektorStatus()">Status erzwingen</button>
             </div>
         </div>
+
+        <div style="margin-top: 20px; text-align: right; display: flex; justify-content: flex-end; gap: 10px;">
+            <button class="nav-btn" style="background: #333; color: #fff;" onclick="alert('Hier klemmen wir morgen das nächste Kabel an!')">+ ERWEITERN</button>
+            <button class="nav-btn" onclick="wechselEbene('ebene1')">ZURÜCK ZUM TURM</button>
+        </div>
     </div>
+</div>
 
     <div id="ebene21" class="ebene">
         <div class="special-content">
