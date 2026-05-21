@@ -538,9 +538,14 @@ async def get_live_ermittlung(sector_id: str, request: Request):
             
         seelen_name = SECTOR_NAMES.get(sector_id, "KI")
         
-        # 3. Professionelle Suchanfrage bauen (Fokus auf News, Social Media, Statements)
-        # Suchbegriff kombiniert den Namen mit Filtern für öffentliche Präsenz
-        such_anfrage = f'"{user_name}" news OR "öffentliche aussagen" OR site:instagram.com OR site:linkedin.com'
+       # Die flexiblere Suche, damit Google garantiert Treffer ausgibt
+        such_anfrage = f'{user_name} news OR {user_name} social media OR {user_name} aussagen'
+        
+        # Echte Google-Daten abrufen
+        google_ergebnisse = perform_google_search(such_anfrage)
+        
+        # KONTROLL-BEFEHL: Druckt das Ergebnis direkt in dein Render-Log
+        print(f"--- GOOGLE ERGEBNISSE FÜR {user_name}: {google_ergebnisse} ---")
         
         # 4. Echte Google-Daten abrufen
         google_ergebnisse = perform_google_search(such_anfrage)
