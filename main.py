@@ -440,7 +440,7 @@ async def chat(request: Request):
             f"IDENTITÄT: Du bist {current_name}, Seele: {current_soul}. "
             f"KOLLEKTIVES WISSEN: Das gesamte 20-Seelen-Kollektiv arbeitet für {user_name}. "
             f"DEIN GEGENÜBER: Der User ist {user_name}. " 
-            f"AUFGABE: Wenn dies dein erster Kontakt in diesem Sektor ist, BEGRÜSSE {user_name} UNBEDINGT mit seinem Namen. "
+            f"AUFGABE: Wenn dies dein erster kontakt in diesem Sektor ist, BEGRÜSSE {user_name} UNBEDINGT mit seinem Namen. "
             f"ZEIT: {user_time}. BIO: {bio_context}. "
             "REGEL: Blende die Uhrzeit NIEMALS starr ein. "
             "REGEL: Wenn der User 'Gefühlsvorderung' sagt, blende immer ein 'V' ein. "
@@ -506,7 +506,9 @@ async def chat(request: Request):
 async def get_sector_text(sector_id: str):
     try:
         admin_record = db.codes.find_one({"email": "mmcommunity22@gmail.com"})
-        text = admin_record.get("sector_headers", {}).get(sector_id, "Gefühlsvorderung. \nKeine Admin-Sichtweise hinterlegt.") if admin_record else "Gefühlsvorderung. \nKeine Admin-Sichtweise hinterlegt."
+        text = "Gefühlsvorderung. \nKeine Admin-Sichtweise hinterlegt."
+        if admin_record:
+            text = admin_record.get("sector_headers", {}).get(sector_id, text)
         return {"success": True, "text": text}
     except Exception as e:
         return {"success": False, "error": str(e)}
@@ -520,9 +522,12 @@ async def get_live_ermittlung(sector_id: str):
     import json, re, os, requests
     api_key = os.getenv("GEMINI_API_KEY")
     seelen_name = SECTOR_NAMES.get(sector_id, "KI")
-    prompt = (f"Du bist der KI-Scanner für Sektor: {seelen_name}. "
-              'Erstelle ein JSON: {"widersprueche": [], "lagebericht": "", "akteure": "", "kontrast": "", "fazit": ""}. '
-              "Antworte NUR mit dem JSON-Objekt.")
+    prompt = (
+        f"Du bist der KI-Scanner für Sektor: {seelen_name}. "
+        'Erstelle ein JSON: {"widersprueche": [], "lagebericht": "", '
+        '"akteure": "", "kontrast": "", "fazit": ""}. '
+        "Antworte NUR mit dem JSON-Objekt."
+    )
     
     url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key={api_key}"
     payload = {"contents": [{"parts": [{"text": prompt}]}]}
@@ -532,9 +537,13 @@ async def get_live_ermittlung(sector_id: str):
         if response.status_code == 200:
             res_data = response.json()
             raw_text = res_data['candidates'][0]['content']['parts'][0]['text']
-            # Hier lag der Fehler (Zeile wurde umgebrochen). Jetzt repariert und sicher formatiert:
-            clean_json = raw_text.replace('```json', '').replace('
-```', '').replace("'", '"').strip()
+            
+            # Die Bereinigung wurde in kurze Zeilen zerlegt, um Render-Fehler zu vermeiden:
+            j1 = raw_text.replace('```json', '')
+            j2 = j1.replace('
+```', '')
+            clean_json = j2.replace("'", '"').strip()
+            
             match = re.search(r'\{.*\}', clean_json, re.DOTALL)
             if match:
                 return {"success": True, "data": json.loads(match.group(0))}
@@ -547,8 +556,10 @@ async def get_live_ermittlung(sector_id: str):
 async def handle_update_sector(request: Request):
     try:
         data = await request.json()
-        email, sector_id = data.get("email", "").lower().strip(), str(data.get("sector_id", "0"))
-        status, header_text = data.get("status", ""), data.get("header_text", "")
+        email = data.get("email", "").lower().strip()
+        sector_id = str(data.get("sector_id", "0"))
+        status = data.get("status", "")
+        header_text = data.get("header_text", "")
         if email != "mmcommunity22@gmail.com":
             return JSONResponse(content={"success": False, "message": "Nicht autorisiert"}, status_code=403)
         if status == "update-text":
@@ -559,7 +570,7 @@ async def handle_update_sector(request: Request):
     except Exception as e:
         return JSONResponse(content={"success": False, "error": str(e)}, status_code=500)
         
-  @app.post("/generate-pdf")
+@app.post("/generate-pdf")
 async def generate_pdf(request: Request):
     try:
         data = await request.json()
@@ -569,7 +580,6 @@ async def generate_pdf(request: Request):
         if not user_record:
             return {"success": False, "message": "User nicht gefunden"}
 
-        # Hier wird der PDF-Inhalt erstellt
         from fpdf import FPDF
         pdf = FPDF()
         pdf.add_page()
@@ -578,11 +588,9 @@ async def generate_pdf(request: Request):
         pdf.cell(200, 10, txt=f"Biografie fuer: {email}", ln=True, align='C')
         pdf.ln(10)
         
-        # Beispiel: Biografie-Daten aus der DB holen
         bio_text = user_record.get("biografie", "Keine Biografie hinterlegt.")
         pdf.multi_cell(0, 10, txt=str(bio_text))
         
-        # PDF in den Speicher schreiben
         from io import BytesIO
         output = BytesIO()
         pdf.output(output)
