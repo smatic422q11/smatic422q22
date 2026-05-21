@@ -416,6 +416,8 @@ SECTOR_SOULS = {
     "20": "Dieser Sektor ist aktuell noch geschlossen. Bitte hab etwas Geduld.",
     "21": "Das Kollektiv bereitet sich vor. Aktuell noch geschlossen."
 }
+db = None  # Wird durch deine MongoDB-Initialisierung besetzt
+
 @app.post("/chat")
 async def chat(request: Request):
     try:
