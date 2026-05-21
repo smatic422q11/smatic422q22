@@ -537,7 +537,7 @@ async def get_live_ermittlung(sector_id: str):
     try:
         response = requests.post(url, json=payload, timeout=15)
         if response.status_code == 200:
-           res_data = response.json()
+            res_data = response.json()
             raw_text = res_data['candidates'][0]['content']['parts'][0]['text']
             
             j1 = raw_text.replace('```json', '').replace('
