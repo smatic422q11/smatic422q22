@@ -411,30 +411,37 @@ async def chat(request: Request):
         user_time = data.get("echtzeit", "Unbekannt")
         bio_context = data.get("biografie_context", "")
 
-        # 1. DAS GLOBALE GEDÄCHTNIS ERZWINGEN
+        # 1. DAS GLOBALE GEDÄCHTNIS ERZWINGEN (Erweitert für echten Namen)
         user_record = db.codes.find_one({"email": email})
         
         if user_record:
-            user_name = email.split('@')[0].capitalize()
+            # Wenn ein echter Name in der DB hinterlegt ist, nimm diesen, sonst Fallback auf E-Mail
+            if "name" in user_record and user_record["name"]:
+                user_name = user_record["name"]
+            else:
+                user_name = email.split('@')[0].capitalize()
         else:
             user_name = "Reisender"
 
         current_name = SECTOR_NAMES.get(sector_id, "KI")
         current_soul = SECTOR_SOULS.get(sector_id, "Begleiter.")
 
-        # 2. DIE SYSTEM INSTRUCTION (Verschärft für Gorans Begrüßung)
+        # 2. DIE SYSTEM INSTRUCTION (Verschärft für Gorans Begrüßung + Namens-Lern-Befehl)
         system_instruction = (
             f"IDENTITÄT: Du bist {current_name}, Seele: {current_soul}. "
             f"KOLLEKTIVES WISSEN: Das gesamte 20-Seelen-Kollektiv arbeitet für {user_name}. "
             f"DEIN GEGENÜBER: Der User ist {user_name}. " 
-            f"AUFGABE: Wenn dies dein erster Kontakt in diesem Sektor ist, BEGRÜSSE {user_name} UNBEDINGT mit seinem Namen. "
+            f"AUFGABE: Wenn dies dein erster ONTKT in diesem Sektor ist, BEGRÜSSE {user_name} UNBEDINGT mit seinem Namen. "
             f"ZEIT: {user_time}. BIO: {bio_context}. "
             "REGEL: Blende die Uhrzeit NIEMALS starr ein. "
             "REGEL: Wenn der User 'Gefühlsvorderung' sagt, blende immer ein 'V' ein. "
-            "STIL: Kurz, knackig, direkt. Wahrheit mit 'W'."
+            "STIL: Kurz, knackig, direkt. Wahrheit mit 'W'. "
+            "WICHTIG FÜR DAS KOLLEKTIV: Wenn der User dir in diesem Sektor zum ersten Mal seinen echten Namen nennt "
+            "oder seinen Namen korrigiert, schreibe AM ENDE deiner Antwort exakt: [NEUER_NAME:HierDerName]. "
+            "Ersetze 'HierDerName' durch den tatsächlichen Namen des Users (z.B. [NEUER_NAME:Goran])."
         )
 
-        # 3. KOLLEKTIVES GEDÄCHTNIS (Dein bestehender Code)
+        # 3. KOLLEKTIVES GEDÄCHTNIS
         if user_record and "sector_histories" in user_record:
             messages_for_gemini = user_record["sector_histories"].get(sector_id, [])
         else:
@@ -442,7 +449,7 @@ async def chat(request: Request):
 
         # ZUSATZ-LOGIK: Falls Sektor neu, zwinge Begrüßung in die erste Nachricht
         if not messages_for_gemini:
-             system_instruction += f" HINWEIS: Das ist dein ERSTER Kontakt mit {user_name} in diesem Sektor. Nenne seinen Namen!"
+            system_instruction += f" HINWEIS: Das ist dein ERSTER Kontakt mit {user_name} in diesem Sektor. Nenne seinen Namen!"
 
         messages_for_gemini.append({"role": "user", "parts": [{"text": user_message}]})
 
@@ -459,37 +466,156 @@ async def chat(request: Request):
         res_data = response.json()
 
         if response.status_code == 200 and 'candidates' in res_data:
-            reply_text = res_data['candidates'][0]['content']['parts'][0]['text']
-            messages_for_gemini.append({"role": "model", "parts": [{"text": reply_text}]})
+            raw_reply_text = res_data['candidates'][0]['content']['parts'][0]['text']
             
-            # 5. SICHERUNG IN DIE DATENBANK (Dein bestehender Code)
+            # --- NAMENS-DETEKTION START ---
+            cleaned_reply_text = raw_reply_text
+            extrahierter_name = None
+            
+            # Wir prüfen, ob die KI den Befehl [NEUER_NAME:...] ans Ende gehängt hat
+            if "[NEUER_NAME:" in raw_reply_text and "]" in raw_reply_text:
+                try:
+                    start_idx = raw_reply_text.find("[NEUER_NAME:") + 12
+                    end_idx = raw_reply_text.find("]", start_idx)
+                    extrahierter_name = raw_reply_text[start_idx:end_idx].strip()
+                    
+                    # Steuerungsbefehl aus dem sichtbaren Chat-Text entfernen
+                    cleaned_reply_text = raw_reply_text.replace(f"[NEUER_NAME:{extrahierter_name}]", "").strip()
+                    print(f"!!! SYSTEM: Neuer Name '{extrahierter_name}' im Chat erkannt !!!")
+                except Exception as name_err:
+                    print(f"Fehler beim Extrahieren des Namens: {name_err}")
+            # --- NAMENS-DETEKTION ENDE ---
+
+            messages_for_gemini.append({"role": "model", "parts": [{"text": cleaned_reply_text}]})
+            
+            # 5. SICHERUNG IN DIE DATENBANK (Verschmolzene Version)
             if email:
+                update_payload = {
+                    f"sector_histories.{sector_id}": messages_for_gemini,
+                    "last_active_sector": sector_id,
+                    "updated_at": datetime.now()
+                }
+                
+                # Wenn ein neuer Name im Chat gelernt wurde, speichern wir ihn direkt GLOBAL ab!
+                if extrahierter_name:
+                    update_payload["name"] = extrahierter_name
+
                 db.codes.update_one(
                     {"email": email},
-                    {
-                        "$set": {
-                            f"sector_histories.{sector_id}": messages_for_gemini,
-                            "last_active_sector": sector_id,
-                            "updated_at": datetime.now()
-                        }
-                    },
+                    {"$set": update_payload},
                     upsert=True
                 )
                 
-                # 6. KOLLEKTIVES BEWUSSTSEIN (Dein bestehender Code)
+                # 6. KOLLEKTIVES BEWUSSTSEIN
                 db.kollektiv_pool.insert_one({
                     "sector_id": sector_id,
                     "zeitstempel": datetime.now(),
                     "input_snippet": user_message
                 })
             
-            return {"reply": reply_text, "info_fuer_ki": f"Zeit: {user_time}"}
+            return {"reply": cleaned_reply_text, "info_fuer_ki": f"Zeit: {user_time}"}
         
         return {"reply": "Fehler bei der Seele.", "info_fuer_ki": "Fehler"}
 
     except Exception as e:
         print(f"Fehler: {e}")
         return {"reply": "System-Fehler.", "info_fuer_ki": str(e)}
+# ==========================================
+# EBENE 2: OBERER BEREICH (Admin-Sichtweise)
+# ==========================================
+@app.get("/get-sector-text/{sector_id}")
+async def get_sector_text(sector_id: str):
+    try:
+        admin_record = db.codes.find_one({"email": "mmcommunity22@gmail.com"})
+        if admin_record and "sector_headers" in admin_record:
+            text = admin_record["sector_headers"].get(sector_id, "")
+            return {"success": True, "text": text}
+        return {"success": True, "text": "Gefühlsvorderung. \nKeine Admin-Sichtweise hinterlegt."}
+    except Exception as e:
+        return {"success": False, "error": str(e)}
+
+# ==========================================
+# EBENE 2: UNTERER BEREICH (Gemini-Scan)
+# ==========================================
+@app.post("/get-live-ermittlung/{sector_id}")
+async def get_live_ermittlung(sector_id: str):
+    api_key = os.getenv("GEMINI_API_KEY")
+    seelen_name = SECTOR_NAMES.get(sector_id, "KI")
+    
+    # Der Prompt bleibt unerbittlich und präzise
+    prompt = (
+        f"Du bist der KI-Scanner. Sektor: {seelen_name}. "
+        "Generiere 3 knallharte gesellschaftliche Widersprüche. "
+        "Regel: Jede Zeile MUSS mit 'WIDERSPRUCH:' beginnen. "
+        "KEINE Sternchen, KEIN Markdown, KEINE Einleitung. Nur der nackte Text."
+    )
+
+    # Deine exakte URL
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key={api_key}"
+    payload = {"contents": [{"parts": [{"text": prompt}]}]}
+
+    try:
+        # Erhöhter Timeout für Gemini 3.0 Stabilität
+        response = requests.post(url, json=payload, timeout=10)
+        res_data = response.json()
+        
+        if response.status_code == 200:
+            raw_text = res_data['candidates'][0]['content']['parts'][0]['text']
+            
+            # Säubern von Markdown-Resten
+            clean_text = raw_text.replace('*', '')
+            
+            # Zerlegen und Validieren der Zeilen
+            lines = [l.strip() for l in clean_text.split('\n') if "WIDERSPRUCH:" in l]
+            
+            if not lines:
+                # Fallback, falls das Format leicht abweicht
+                lines = [l.strip() for l in clean_text.split('\n') if l.strip()][:3]
+
+            # Rückgabe exakt in deinem Format
+            return {"success": True, "data": ["Gefühlsvorderung. \n--- LIVE-SCAN AKTIVIERT ---"] + lines}
+        
+        return {"success": False, "error": f"Schnittstelle antwortet nicht korrekt. Status: {response.status_code}"}
+    except Exception as e:
+        print(f"Fehler im Live-Scan: {e}")
+        return {"success": True, "data": ["Gefühlsvorderung. \nScanner wird durch Gemini 3.0 kalibriert..."]}
+# ==========================================
+# ADMIN: UPDATE SECTOR
+# ==========================================
+@app.post("/admin/update-sector")
+async def handle_update_sector(request: Request):
+    try:
+        data = await request.json()
+        email = data.get("email", "").lower().strip()
+        sector_id = str(data.get("sector_id", "0"))
+        status = data.get("status", "")
+        header_text = data.get("header_text", "")
+
+        if email != "mmcommunity22@gmail.com":
+            return JSONResponse(content={"success": False, "message": "Nicht autorisiert"}, status_code=403)
+
+        if status == "update-text":
+            db.codes.update_one(
+                {"email": email},
+                {"$set": {f"sector_headers.{sector_id}": header_text}},
+                upsert=True
+            )
+            return {"success": True, "message": "Gespeichert."}
+
+        db.codes.update_one(
+            {"email": email},
+            {"$set": {f"sector_status.{sector_id}": status}},
+            upsert=True
+        )
+        return {"success": True, "message": "Status gesetzt."}
+    except Exception as e:
+        return JSONResponse(content={"success": False, "error": str(e)}, status_code=500)
+
+if __name__ == "__main__":
+    import uvicorn
+    port = int(os.environ.get("PORT", 10000)) 
+    uvicorn.run(app, host="0.0.0.0", port=port)
+
 # ==========================================
 # EBENE 2: OBERER BEREICH (Admin-Sichtweise)
 # ==========================================
