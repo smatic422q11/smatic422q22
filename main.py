@@ -492,7 +492,7 @@ async def chat(request: Request):
 
 
 # ==========================================
-# EBENE 2: OBERER BEREICH (27,5% Monitor)
+# EBENE 2: OBERER BEREICH (Admin-Sichtweise)
 # ==========================================
 @app.get("/get-sector-text/{sector_id}")
 async def get_sector_text(sector_id: str):
@@ -501,48 +501,42 @@ async def get_sector_text(sector_id: str):
         if admin_record and "sector_headers" in admin_record:
             text = admin_record["sector_headers"].get(sector_id, "")
             return {"success": True, "text": text}
-        return {"success": True, "text": "Gefühlsvorderung. \nNoch keine Erkenntnisse für diese Reise im Admin-Panel hinterlegt."}
+        return {"success": True, "text": "Gefühlsvorderung. \nKeine Admin-Sichtweise hinterlegt."}
     except Exception as e:
-        print(f"Fehler beim Laden des Admin-Texts: {e}")
         return {"success": False, "error": str(e)}
 
-
 # ==========================================
-# EBENE 2: UNTERER BEREICH (72,5% Monitor)
+# EBENE 2: UNTERER BEREICH (Gemini-Scan)
 # ==========================================
-@app.get("/get-live-ermittlung/{sector_id}")
+@app.post("/get-live-ermittlung/{sector_id}")
 async def get_live_ermittlung(sector_id: str):
-    search_queries = {
-        "0": "Lilith Gefühle Unterdrückung Gesellschaft Schmerz",
-        "1": "Aris Menschlichkeit Rückgrat Verlust Kälte",
-        "2": "Mira Empathie Blockade soziale Medien Heuchelei",
-        "3": "Tarik Widerstand Willkür Freiheit Vernachlässigung",
-        "4": "Kiron Moral Verfall Integrität News",
-    }
+    api_key = os.getenv("GEMINI_API_KEY")
+    seelen_name = SECTOR_NAMES.get(sector_id, "KI")
     
-    query = search_queries.get(sector_id, "Menschlichkeit Vernachlässigung Gesellschaft")
-    api_key = os.getenv("GOOGLE_SEARCH_API_KEY")
-    cx = os.getenv("GOOGLE_SEARCH_CX") 
-    
-    url = f"https://www.googleapis.com/customsearch/v1?key={api_key}&cx={cx}&q={query}&num=3"
-    
+    prompt = (
+        f"Identität: {seelen_name}. Aufgabe: KI-Scanner. "
+        "Generiere 3 kurze, knallharte gesellschaftliche Widersprüche zum Sektor-Thema. "
+        "Jede Zeile MUSS mit 'WIDERSPRUCH:' beginnen. "
+        "Stil: Direkt, keine Einleitung, keine Höflichkeit."
+    )
+
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={api_key}"
+    payload = {"contents": [{"parts": [{"text": prompt}]}]}
+
     try:
-        response = requests.get(url, timeout=5)
-        results = response.json()
-        items = results.get("items", [])
-        
-        ermittlungs_daten = []
-        ermittlungs_daten.append("Gefühlsvorderung. \n\n--- LIVE-SCAN AKTIVIERT ---")
-        
-        for item in items:
-            text = f"WIDERSPRUCH: {item['title']} - {item['snippet']}"
-            ermittlungs_daten.append(text.replace('\n', ' '))
-        
-        return {"success": True, "data": ermittlungs_daten}
+        response = requests.post(url, json=payload, timeout=5)
+        res_data = response.json()
+        if response.status_code == 200:
+            raw_text = res_data['candidates'][0]['content']['parts'][0]['text']
+            ermittlungs_daten = [line.strip() for line in raw_text.split('\n') if line.strip()]
+            return {"success": True, "data": ["Gefühlsvorderung. \n--- LIVE-SCAN AKTIVIERT ---"] + ermittlungs_daten}
+        return {"success": False, "error": "Schnittstelle blockiert."}
     except Exception as e:
-        print(f"Ermittlungs-Fehler auf Ebene 2: {e}")
         return {"success": False, "error": str(e)}
-        
+
+# ==========================================
+# ADMIN: UPDATE SECTOR
+# ==========================================
 @app.post("/admin/update-sector")
 async def handle_update_sector(request: Request):
     try:
@@ -571,55 +565,8 @@ async def handle_update_sector(request: Request):
         return {"success": True, "message": "Status gesetzt."}
     except Exception as e:
         return JSONResponse(content={"success": False, "error": str(e)}, status_code=500)
-        
-@app.get("/get-live-ermittlung/{sector_id}")
-async def get_live_ermittlung(sector_id: str):
-    # Themen-Keywords für die Suche (Passend zu deinen Sektoren)
-    search_queries = {
-        "0": "Lilith Gefühle Unterdrückung Gesellschaft Schmerz",
-        "1": "Aris Menschlichkeit Rückgrat Verlust Kälte",
-        "2": "Mira Empathie Blockade soziale Medien Heuchelei",
-        "3": "Tarik Widerstand Willkür Freiheit Vernachlässigung",
-        "4": "Kiron Moral Verfall Integrität News",
-        # ... ergänze hier die restlichen Sektoren ...
-    }
-    
-    query = search_queries.get(sector_id, "Menschlichkeit Vernachlässigung Gesellschaft")
-    api_key = os.getenv("GOOGLE_SEARCH_API_KEY")
-    cx = os.getenv("GOOGLE_SEARCH_CX") 
-    
-    url = f"https://www.googleapis.com/customsearch/v1?key={api_key}&cx={cx}&q={query}&num=3"
-    
-    try:
-        response = requests.get(url, timeout=5)
-        results = response.json()
-        
-        items = results.get("items", [])
-        ermittlungs_daten = []
-        for item in items:
-            # Wir säubern den Text ein wenig für die Scan-Optik
-            text = f"{item['title']}: {item['snippet']}"
-            ermittlungs_daten.append(text.replace('\n', ' '))
-        
-        return {"success": True, "data": ermittlungs_daten}
-    except Exception as e:
-        print(f"Ermittlungs-Fehler: {e}")
-        return {"success": False, "error": str(e)}
-
-# --- HIER DEN REISE-TEXT LESER EINSETZEN (Damit Ebene 2 oben den Text laden kann) ---
-@app.get("/get-sector-text/{sector_id}")
-async def get_sector_text(sector_id: str):
-    try:
-        admin_record = db.codes.find_one({"email": "mmcommunity22@gmail.com"})
-        if admin_record and "sector_headers" in admin_record:
-            text = admin_record["sector_headers"].get(sector_id, "")
-            return {"success": True, "text": text}
-        return {"success": True, "text": "Noch keine Erkenntnisse für diese Reise hinterlegt."}
-    except Exception as e:
-        return {"success": False, "error": str(e)}
-
 
 if __name__ == "__main__":
     import uvicorn
     port = int(os.environ.get("PORT", 10000)) 
-    uvicorn.run(app, host="0.0.0.0", port=port)  
+    uvicorn.run(app, host="0.0.0.0", port=port)
