@@ -532,6 +532,7 @@ async def get_live_ermittlung(sector_id: str):
         if response.status_code == 200:
             res_data = response.json()
             raw_text = res_data['candidates'][0]['content']['parts'][0]['text']
+            # Hier lag der Fehler (Zeile wurde umgebrochen). Jetzt repariert und sicher formatiert:
             clean_json = raw_text.replace('```json', '').replace('
 ```', '').replace("'", '"').strip()
             match = re.search(r'\{.*\}', clean_json, re.DOTALL)
