@@ -306,7 +306,7 @@ async function starteScanOptik(themenIndex) {
     const adminEl = document.getElementById('admin-text-zentrum');
     const textArea = document.getElementById('main-text-area');
 
-    // 1. Starr setzen
+    // 1. Anzeige starr setzen
     titleEl.innerText = `SEKTOR: ${themen[themenIndex]}`;
     adminEl.innerText = "Lade Admin-Sichtweise...";
     textArea.innerHTML = `<span style="color:#ff4d4d; font-weight:900;">KI-ERMITTLUNG AKTIV...</span>`;
@@ -315,15 +315,17 @@ async function starteScanOptik(themenIndex) {
     try {
         const resText = await fetch(`/get-sector-text/${themenIndex}`);
         const dataText = await resText.json();
-        if (dataText.success) {
-            adminEl.innerText = dataText.text; 
-        }
+        if (dataText.success) { adminEl.innerText = dataText.text; }
     } catch (e) { adminEl.innerText = "Fehler beim Laden der Sichtweise."; }
 
-    // 3. Live-Scan (Google) holen
+    // 3. Live-Scan (via POST an die neue Gemini-Route in main.py)
     try {
-        const resLive = await fetch(`/get-live-ermittlung/${themenIndex}`);
+        const resLive = await fetch(`/get-live-ermittlung/${themenIndex}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' }
+        });
         const dataLive = await resLive.json();
+        
         if (dataLive.success && dataLive.data) {
             textArea.innerHTML = `<span style="color:#00ff00; font-weight:900;">SCAN ABGESCHLOSSEN</span><br><br>`;
             dataLive.data.forEach(zeile => {
@@ -332,7 +334,10 @@ async function starteScanOptik(themenIndex) {
         } else {
             textArea.innerHTML = "Keine Live-Widersprüche im Sektor gefunden.";
         }
-    } catch (e) { textArea.innerHTML = "Scanner-Verbindung fehlgeschlagen."; }
+    } catch (e) { 
+        textArea.innerHTML = "Scanner-Verbindung fehlgeschlagen."; 
+        console.error("Live-Scan Error:", e);
+    }
 }
      
 // EBENE 3: Die emotionale Reise (Bilder KOMPLETT abgewürgt für Wolken-Test!)
