@@ -296,13 +296,41 @@ function waehleSektor(id) {
         }
 
 // EBENE 2: Der "Himmel" für deine Texte (Blaues Leuchten)
-function starteScanOptik(themenIndex) {
-    // Falls noch eine alte Slideshow von Ebene 2 läuft, stoppen wir sie hier sicherheitshalber
+async function starteScanOptik(themenIndex) {
     if (typeof scanSlideshow !== 'undefined') clearInterval(scanSlideshow);
     
     const headerSpace = document.querySelector('.scan-header-space');
+    const textArea = document.getElementById('main-text-area');
+    
     headerSpace.style.backgroundImage = "none"; 
     headerSpace.innerHTML = `SEKTOR: ${themen[themenIndex]}`;
+    
+    // 1. Admin-Sichtweise laden (Ebene 2 Oben)
+    try {
+        const resText = await fetch(`/get-sector-text/${themenIndex}`);
+        const dataText = await resText.json();
+        if (dataText.success) {
+            // Wir setzen den Admin-Text oben ein
+            headerSpace.innerHTML = `SEKTOR: ${themen[themenIndex]}<br><span style="font-size:0.8rem; letter-spacing:2px; color:#ffd700;">${dataText.text}</span>`;
+        }
+    } catch (e) { console.error("Fehler beim Laden des Header-Texts"); }
+
+    // 2. Live-Ermittlung / Google-Scan laden (Ebene 2 Unten)
+    textArea.innerHTML = `<span style="color:#ff4d4d; font-weight:900;">KI-ERMITTLUNG AKTIV...</span><br><br>Scanne Sektor ${themen[themenIndex]} nach Widersprüchen...`;
+    
+    try {
+        const resLive = await fetch(`/get-live-ermittlung/${themenIndex}`);
+        const dataLive = await resLive.json();
+        
+        if (dataLive.success) {
+            textArea.innerHTML = `<span style="color:#00ff00; font-weight:900;">SCAN ABGESCHLOSSEN</span><br><br>`;
+            dataLive.data.forEach(zeile => {
+                textArea.innerHTML += `<div style="margin-bottom:15px; border-left: 2px solid #003d8f; padding-left: 10px;">${zeile}</div>`;
+            });
+        }
+    } catch (e) { 
+        textArea.innerHTML = "Scanner-Verbindung unterbrochen."; 
+    }
 }
 
 // EBENE 3: Die emotionale Reise (Bilder KOMPLETT abgewürgt für Wolken-Test!)
