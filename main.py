@@ -538,11 +538,12 @@ async def get_live_ermittlung(sector_id: str):
             res_data = response.json()
             raw_text = res_data['candidates'][0]['content']['parts'][0]['text']
             
-            # Die Bereinigung wurde in kurze Zeilen zerlegt, um Render-Fehler zu vermeiden:
+            # Fehlerhafte Zeilen korrigiert und sauber strukturiert
             j1 = raw_text.replace('```json', '')
-            j2 = j1.replace('\n', ' ')
+            j2 = j1.replace('
 ```', '')
-            clean_json = j2.replace("'", '"').strip()
+            j3 = j2.replace('\n', ' ')
+            clean_json = j3.replace("'", '"').strip()
             
             match = re.search(r'\{.*\}', clean_json, re.DOTALL)
             if match:
