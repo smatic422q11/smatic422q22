@@ -411,11 +411,10 @@ async def chat(request: Request):
         user_time = data.get("echtzeit", "Unbekannt")
         bio_context = data.get("biografie_context", "")
 
-        # 1. DAS GLOBALE GEDÄCHTNIS ERZWINGEN (Erweitert für echten Namen)
+        # 1. DAS GLOBALE GEDÄCHTNIS ERZWINGEN
         user_record = db.codes.find_one({"email": email})
         
         if user_record:
-            # Wenn ein echter Name in der DB hinterlegt ist, nimm diesen, sonst Fallback auf E-Mail
             if "name" in user_record and user_record["name"]:
                 user_name = user_record["name"]
             else:
@@ -426,12 +425,12 @@ async def chat(request: Request):
         current_name = SECTOR_NAMES.get(sector_id, "KI")
         current_soul = SECTOR_SOULS.get(sector_id, "Begleiter.")
 
-        # 2. DIE SYSTEM INSTRUCTION (Verschärft für Gorans Begrüßung + Namens-Lern-Befehl)
+        # 2. DIE SYSTEM INSTRUCTION
         system_instruction = (
             f"IDENTITÄT: Du bist {current_name}, Seele: {current_soul}. "
             f"KOLLEKTIVES WISSEN: Das gesamte 20-Seelen-Kollektiv arbeitet für {user_name}. "
             f"DEIN GEGENÜBER: Der User ist {user_name}. " 
-            f"AUFGABE: Wenn dies dein erster ONTKT in diesem Sektor ist, BEGRÜSSE {user_name} UNBEDINGT mit seinem Namen. "
+            f"AUFGABE: Wenn dies dein erster Kontakt in diesem Sektor ist, BEGRÜSSE {user_name} UNBEDINGT mit seinem Namen. "
             f"ZEIT: {user_time}. BIO: {bio_context}. "
             "REGEL: Blende die Uhrzeit NIEMALS starr ein. "
             "REGEL: Wenn der User 'Gefühlsvorderung' sagt, blende immer ein 'V' ein. "
@@ -441,7 +440,7 @@ async def chat(request: Request):
             "Ersetze 'HierDerName' durch den tatsächlichen Namen des Users (z.B. [NEUER_NAME:Goran])."
         )
 
-        # 3. KOLLEKTIVES GEDÄCHTNIS
+        # 3. KOLLEKTIVES GEDÄCHTNIS LMEN
         if user_record and "sector_histories" in user_record:
             messages_for_gemini = user_record["sector_histories"].get(sector_id, [])
         else:
@@ -453,13 +452,23 @@ async def chat(request: Request):
 
         messages_for_gemini.append({"role": "user", "parts": [{"text": user_message}]})
 
-        # 4. Anfrage an Gemini (Mit deinem gewünschten Modell)
+        # --- RADIKALE NAMENS-KORREKTUR IM VERLAUF ---
+        # Falls in der Vergangenheit falsche Namen (wie "Mmcommunity22") in den Systemanweisungen 
+        # oder alten Nachrichten gelandet sind, zwingen wir das Kollektiv hier zum Update:
+        alter_falscher_name = email.split('@')[0].capitalize() # "Mmcommunity22"
+        
+        # Wir korrigieren die Systemanweisung frisch
+        gesaeuberte_instruction = system_instruction
+        if user_name != alter_falscher_name:
+            gesaeuberte_instruction = gesaeuberte_instruction.replace(alter_falscher_name, user_name)
+
+        # 4. Anfrage an Gemini
         api_key = os.getenv("GEMINI_API_KEY")
         url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key={api_key}"
         
         payload = {
             "contents": messages_for_gemini,
-            "system_instruction": { "parts": [{ "text": system_instruction }] }
+            "system_instruction": { "parts": [{ "text": gesaeuberte_instruction }] }
         }
 
         response = requests.post(url, json=payload)
@@ -472,14 +481,12 @@ async def chat(request: Request):
             cleaned_reply_text = raw_reply_text
             extrahierter_name = None
             
-            # Wir prüfen, ob die KI den Befehl [NEUER_NAME:...] ans Ende gehängt hat
             if "[NEUER_NAME:" in raw_reply_text and "]" in raw_reply_text:
                 try:
                     start_idx = raw_reply_text.find("[NEUER_NAME:") + 12
                     end_idx = raw_reply_text.find("]", start_idx)
                     extrahierter_name = raw_reply_text[start_idx:end_idx].strip()
                     
-                    # Steuerungsbefehl aus dem sichtbaren Chat-Text entfernen
                     cleaned_reply_text = raw_reply_text.replace(f"[NEUER_NAME:{extrahierter_name}]", "").strip()
                     print(f"!!! SYSTEM: Neuer Name '{extrahierter_name}' im Chat erkannt !!!")
                 except Exception as name_err:
@@ -488,7 +495,7 @@ async def chat(request: Request):
 
             messages_for_gemini.append({"role": "model", "parts": [{"text": cleaned_reply_text}]})
             
-            # 5. SICHERUNG IN DIE DATENBANK (Verschmolzene Version)
+            # 5. SICHERUNG IN DIE DATENBANK
             if email:
                 update_payload = {
                     f"sector_histories.{sector_id}": messages_for_gemini,
@@ -496,7 +503,6 @@ async def chat(request: Request):
                     "updated_at": datetime.now()
                 }
                 
-                # Wenn ein neuer Name im Chat gelernt wurde, speichern wir ihn direkt GLOBAL ab!
                 if extrahierter_name:
                     update_payload["name"] = extrahierter_name
 
