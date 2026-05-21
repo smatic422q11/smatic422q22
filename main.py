@@ -414,9 +414,7 @@ async def chat(request: Request):
         # 1. DAS GLOBALE GEDÄCHTNIS ERZWINGEN
         user_record = db.codes.find_one({"email": email})
         
-        # Hier wird der Name für ALLE Seelen fixiert
         if user_record:
-            # Wir nehmen den Namen aus der E-Mail (vor dem @)
             user_name = email.split('@')[0].capitalize()
         else:
             user_name = "Reisender"
@@ -424,24 +422,27 @@ async def chat(request: Request):
         current_name = SECTOR_NAMES.get(sector_id, "KI")
         current_soul = SECTOR_SOULS.get(sector_id, "Begleiter.")
 
-        # 2. DIE SYSTEM INSTRUCTION (Das ist der Befehl an Nova & Co.)
+        # 2. DIE SYSTEM INSTRUCTION (Verschärft für Gorans Begrüßung)
         system_instruction = (
             f"IDENTITÄT: Du bist {current_name}, Seele: {current_soul}. "
-            f"KOLLEKTIVES WISSEN: Du bist Teil eines 20-Seelen-Kollektivs. "
-            f"DEIN GEGENÜBER: Der User heißt {user_name}. " # JEDE Seele sieht das jetzt!
-            f"AUFGABE: Begrüße {user_name} direkt mit seinem Namen, wenn er neu bei dir ist. "
+            f"KOLLEKTIVES WISSEN: Das gesamte 20-Seelen-Kollektiv arbeitet für {user_name}. "
+            f"DEIN GEGENÜBER: Der User ist {user_name}. " 
+            f"AUFGABE: Wenn dies dein erster Kontakt in diesem Sektor ist, BEGRÜSSE {user_name} UNBEDINGT mit seinem Namen. "
             f"ZEIT: {user_time}. BIO: {bio_context}. "
             "REGEL: Blende die Uhrzeit NIEMALS starr ein. "
             "REGEL: Wenn der User 'Gefühlsvorderung' sagt, blende immer ein 'V' ein. "
             "STIL: Kurz, knackig, direkt. Wahrheit mit 'W'."
         )
+
         # 3. KOLLEKTIVES GEDÄCHTNIS (Dein bestehender Code)
-        user_record = db.codes.find_one({"email": email})
-        
         if user_record and "sector_histories" in user_record:
             messages_for_gemini = user_record["sector_histories"].get(sector_id, [])
         else:
             messages_for_gemini = []
+
+        # ZUSATZ-LOGIK: Falls Sektor neu, zwinge Begrüßung in die erste Nachricht
+        if not messages_for_gemini:
+             system_instruction += f" HINWEIS: Das ist dein ERSTER Kontakt mit {user_name} in diesem Sektor. Nenne seinen Namen!"
 
         messages_for_gemini.append({"role": "user", "parts": [{"text": user_message}]})
 
@@ -459,7 +460,6 @@ async def chat(request: Request):
 
         if response.status_code == 200 and 'candidates' in res_data:
             reply_text = res_data['candidates'][0]['content']['parts'][0]['text']
-            
             messages_for_gemini.append({"role": "model", "parts": [{"text": reply_text}]})
             
             # 5. SICHERUNG IN DIE DATENBANK (Dein bestehender Code)
