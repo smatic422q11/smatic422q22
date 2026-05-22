@@ -637,8 +637,8 @@ async def get_live_ermittlung(sector_id: str, request: Request):
             '{"widersprueche": ["Echter kritischer Punkt 1", "Echter kritischer Punkt 2"], "lagebericht": "Text", "akteure": "Text", "kontrast": "Text", "fazit": "Text"}'
         )
         
-        api_key = os.getenv("GEMINI_API_KEY")
-        url = f"[https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=](https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=){api_key}"
+       api_key = os.getenv("GEMINI_API_KEY")
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key={api_key}"
         payload = {"contents": [{"parts": [{"text": prompt}]}]}
         
         response = requests.post(url, json=payload, timeout=15)
