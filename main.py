@@ -577,10 +577,22 @@ async def get_live_ermittlung(sector_id: str, request: Request):
             user_name = email.split('@')[0].capitalize()
             
         seelen_name = SECTOR_NAMES.get(sector_id, "KI")
-        such_anfrage = f'{user_name} news OR {user_name} social media OR {user_name} aussagen'
+        # Das System prüft, welcher Sektor aufgerufen wurde und sucht nach echten Weltgeschehen
+        if sector_id == "8":  # Sektor 8: Nova (LGBTQ & Kirche)
+            such_anfrage = "LGBTQ Kirche Konflikt OR Drag Diskriminierung OR LGBTQ Nachrichten aktuell"
+        elif sector_id == "9":  # Sektor 9: Marek (Trend & Tradition / Erziehung)
+            such_anfrage = "Tradition Moderne Konflikt OR Erziehung Trends aktuelle Debatte"
+        elif sector_id == "13":  # Sektor 13: Sira (Mobbing & System)
+            such_anfrage = "Mobbing Schule Arbeitsplatz Vorfall OR Cybermobbing aktuell"
+        else:
+            # Standard-Suche für alle anderen Sektoren basierend auf dem Seelen-Namen
+            seelen_name = SECTOR_NAMES.get(sector_id, "KI")
+            such_anfrage = f"{seelen_name} aktuelle Nachrichten Konflikte"
+
+        # Jetzt startet die echte Google-Suche mit dem Weltgeschehen
         google_ergebnisse = perform_google_search(such_anfrage)
-        
-        # PROMPT-ANPASSUNG: Die KI weiß jetzt, dass es um freie Interaktion ODER Biografie geht
+          
+       # PROMPT-ANPASSUNG: Die KI weiß jetzt, dass es um freie Interaktion ODER Biografie geht
         prompt = (
             f"Du bist der hochprofessionelle KI-Scanner für Sektor: {seelen_name}.\n"
             f"Deine Aufgabe ist eine knallharte Live-Ermittlung über die Person: {user_name}.\n\n"
