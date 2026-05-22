@@ -641,7 +641,7 @@ async def get_live_ermittlung(sector_id: str, request: Request):
         if api_key:
             api_key = api_key.strip().replace("[", "").replace("]", "")
             
-        url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key={api_key}"
+       url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key={api_key}"
         payload = {"contents": [{"parts": [{"text": prompt}]}]}
         
         response = requests.post(url, json=payload, timeout=15)
@@ -650,12 +650,11 @@ async def get_live_ermittlung(sector_id: str, request: Request):
             res_data = response.json()
             raw_text = res_data['candidates'][0]['content']['parts'][0]['text'].strip()
             
-            # Filtert eventuelle Markdown-Block-Formatierungen heraus
             if raw_text.startswith("```"):
                 raw_text = re.sub(r'^
 http://googleusercontent.com/immersive_entry_chip/0
-                
-                if not ergebnis_json.get("widersprueche"):
+
+Ersetze das direkt auf GitHub, mach den Commit, und erst dann wird Render stabil grün durchlaufen.
                     ergebnis_json["widersprueche"] = ["Die Gesellschaft ignoriert den realen Missstand auf den Straßen.", "Das Netz schweigt zu den tatsächlichen Vorfällen."]
                 
                 aktualisiere_sektor_fortschritt(email, sector_id, "letzter_scan", ergebnis_json)
