@@ -642,7 +642,7 @@ async def get_live_ermittlung(sector_id: str, request: Request):
         if api_key:
             api_key = api_key.strip().replace("[", "").replace("]", "")
             
-        url = f"[https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=](https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=){api_key}"
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key={api_key}"
         payload = {"contents": [{"parts": [{"text": prompt}]}]}
         
         response = requests.post(url, json=payload, timeout=15)
