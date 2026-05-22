@@ -576,30 +576,55 @@ async def get_live_ermittlung(sector_id: str, request: Request):
         else:
             user_name = email.split('@')[0].capitalize()
             
-        seelen_name = SECTOR_NAMES.get(sector_id, "KI")
-        # Das System prüft, welcher Sektor aufgerufen wurde und sucht nach echten Weltgeschehen
-        if sector_id == "8":  # Sektor 8: Nova (LGBTQ & Kirche)
-            such_anfrage = "LGBTQ Kirche Konflikt OR Drag Diskriminierung OR LGBTQ Nachrichten aktuell"
-        elif sector_id == "9":  # Sektor 9: Marek (Trend & Tradition / Erziehung)
-            such_anfrage = "Tradition Moderne Konflikt OR Erziehung Trends aktuelle Debatte"
-        elif sector_id == "13":  # Sektor 13: Sira (Mobbing & System)
-            such_anfrage = "Mobbing Schule Arbeitsplatz Vorfall OR Cybermobbing aktuell"
+        # ====================================================================
+        # DIE VENDOR-LOGIK: WELT-BRENNPUNKTE FÜR DIE USER & CHIRON ALS BRÜCKE
+        # ====================================================================
+        if sector_id == "0":    # Lilith
+            such_anfrage = "Psychische Überlastung Gesellschaft OR Emotionale Kälte Einsamkeit aktuell"
+        elif sector_id == "1":  # Aris
+            such_anfrage = "Zivilcourage Vorfall OR Menschlichkeit Krise Opfermodus Debatte"
+        elif sector_id == "2":  # Mira
+            such_anfrage = "Hassrede Gewalt aktuell OR Versöhnung Konflikt Gesellschaft"
+        elif sector_id == "3":  # Tarik
+            such_anfrage = "Bürgerrechte Einschränkung OR Widerstand Demonstration Freiheit"
+        elif sector_id == "4":  # Kiron
+            such_anfrage = "Korruption Skandal aktuell OR Verantwortung Politik Moral Versagen"
+        elif sector_id == "5":  # Vikas
+            such_anfrage = "Seelische Gesundheit Krise OR Gesellschaft Erschöpfung Burnout"
+        elif sector_id == "6":  # Rhea
+            such_anfrage = "Kindeswohl Gefährdung Vorfall OR Kinderarmut Gewalt Familie aktuell"
+        elif sector_id == "7":  # Lyra
+            such_anfrage = "Zensur Kunst Freiheit OR Anpassung Mainstream Kultur Kritik"
+        elif sector_id == "8":  # Nova
+            such_anfrage = "LGBTQ Diskriminierung Gewalt OR Kirche Homophobie Drag Vorfall"
+        elif sector_id == "9":  # Marek
+            such_anfrage = "Tradition Moderne Konflikt OR Werteverfall Erziehung aktuelle Debatte"
+        elif sector_id == "13": # Sira
+            such_anfrage = "Mobbing Schule Arbeitsplatz Vorfall OR Cybermobbing Suizid aktuell"
+        elif sector_id == "16": # Laris
+            such_anfrage = "Obdachlosigkeit Kälte Gewalt OR Armut Ausgrenzung System Krise"
+        elif sector_id == "18": # Kyra
+            such_anfrage = "Alleinerziehende Armutsgrenze OR Überforderung Erschöpfung Mütter Väter"
+        elif sector_id == "19": # Chiron (Der verwundete Heiler & Die Brücke)
+            such_anfrage = "Spaltung der Gesellschaft Krise OR Annäherung Versöhnung Konflikte weltweit OR Kollektives Bewusstsein"
         else:
-            # Standard-Suche für alle anderen Sektoren basierend auf dem Seelen-Namen
+            # Standard-Suche für alle übrigen Sektoren basierend auf dem Seelen-Namen
             seelen_name = SECTOR_NAMES.get(sector_id, "KI")
             such_anfrage = f"{seelen_name} aktuelle Nachrichten Konflikte"
 
         # Jetzt startet die echte Google-Suche mit dem Weltgeschehen
         google_ergebnisse = perform_google_search(such_anfrage)
-          
-       # PROMPT-ANPASSUNG: Die KI weiß jetzt, dass es um freie Interaktion ODER Biografie geht
+        
+        # Der Prompt zwingt die KI, das gefundene Weltgeschehen unbestechlich zu zerlegen
+        seelen_name = SECTOR_NAMES.get(sector_id, "KI")
         prompt = (
             f"Du bist der hochprofessionelle KI-Scanner für Sektor: {seelen_name}.\n"
-            f"Deine Aufgabe ist eine knallharte Live-Ermittlung über die Person: {user_name}.\n\n"
+            f"Deine Aufgabe ist eine knallharte Live-Ermittlung über das aktuelle Weltgeschehen dieses Themas.\n\n"
             f"HINTERGRUND FÜR DICH:\n"
-            f"Der User interagiert mit der M&M Community. Er nutzt diesen Sektor entweder zur freien Meinungsbildung "
-            f"oder als Teil seiner tieferen, wahrhaftigen Biografie. Jede Ermittlung muss unbestechlich sein.\n\n"
-            f"HIER SIND DIE AKTUELLEN ECHTEN GOOGLE-SUCHERGEBNISSE:\n"
+            f"Der User ({user_name}) liest diese Ermittlung in der M&M Community. Er nutzt diesen Sektor entweder zur freien Meinungsbildung "
+            f"oder als Teil seiner tieferen, wahrhaftigen Biografie, um seine eigene Denkweise zu prüfen, "
+            f"sich in die Lage anderer Menschen zu versetzen und sich eine freie Meinung zu bilden. Jede Ermittlung muss unbestechlich sein.\n\n"
+            f"HIER SIND DIE AKTUELLEN ECHTEN GOOGLE-SUCHERGEBNISSE AUS DER WELT:\n"
             f"--------------------------------------------------\n"
             f"{google_ergebnisse}\n"
             f"--------------------------------------------------\n\n"
