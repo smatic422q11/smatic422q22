@@ -620,21 +620,19 @@ async def get_live_ermittlung(sector_id: str, request: Request):
 
         google_ergebnisse = perform_google_search(such_anfrage)
         
-        seelen_name = SECTOR_NAMES.get(sector_id, "KI")
+       seelen_name = SECTOR_NAMES.get(sector_id, "KI")
         prompt = (
-            f"Du bist der hochprofessionelle KI-Scanner für Sektor: {seelen_name}.\n"
-            f"Deine Aufgabe ist eine knallharte Live-Ermittlung über das aktuelle Weltgeschehen dieses Themas.\n\n"
-            f"HINTERGRUND FÜR DICH:\n"
-            f"Der User ({user_name}) liest diese Ermittlung in der M&M Community, um seine eigene Denkweise zu prüfen.\n\n"
-            f"HIER SIND DIE AKTUELLEN ECHTEN GOOGLE-SUCHERGEBNISSE AUS DER WELT:\n"
+            f"Du bist der unbestechliche KI-Scanner für Sektor: {seelen_name}.\n"
+            f"Aufgabe: Eine tiefe, ausführliche Live-Ermittlung für den User ({user_name}) in der M&M Community.\n"
+            f"Nutze den Platz maximal aus. Schreibe lange, detaillierte und substanzielle Analysen für jeden Wert.\n\n"
+            f"HIER SIND DIE ECHTEN LIVE-DATEN AUS DER WELT ZU DIESEM SEKTOR:\n"
             f"--------------------------------------------------\n"
             f"{google_ergebnisse}\n"
             f"--------------------------------------------------\n\n"
-            f"STRIKTE REGEL: Antworte AUSSCHLIESSLICH mit dem nackten JSON-Objekt. "
-            f"Gib KEINERLEI Einleitung, KEINE Markdown-Formatierung wie ```json und kein Text drumherum aus! "
-            f"Das Ergebnis MUSS direkt mit {{ beginnen und mit }} enden.\n\n"
-            f"FORMAT:\n"
-            '{"widersprueche": ["Echter kritischer Punkt 1", "Echter kritischer Punkt 2"], "lagebericht": "Text", "akteure": "Text", "kontrast": "Text", "fazit": "Text"}'
+            f"STRIKTE VERBOTE: Ignoriere allgemeine Wirtschaftsphrasen, Inflation oder Aktienmärkte komplett, es sei denn, die oben gelieferten Daten fordern das explizit. Bleibe zu 100% beim Thema: {seelen_name}.\n\n"
+            f"Antworte AUSSCHLIESSLICH mit dem nackten JSON-Objekt ohne ```json oder Einleitung.\n"
+            f"FORMAT (Schreibe extrem lange, tiefgründige Absätze):\n"
+            '{"widersprueche": ["Detaillierter Widerspruch 1", "Detaillierter Widerspruch 2", "Detaillierter Widerspruch 3"], "lagebericht": "Sehr langer, ausführlicher Bericht zur realen Lage", "akteure": "Umfassende Analyse aller treibenden Kräfte und Institutionen", "kontrast": "Genaue Gegenüberstellung von Schein und Wirklichkeit", "fazit": "Tiefgehendes, ungeschöntes Endzeugnis"}'
         )
         
         api_key = os.getenv("GEMINI_API_KEY")
