@@ -637,14 +637,12 @@ async def get_live_ermittlung(sector_id: str, request: Request):
             '{"widersprueche": ["Echter kritischer Punkt 1", "Echter kritischer Punkt 2"], "lagebericht": "Text", "akteure": "Text", "kontrast": "Text", "fazit": "Text"}'
         )
         
-      api_key = os.getenv("GEMINI_API_KEY")
+        api_key = os.getenv("GEMINI_API_KEY")
         
-        # Säuberung: Entfernt alle eventuellen versteckten Zeichen oder Klammern aus dem Key
         if api_key:
             api_key = api_key.strip().replace("[", "").replace("]", "")
             
-        # Absolut saubere URL ohne jegliche Sonderzeichen am Anfang oder Ende
-        url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key={api_key}"
+        url = f"[https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=](https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=){api_key}"
         payload = {"contents": [{"parts": [{"text": prompt}]}]}
         
         response = requests.post(url, json=payload, timeout=15)
@@ -653,7 +651,6 @@ async def get_live_ermittlung(sector_id: str, request: Request):
             res_data = response.json()
             raw_text = res_data['candidates'][0]['content']['parts'][0]['text'].strip()
             
-            # Radikale JSON-Isolierung: Alles vor der ersten { und nach der letzten } abschneiden
             start_pos = raw_text.find('{')
             end_pos = raw_text.rfind('}')
             
@@ -661,14 +658,12 @@ async def get_live_ermittlung(sector_id: str, request: Request):
                 clean_json = raw_text[start_pos:end_pos+1]
                 ergebnis_json = json.loads(clean_json)
                 
-                # Sicherheitsnetz: Falls die Liste leer ist, füllen wir sie sofort im Code
                 if not ergebnis_json.get("widersprueche"):
                     ergebnis_json["widersprueche"] = ["Die Gesellschaft ignoriert den realen Missstand auf den Straßen.", "Das Netz schweigt zu den tatsächlichen Vorfällen."]
                 
                 aktualisiere_sektor_fortschritt(email, sector_id, "letzter_scan", ergebnis_json)
                 return {"success": True, "data": ergebnis_json}
                 
-        # Notfall-Rückgabe im exakten Format, damit die Website NIEMALS den Fehlersatz anzeigt
         notfall_json = {
             "widersprueche": ["Verbindungsausfall zu den Live-Daten.", "Die Realität wird im System blockiert."],
             "lagebericht": "Der Server konnte die Daten nicht sauber verarbeiten.",
@@ -679,7 +674,6 @@ async def get_live_ermittlung(sector_id: str, request: Request):
         return {"success": True, "data": notfall_json}
         
     except Exception as e:
-        # Selbst bei einem harten Crash fangen wir das ab, damit das Ergebnis geliefert wird
         return {"success": True, "data": {
             "widersprueche": [f"Systemfehler abgefangen: {str(e)}"],
             "lagebericht": "Ein technischer Fehler trat auf.",
