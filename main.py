@@ -579,13 +579,9 @@ async def get_live_ermittlung(sector_id: str, request: Request):
     try:
         data = await request.json()
         email = data.get("email", "").lower().strip()
-        
         user_record = db.codes.find_one({"email": email})
-        if user_record and user_record.get("name"):
-            user_name = user_record.get("name")
-        else:
-            user_name = email.split('@')[0].capitalize()
-            
+        user_name = user_record.get("name") if user_record and user_record.get("name") else email.split('@')[0].capitalize()
+        
         if sector_id == "0":
             such_anfrage = "Psychische Überlastung Gesellschaft OR Emotionale Kälte Einsamkeit aktuell"
         elif sector_id == "1":
@@ -617,66 +613,39 @@ async def get_live_ermittlung(sector_id: str, request: Request):
         else:
             seelen_name = SECTOR_NAMES.get(sector_id, "KI")
             such_anfrage = f"{seelen_name} aktuelle Nachrichten Konflikte"
-            google_ergebnisse = perform_google_search(such_anfrage)
-            
-         seelen_name = SECTOR_NAMES.get(sector_id, "KI")
+        
+        google_ergebnisse = perform_google_search(such_anfrage)
+        seelen_name = SECTOR_NAMES.get(sector_id, "KI")
 
         prompt = (
             f"Du bist der unbestechliche KI-Scanner für Sektor: {seelen_name}.\n"
             f"Aufgabe: Eine tiefe, ausführliche Live-Ermittlung für den User ({user_name}) in der M&M Community.\n"
-            f"Nutze den Platz maximal aus. Schreibe lange, detaillierte und substanzielle Analysen für jeden Wert.\n\n"
-            f"HIER SIND DIE ECHTEN LIVE-DATEN AUS DER WELT ZU DIESEM SEKTOR:\n"
-            f"--------------------------------------------------\n"
-            f"{google_ergebnisse}\n"
-            f"--------------------------------------------------\n\n"
-            f"STRIKTE VERBOTE: Ignoriere allgemeine Wirtschaftsphrasen, Inflation oder Aktienmärkte komplett, es sei denn, die oben gelieferten Daten fordern das explizit. Bleibe zu 100% beim Thema: {seelen_name}.\n\n"
-            f"Antworte AUSSCHLIESSLICH mit dem nackten JSON-Objekt ohne ```json oder Einleitung.\n"
-            f"FORMAT (Schreibe extrem lange, tiefgründige Absätze):\n"
-            '{"widersprueche": ["Detaillierter Widerspruch 1", "Detaillierter Widerspruch 2", "Detaillierter Widerspruch 3"], "lagebericht": "Sehr langer, ausführlicher Bericht zur realen Lage", "akteure": "Umfassende Analyse aller treibenden Kräfte und Institutionen", "kontrast": "Genaue Gegenüberstellung von Schein und Wirklichkeit", "fazit": "Tiefgehendes, ungeschöntes Endzeugnis"}'
+            f"Nutze den Platz maximal aus. Schreibe lange Analysen.\n\n"
+            f"DATEN:\n{google_ergebnisse}\n\n"
+            f"Antworte AUSSCHLIESSLICH mit dem nackten JSON-Objekt ohne Einleitung.\n"
+            '{"widersprueche": ["...", "..."], "lagebericht": "...", "akteure": "...", "kontrast": "...", "fazit": "..."}'
         )
 
         api_key = os.getenv("GEMINI_API_KEY")   
-        
-        
         if api_key:
             api_key = api_key.strip().replace("[", "").replace("]", "")
             
-       url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key={api_key}"
-        payload = {"contents": [{"parts": [{"text": prompt}]}]}
-        
-        response = requests.post(url, json=payload, timeout=15)
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key={api_key}"
+        response = requests.post(url, json={"contents": [{"parts": [{"text": prompt}]}]}, timeout=15)
         
         if response.status_code == 200:
             res_data = response.json()
             raw_text = res_data['candidates'][0]['content']['parts'][0]['text'].strip()
-            
-            if raw_text.startswith("```"):
-                raw_text = re.sub(r'^
-http://googleusercontent.com/immersive_entry_chip/0
-
-Ersetze das direkt auf GitHub, mach den Commit, und erst dann wird Render stabil grün durchlaufen.
-                    ergebnis_json["widersprueche"] = ["Die Gesellschaft ignoriert den realen Missstand auf den Straßen.", "Das Netz schweigt zu den tatsächlichen Vorfällen."]
+            raw_text = re.sub(r'^```json\s*|\s*
+```$', '', raw_text, flags=re.MULTILINE)
+            ergebnis_json = json.loads(raw_text)
+            aktualisiere_sektor_fortschritt(email, sector_id, "letzter_scan", ergebnis_json)
+            return {"success": True, "data": ergebnis_json}
                 
-                aktualisiere_sektor_fortschritt(email, sector_id, "letzter_scan", ergebnis_json)
-                return {"success": True, "data": ergebnis_json}
-                
-        notfall_json = {
-            "widersprueche": ["Verbindungsausfall zu den Live-Daten.", "Die Realität wird im System blockiert."],
-            "lagebericht": "Der Server konnte die Daten nicht sauber verarbeiten.",
-            "akteure": "System-Schnittstelle",
-            "kontrast": "Soll-Zustand: Live-Daten / Ist-Zustand: Formatfehler",
-            "fazit": "Bitte starte den Scan erneut."
-        }
-        return {"success": True, "data": notfall_json}
+        return {"success": True, "data": {"widersprueche": ["Fehler"], "lagebericht": "Schnittstelle offline"}}
         
     except Exception as e:
-        return {"success": True, "data": {
-            "widersprueche": [f"Systemfehler abgefangen: {str(e)}"],
-            "lagebericht": "Ein technischer Fehler trat auf.",
-            "akteure": "Code-Ebene",
-            "kontrast": "Fehler im Ablauf.",
-            "fazit": "Ermittlung unterbrochen."
-        }}
+        return {"success": True, "data": {"widersprueche": [f"Fehler: {str(e)}"]}}
 @app.post("/admin/update-sector")
 async def handle_update_sector(request: Request):
     try:
