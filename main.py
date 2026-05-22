@@ -582,8 +582,11 @@ async def get_live_ermittlung(sector_id: str, request: Request):
         user_record = db.codes.find_one({"email": email})
         user_name = user_record.get("name") if user_record and user_record.get("name") else email.split('@')[0].capitalize()
         
-        if sector_id == "0":
-            such_anfrage = "Psychische Überlastung Gesellschaft OR Emotionale Kälte Einsamkeit aktuell"
+           if sector_id == "0":
+          such_anfrage = "Psychische Überlastung Gesellschaft OR Emotionale Kälte Einsamkeit aktuell"
+           prompt = f"Du bist Lilith. Regeln: 1. Denke nicht für den User... SCAN-DATEN: {perform_google_search(such_anfrage)} ... FORMAT JSON: ..."
+          response = execute_prompt(prompt)
+         return response
         elif sector_id == "1":
             such_anfrage = "Zivilcourage Vorfall OR Menschlichkeit Krise Opfermodus Debatte"
         elif sector_id == "2":
