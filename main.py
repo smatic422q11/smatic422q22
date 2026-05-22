@@ -618,10 +618,11 @@ async def get_live_ermittlung(sector_id: str, request: Request):
             seelen_name = SECTOR_NAMES.get(sector_id, "KI")
             such_anfrage = f"{seelen_name} aktuelle Nachrichten Konflikte"
 
-            google_ergebnisse = perform_google_search(such_anfrage)
-        
-            seelen_name = SECTOR_NAMES.get(sector_id, "KI")
-            prompt = (
+           google_ergebnisse = perform_google_search(such_anfrage)
+
+        seelen_name = SECTOR_NAMES.get(sector_id, "KI")
+
+        prompt = (
             f"Du bist der unbestechliche KI-Scanner für Sektor: {seelen_name}.\n"
             f"Aufgabe: Eine tiefe, ausführliche Live-Ermittlung für den User ({user_name}) in der M&M Community.\n"
             f"Nutze den Platz maximal aus. Schreibe lange, detaillierte und substanzielle Analysen für jeden Wert.\n\n"
@@ -634,7 +635,7 @@ async def get_live_ermittlung(sector_id: str, request: Request):
             f"FORMAT (Schreibe extrem lange, tiefgründige Absätze):\n"
             '{"widersprueche": ["Detaillierter Widerspruch 1", "Detaillierter Widerspruch 2", "Detaillierter Widerspruch 3"], "lagebericht": "Sehr langer, ausführlicher Bericht zur realen Lage", "akteure": "Umfassende Analyse aller treibenden Kräfte und Institutionen", "kontrast": "Genaue Gegenüberstellung von Schein und Wirklichkeit", "fazit": "Tiefgehendes, ungeschöntes Endzeugnis"}'
         )
-        
+
         api_key = os.getenv("GEMINI_API_KEY")
         
         if api_key:
