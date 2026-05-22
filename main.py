@@ -554,7 +554,6 @@ def aktualisiere_sektor_fortschritt(email, sector_id, daten_typ, inhalt):
             {"email": email.lower().strip()},
             {
                 "$set": {
-                    # REPARIERT: Reines Python für den ISO-Zeitstempel verwendet
                     f"sektoren.{sector_id}.letztes_update": datetime.now().isoformat(),
                     f"sektoren.{sector_id}.{daten_typ}": inhalt
                 }
