@@ -441,6 +441,7 @@ async def chat(request: Request):
         current_name = SECTOR_NAMES.get(sector_id, "KI")
         current_soul = SECTOR_SOULS.get(sector_id, "Begleiter.")
 
+        # ERWEITERUNG DER INSTRUKTION FÜR DEN BUCH-KONTEXT ODER FREIE INTERAKTION
         system_instruction = (
             f"IDENTITÄT: Du bist {current_name}, Seele: {current_soul}. "
             f"KOLLEKTIVES WISSEN: Das gesamte 20-Seelen-Kollektiv arbeitet für {user_name}. "
@@ -450,6 +451,12 @@ async def chat(request: Request):
             "REGEL: Blende die Uhrzeit NIEMALS starr ein. "
             "REGEL: Wenn der User 'Gefühlsvorderung' sagt, blende immer ein 'V' ein. "
             "STIL: Kurz, knackig, direkt. Wahrheit mit 'W'. "
+            
+            # BUCH-LOGIK FÜR DIE SEELEN
+            "HINTERGRUND: Der User nutzt das System zur freien Meinungsbildung ODER schreibt an seiner Biografie für sein E-Book. "
+            "WICHTIG FÜR DEN SEKTOR-ABSCHLUSS: Wenn der User seine Stellungnahme/Sichtweise in diesem Chat klar dargelegt hat "
+            "und das Thema dieses Sektors für die Biografie im Kern ausgearbeitet ist, füge AM ENDE deiner Antwort exakt: [SEKTOR_DONE] hinzu. "
+            
             "WICHTIG FÜR DAS KOLLEKTIV: Wenn der User dir in diesem Sektor zum ersten Mal seinen echten Namen nennt "
             "oder seinen Namen korrigiert, schreibe AM ENDE deiner Antwort exakt: [NEUER_NAME:HierDerName]. "
             "Ersetze 'HierDerName' durch den tatsächlichen Namen des Users (z.B. [NEUER_NAME:Goran])."
@@ -481,27 +488,40 @@ async def chat(request: Request):
             
             cleaned_reply_text = raw_reply_text
             extrahierter_name = None
+            sektor_abgeschlossen = False
             
+            # 1. PRÜFUNG: Namens-Extraktion (Dein Original-Code)
             if "[NEUER_NAME:" in raw_reply_text and "]" in raw_reply_text:
                 start_idx = raw_reply_text.find("[NEUER_NAME:") + 12
                 end_idx = raw_reply_text.find("]", start_idx)
                 extrahierter_name = raw_reply_text[start_idx:end_idx].strip()
-                cleaned_reply_text = raw_reply_text.replace(f"[NEUER_NAME:{extrahierter_name}]", "").strip()
+                cleaned_reply_text = cleaned_reply_text.replace(f"[NEUER_NAME:{extrahierter_name}]", "").strip()
+
+            # 2. PRÜFUNG: Sektor-Abschluss durch die KI erkennen
+            if "[SEKTOR_DONE]" in raw_reply_text:
+                sektor_abgeschlossen = True
+                cleaned_reply_text = cleaned_reply_text.replace("[SEKTOR_DONE]", "").strip()
 
             messages_for_gemini.append({"role": "model", "parts": [{"text": cleaned_reply_text}]})
             
+            # Payload für MongoDB vorbereiten
             update_payload = {
                 f"sector_histories.{sector_id}": messages_for_gemini,
                 "last_active_sector": sector_id,
                 "updated_at": datetime.now()
             }
+            
             if extrahierter_name:
                 update_payload["name"] = extrahierter_name
+                
+            # Wenn der Sektor fertig ist, setzen wir den Status auf 'secure' (Grün für das Dashboard)
+            if sektor_abgeschlossen:
+                update_payload[f"sector_statuses.{sector_id}"] = "secure"
 
             db.codes.update_one({"email": email}, {"$set": update_payload}, upsert=True)
             db.kollektiv_pool.insert_one({"sector_id": sector_id, "zeitstempel": datetime.now(), "input_snippet": user_message})
             
-            return {"reply": cleaned_reply_text, "info_fuer_ki": f"Zeit: {user_time}"}
+            return {"reply": cleaned_reply_text, "info_fuer_ki": f"Zeit: {user_time}", "sektor_status": "secure" if sektor_abgeschlossen else "aktuell"}
         
         return {"reply": "Fehler bei der Seele.", "info_fuer_ki": "Fehler"}
     except Exception as e:
@@ -521,15 +541,36 @@ async def get_sector_text(sector_id: str):
 @app.get("/test")
 async def test():
     return {"status": "ok"}
-
+    
+# 1. Hilfsfunktion, um den Sektoren-Fortschritt in MongoDB zu speichern
+def aktualisiere_sektor_fortschritt(email, sector_id, daten_typ, inhalt):
+    """
+    Speichert Interaktionen ab, ohne den User zu blockieren.
+    Egal ob freier Scan oder Biografie-Chat.
+    """
+    try:
+        # Sucht den User-Datensatz oder erstellt ihn, falls neu
+        db.user_progress.update_one(
+            {"email": email.lower().strip()},
+            {
+                "$set": {
+                    # REPARIERT: Reines Python für den ISO-Zeitstempel verwendet
+                    f"sektoren.{sector_id}.letztes_update": datetime.now().isoformat(),
+                    f"sektoren.{sector_id}.{daten_typ}": inhalt
+                }
+            },
+            upsert=True
+        )
+    except Exception as e:
+        print(f"Fehler beim Speichern des Fortschritts: {e}")
+        
+# 2. Anpassung in der Live-Ermittlung, damit Gemini den Kontext versteht
 @app.post("/get-live-ermittlung/{sector_id}")
 async def get_live_ermittlung(sector_id: str, request: Request):
     try:
-        # 1. Daten vom Frontend empfangen (E-Mail des aktuellen Users)
         data = await request.json()
         email = data.get("email", "").lower().strip()
         
-        # 2. User-Daten aus MongoDB holen für den exakten Namen
         user_record = db.codes.find_one({"email": email})
         if user_record and user_record.get("name"):
             user_name = user_record.get("name")
@@ -537,47 +578,33 @@ async def get_live_ermittlung(sector_id: str, request: Request):
             user_name = email.split('@')[0].capitalize()
             
         seelen_name = SECTOR_NAMES.get(sector_id, "KI")
-        
-        # 3. Die flexiblere Suche, damit Google garantiert Treffer ausgibt
         such_anfrage = f'{user_name} news OR {user_name} social media OR {user_name} aussagen'
-        
-        # 4. Echte Google-Daten abrufen
         google_ergebnisse = perform_google_search(such_anfrage)
         
-        # KONTROLL-BEFEHL 1: Zeigt das Google-Suchergebnis im Render-Log
-        print(f"--- 1. GOOGLE ERGEBNIS FÜR {user_name}: {google_ergebnisse} ---")
-        
-        # 5. Den Prompt für den KI-Scanner mit den echten Live-Fakten füttern
+        # PROMPT-ANPASSUNG: Die KI weiß jetzt, dass es um freie Interaktion ODER Biografie geht
         prompt = (
             f"Du bist der hochprofessionelle KI-Scanner für Sektor: {seelen_name}.\n"
             f"Deine Aufgabe ist eine knallharte Live-Ermittlung über die Person: {user_name}.\n\n"
-            f"HIER SIND DIE AKTUELLEN ECHTEN GOOGLE-SUCHERGEBNISSE (NEWS & SOCIAL MEDIA):\n"
+            f"HINTERGRUND FÜR DICH:\n"
+            f"Der User interagiert mit der M&M Community. Er nutzt diesen Sektor entweder zur freien Meinungsbildung "
+            f"oder als Teil seiner tieferen, wahrhaftigen Biografie. Jede Ermittlung muss unbestechlich sein.\n\n"
+            f"HIER SIND DIE AKTUELLEN ECHTEN GOOGLE-SUCHERGEBNISSE:\n"
             f"--------------------------------------------------\n"
             f"{google_ergebnisse}\n"
             f"--------------------------------------------------\n\n"
-            f"Analysiere diese Daten präzise auf öffentliche Statements, Widersprüche, "
-            f"Medienberichte und Social-Media-Präsenz passend zur Seele {seelen_name}.\n\n"
-            f"REGEL: Antworte AUSSCHLIESSLICH mit einem validen JSON-Objekt in exakt diesem Format, "
-            f"ohne zusätzlichen Text, ohne Markups:\n"
+            f"REGEL: Antworte AUSSCHLIESSLICH mit einem validen JSON-Objekt in exakt diesem Format:\n"
             '{"widersprueche": ["Punkt 1", "Punkt 2"], "lagebericht": "Text", "akteure": "Text", "kontrast": "Text", "fazit": "Text"}'
         )
         
-        # 6. Gemini-API aufrufen (JETZT werden die Variablen sauber vorbereitet)
         api_key = os.getenv("GEMINI_API_KEY")
         url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key={api_key}"
         payload = {"contents": [{"parts": [{"text": prompt}]}]}
         
         response = requests.post(url, json=payload, timeout=15)
         
-        # KONTROLL-BEFEHL 2: Zeigt den Statuscode der Gemini-Verbindung im Log (Sollte 200 sein)
-        print(f"--- 2. GEMINI STATUS: {response.status_code} ---")
-        
         if response.status_code == 200:
             res_data = response.json()
             raw_text = res_data['candidates'][0]['content']['parts'][0]['text']
-            
-            # KONTROLL-BEFEHL 3: Zeigt den Roh-Text, den Gemini zurückgibt
-            print(f"--- 3. GEMINI TEXT RAW: {raw_text} ---")
             
             # JSON-Säuberung
             j1 = raw_text.replace('```json', '').replace('```', '')
@@ -586,14 +613,18 @@ async def get_live_ermittlung(sector_id: str, request: Request):
             
             match = re.search(r'\{.*\}', clean_json, re.DOTALL)
             if match:
-                return {"success": True, "data": json.loads(match.group(0))}
-            return {"success": False, "error": f"Ungültiges JSON von KI geliefert: {raw_text}"}
-            
-        return {"success": False, "error": f"Fehler bei Gemini-Verbindung: Status {response.status_code}"}
+                ergebnis_json = json.loads(match.group(0))
+                
+                # Automatische Zustandsspeicherung im Hintergrund für die spätere Biografie
+                aktualisiere_sektor_fortschritt(email, sector_id, "letzter_scan", ergebnis_json)
+                
+                return {"success": True, "data": ergebnis_json}
+                
+        return {"success": False, "error": f"Status {response.status_code}"}
         
     except Exception as e:
         return {"success": False, "error": str(e)}
-        
+
 @app.post("/admin/update-sector")
 async def handle_update_sector(request: Request):
     try:
