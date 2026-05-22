@@ -617,10 +617,9 @@ async def get_live_ermittlung(sector_id: str, request: Request):
         else:
             seelen_name = SECTOR_NAMES.get(sector_id, "KI")
             such_anfrage = f"{seelen_name} aktuelle Nachrichten Konflikte"
-
-           google_ergebnisse = perform_google_search(such_anfrage)
-
-        seelen_name = SECTOR_NAMES.get(sector_id, "KI")
+            google_ergebnisse = perform_google_search(such_anfrage)
+            
+         seelen_name = SECTOR_NAMES.get(sector_id, "KI")
 
         prompt = (
             f"Du bist der unbestechliche KI-Scanner für Sektor: {seelen_name}.\n"
@@ -636,7 +635,8 @@ async def get_live_ermittlung(sector_id: str, request: Request):
             '{"widersprueche": ["Detaillierter Widerspruch 1", "Detaillierter Widerspruch 2", "Detaillierter Widerspruch 3"], "lagebericht": "Sehr langer, ausführlicher Bericht zur realen Lage", "akteure": "Umfassende Analyse aller treibenden Kräfte und Institutionen", "kontrast": "Genaue Gegenüberstellung von Schein und Wirklichkeit", "fazit": "Tiefgehendes, ungeschöntes Endzeugnis"}'
         )
 
-        api_key = os.getenv("GEMINI_API_KEY")
+        api_key = os.getenv("GEMINI_API_KEY")   
+        
         
         if api_key:
             api_key = api_key.strip().replace("[", "").replace("]", "")
@@ -650,12 +650,10 @@ async def get_live_ermittlung(sector_id: str, request: Request):
             res_data = response.json()
             raw_text = res_data['candidates'][0]['content']['parts'][0]['text'].strip()
             
-            start_pos = raw_text.find('{')
-            end_pos = raw_text.rfind('}')
-            
-            if start_pos != -1 and end_pos != -1:
-                clean_json = raw_text[start_pos:end_pos+1]
-                ergebnis_json = json.loads(clean_json)
+            # Filtert eventuelle Markdown-Block-Formatierungen heraus
+            if raw_text.startswith("```"):
+                raw_text = re.sub(r'^
+http://googleusercontent.com/immersive_entry_chip/0
                 
                 if not ergebnis_json.get("widersprueche"):
                     ergebnis_json["widersprueche"] = ["Die Gesellschaft ignoriert den realen Missstand auf den Straßen.", "Das Netz schweigt zu den tatsächlichen Vorfällen."]
