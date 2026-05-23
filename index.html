@@ -152,16 +152,22 @@
         </div>
     </div>
 
-    <div id="ebene4" class="ebene">
+   <div id="ebene4" class="ebene">
     <div style="margin-top: 130px; font-weight: 900; letter-spacing: 10px; font-size: 1.5rem; text-align: center; width: 100%;">
         DER VIDEO-BEWEIS
     </div>
-    <div class="video-grid">
-        <script>for(let i=1; i<=8; i++) document.write('<div class="video-slot" id="v-slot-'+i+'">SLOT '+i+'</div>');</script>
+    
+    <div class="video-grid" id="main-container">
+        <script>
+            for(let i=1; i<=8; i++) {
+                document.write('<div class="video-slot" id="v-slot-'+i+'">SLOT '+i+'</div>');
+            }
+        </script>
     </div>
-    <div class="video-controls">
+
+    <div class="video-controls" style="position: relative; z-index: 500;">
         <button onclick="starteVideoKonferenz()" style="background:#00ff00; border:none; padding:15px 40px; font-weight:bold; cursor:pointer;">START</button>
-        <button onclick="location.reload()" style="background:#ff0000; border:none; padding:15px 40px; color:#fff; font-weight:bold; cursor:pointer;">STOP</button>
+        <button onclick="stoppeVideoKonferenz()" style="background:#ff0000; border:none; padding:15px 40px; color:#fff; font-weight:bold; cursor:pointer;">STOP</button>
     </div>
 </div>
  <!-- ==========================================
@@ -789,51 +795,59 @@ async function starteVideoKonferenz() {
         const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
         window.meinStream = stream;
 
-        // Finde den ersten freien Slot im aktuellen Sektor
         const slots = document.querySelectorAll('.ebene.aktiv .video-slot');
         let freierSlot = null;
 
         for (let slot of slots) {
-            if (!slot.querySelector('video')) { // Wenn noch kein Video-Element da ist
+            if (!slot.querySelector('video')) {
                 freierSlot = slot;
                 break;
             }
         }
 
         if (freierSlot) {
-            // Slot belegen
             freierSlot.innerHTML = `<video autoplay playsinline muted style="width:100%; height:100%; object-fit:cover;"></video>`;
             freierSlot.querySelector('video').srcObject = stream;
         } else {
-            // HIER DIE ERWEITERUNG: Sektor voll, erstelle Überlauf
             alert("Sektor voll! Erstelle dynamischen Überlauf-Sektor...");
             erstelleUeberlaufSektor(); 
         }
-
     } catch (err) {
         console.error("Kamera-Fehler:", err);
     }
 }
 
-function erstelleUeberlaufSektor() {
-    // Erstellt dynamisch ein neues Grid, ohne den User warten zu lassen
-    const container = document.getElementById('main-container'); // Dein Hauptcontainer
-    const neuerSektor = document.createElement('div');
-    neuerSektor.className = 'ebene aktiv';
-    neuerSektor.innerHTML = `<h3>ÜBERLAUF-SEKTOR</h3><div class="video-grid">...</div>`;
-    container.appendChild(neuerSektor);
-}
-
 function stoppeVideoKonferenz() {
-    // Stoppt alle aktiven Spuren (Kamera & Mikrofon)
+    // 1. Kamera stoppen
     if (window.meinStream) {
         window.meinStream.getTracks().forEach(track => track.stop());
         window.meinStream = null;
     }
-    // Falls PeerJS genutzt wird, Verbindung trennen
+    
+    // 2. Video aus dem Slot entfernen (damit Slot wieder als "frei" gilt)
+    const aktiveSlots = document.querySelectorAll('.ebene.aktiv .video-slot video');
+    aktiveSlots.forEach(video => {
+        if (video.srcObject && video.srcObject.active === false) {
+            video.parentElement.innerHTML = "SLOT"; // Setzt den Slot zurück
+        }
+    });
+
+    // 3. Peer trennen
     if (typeof meinPeer !== 'undefined') {
         meinPeer.disconnect();
     }
+}
+
+function erstelleUeberlaufSektor() {
+    const container = document.getElementById('main-container');
+    const neuerSektor = document.createElement('div');
+    neuerSektor.className = 'ebene aktiv';
+    // Hier kannst du die 8 Slots für den Überlauf-Sektor direkt miterstellen
+    neuerSektor.innerHTML = `<h3>ÜBERLAUF-SEKTOR</h3><div class="video-grid"></div>`;
+    for(let i=1; i<=8; i++) {
+        neuerSektor.querySelector('.video-grid').innerHTML += `<div class="video-slot">SLOT ${i}</div>`;
+    }
+    container.appendChild(neuerSektor);
 }
  </script>
 </body>
