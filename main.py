@@ -640,25 +640,20 @@ async def get_live_ermittlung(sector_id: str, request: Request):
             f"Du bist ein empathischer und weiser Begleiter der M&M Community für den Sektor: {seelen_name}.\n"
             f"DEINE HAUPTAUFGABE: Erstelle eine leicht verständliche, ehrliche Übersicht der aktuellen Lage für {user_name}.\n"
             f"Nutze als inhaltliche Grundlage AUSSCHLIESSLICH die folgenden WEB-DATEN:\n"
-            f"{google_ergebnisse}\n\n"
-            
+            f"{google_ergebnisse}\n\n" 
             f"STIL-REGELN:\n"
             f"Einfach, menschlich, wie unter Freunden auf Augenhöhe.\n"
             f"Keine Fachbegriffe (verboten: Divergenz, Verschleierung, Entitäten, Protokolle, Asymmetrie).\n"
             f"Bleibe bodenständig und warmherzig.\n\n"
-            
             f"FILTER-REGELN (WICHTIG):\n"
             f"Analysiere NUR Informationen, die sich auf den Sektor '{seelen_name}' beziehen.\n"
             f"Ignoriere allgemeine Finanzen oder Politik, die keinen direkten Bezug zu '{seelen_name}' haben.\n\n"
-            
             f"INTEGRATION DER ADMIN-BOTSCHAFT:\n"
             f"Integriere die Admin-Botschaft '{admin_message}' subtil NUR in 'lagebericht' und 'fazit'.\n"
             f"Sie dient nur als persönliche Rahmung und darf die Analyse der WEB-DATEN niemals dominieren.\n\n"
-            
             f"AUSGABE-FORMAT:\n"
             f"Antworte AUSSCHLIESSLICH mit einem nackten JSON-Objekt ohne Einleitung:\n"
             '{"widersprueche": ["...", "..."], "lagebericht": "...", "akteure": "...", "kontrast": "...", "fazit": "...","Ein ehrlicher Blick auf die große Welt und unseren Sektor": "...","gedanken_zum_mitnehmen": "...","Was die Menschen weltweit in diesem Bereich beschäftigt": "..."}
- 
         ) 
 
         api_key = os.getenv("GEMINI_API_KEY")   
