@@ -581,8 +581,9 @@ async def get_live_ermittlung(sector_id: str, request: Request):
         email = data.get("email", "").lower().strip()
         user_record = db.codes.find_one({"email": email})
         user_name = user_record.get("name") if user_record and user_record.get("name") else email.split('@')[0].capitalize()
-         such_anfrage = "allgemeine Suche" 
-        google_ergebnisse = ""
+        if not google_ergebnisse:
+            return {"error": "Keine Daten gefunden"}
+            such_anfrage = "allgemeine Suche"; google_ergebnisse = ""   
         
         if sector_id == "0":
             such_anfrage = '("Psychische Überlastung" OR "Emotionale Entfremdung") AND Gesellschaft AND "aktuelle Trends"'
