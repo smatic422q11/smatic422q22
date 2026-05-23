@@ -576,17 +576,14 @@ def aktualisiere_sektor_fortschritt(email, sector_id, daten_typ, inhalt):
 # 2. Anpassung in der Live-Ermittlung, damit Gemini den Kontext versteht
 @app.post("/get-live-ermittlung/{sector_id}")
 async def get_live_ermittlung(sector_id: str, request: Request):
-    # Initialisierung der Variablen am Anfang der Funktion
     such_anfrage = "allgemeine Suche"
-    google_ergebnisse = ""  # Hier den Wert setzen, den du erwartest (z.B. eine Liste oder None)
-
     try:
         data = await request.json()
         email = data.get("email", "").lower().strip()
         user_record = db.codes.find_one({"email": email})
-        user_name = user_record.get("name") if user_record and user_record.get("name") else email.split('@')[0].capitalize()
-
-        # Überprüfung der Ergebnisse
+        user_name = user_record.get("name") if user_record and user_record.get("name") else email.split('@')[0].capitalize()  
+    
+        google_ergebnisse = deine_such_funktion(sector_id, such_anfrage
         if not google_ergebnisse:
             return {"error": "Keine Daten gefunden"}
         
