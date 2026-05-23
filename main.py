@@ -638,6 +638,12 @@ async def get_live_ermittlung(sector_id: str, request: Request):
         
         prompt = (
             
+            f"Du bist der unbestechliche KI-Scanner für Sektor: {seelen_name}.\n"
+            f"Aufgabe: Eine tiefe, ausführliche Live-Ermittlung für den User ({user_name}) in der M&M Community.\n"
+            f"Nutze den Platz maximal aus. Schreibe lange Analysen.\n\n"
+            f"DATEN:\n{google_ergebnisse}\n\n"
+            f"Antworte AUSSCHLIESSLICH mit dem nackten JSON-Objekt ohne Einleitung.\n"
+            '{"widersprueche": ["...", "..."], "lagebericht": "...", "akteure": "...", "kontrast": "...", "fazit": "..."}'
             f"Du bist ein empathischer und weiser Begleiter der M&M Community für den Sektor: {seelen_name}.\n"
             f"DEINE HAUPTAUFGABE: Erstelle eine leicht verständliche, ehrliche Übersicht der aktuellen Lage für {user_name}.\n"
             f"Nutze als inhaltliche Grundlage AUSSCHLIESSLICH die folgenden WEB-DATEN:\n"
