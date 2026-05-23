@@ -632,26 +632,18 @@ async def get_live_ermittlung(sector_id: str, request: Request):
         
         response = requests.post(url, json={"contents": [{"parts": [{"text": prompt}]}]}, timeout=20)
         
-       if response.status_code == 200:
+      if response.status_code == 200:
             res_data = response.json()
             raw_text = res_data['candidates'][0]['content']['parts'][0]['text'].strip()
             raw_text = re.sub(r'^```json\s*|\s*```$', '', raw_text, flags=re.MULTILINE)
             ergebnis_json = json.loads(raw_text)
             aktualisiere_sektor_fortschritt(email, sector_id, "letzter_scan", ergebnis_json)
             return {"success": True, "data": ergebnis_json}
-            try:
-                ergebnis_json = json.loads(raw_text)
-            except:
-                ergebnis_json = {"themen": ["Hinweis"], "übersicht": "Ich habe die Daten gefunden, aber konnte sie nicht perfekt sortieren.", "was_bewegt_die_menschen": raw_text[:200], "perspektiven": "N/A", "gedanken_zum_mitnehmen": "Bleib dran!"}
-            
-            aktualisiere_sektor_fortschritt(email, sector_id, "letzter_scan", ergebnis_json)
-            return {"success": True, "data": ergebnis_json}
-        
-        # Fallback, falls die API kurz hängt
-        return {"success": True, "data": {"themen": ["Info"], "übersicht": "Ich durchsuche gerade die Welt für dich. Bitte in wenigen Sekunden nochmal versuchen."}}
+                
+        return {"success": True, "data": {"widersprueche": ["Fehler"], "lagebericht": "Schnittstelle offline"}}
         
     except Exception as e:
-        return {"success": True, "data": {"themen": ["Systemhinweis"], "übersicht": "Ich sammle gerade frische Informationen. Danke für deine Geduld!"}}
+        return {"success": True, "data": {"widersprueche": [f"Fehler: {str(e)}"]}}
 @app.post("/admin/update-sector")
 async def handle_update_sector(request: Request):
     try:
