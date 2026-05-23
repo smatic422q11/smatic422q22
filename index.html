@@ -157,16 +157,13 @@
         DER VIDEO-BEWEIS
     </div>
     <div class="video-grid">
-        <script>for(let i=1; i<=8; i++) document.write('<div class="video-slot">SLOT '+i+'</div>');</script>
+        <script>for(let i=1; i<=8; i++) document.write('<div class="video-slot" id="v-slot-'+i+'">SLOT '+i+'</div>');</script>
     </div>
-       <div class="video-controls">
-    <button onclick="beweisStarten()" style="background:#00ff00; border:none; padding:15px 40px; font-weight:bold; cursor:pointer;">START</button>
-    
-    <button onclick="beweisStop()" style="background:#ff0000; border:none; padding:15px 40px; color:#fff; font-weight:bold; cursor:pointer;">STOP</button>
-    
-    <button onclick="beweisLoeschen()" style="background:#888; border:none; padding:15px 40px; font-weight:bold; cursor:pointer;">LÖSCHEN</button>
+    <div class="video-controls">
+        <button onclick="beweisStarten()" style="background:#00ff00; border:none; padding:15px 40px; font-weight:bold; cursor:pointer;">START</button>
+        <button onclick="beweisStop()" style="background:#ff0000; border:none; padding:15px 40px; color:#fff; font-weight:bold; cursor:pointer;">STOP</button>
+    </div>
 </div>
-
  <!-- ==========================================
      ADMIN-EBENE (MIT AKTIVIERTEM ERWEITERUNGS-BUTTON)
      ========================================== -->
