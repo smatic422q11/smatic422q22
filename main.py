@@ -538,29 +538,15 @@ async def chat(request: Request):
         return {"reply": "System-Fehler.", "info_fuer_ki": str(e)}
 
 @app.get("/get-sector-text/{sector_id}")
-async def get_sector_text(sector_id: str, email: str = ""):
-    admin_record = db.codes.find_one({"email": "mmcommunity22@gmail.com"})
-    
-    display_text = "Gefühlsvorderung."
-    admin_input = ""
-    
-    if admin_record and "sector_headers" in admin_record:
-        sector_data = admin_record["sector_headers"].get(sector_id, {})
-        
-        # Prüfung, ob neues Format (Dict) oder alter String
-        if isinstance(sector_data, dict):
-            display_text = sector_data.get("user_display", display_text)
-            admin_input = sector_data.get("admin_input", "")
-        else:
-            display_text = sector_data 
-
-    # Logik:
-    # 1. Admin darf alles sehen (und den admin_input für die KI laden)
-    if email.lower().strip() == "mmcommunity22@gmail.com":
-        return {"success": True, "text": display_text, "admin_input": admin_input}
-        
-    # 2. Jeder User darf den öffentlichen Text sehen
-    return {"success": True, "text": display_text}
+async def get_sector_text(sector_id: str):
+    try:
+        admin_record = db.codes.find_one({"email": "mmcommunity22@gmail.com"})
+        text = "Gefühlsvorderung. \nKeine Admin-Sichtweise hinterlegt."
+        if admin_record:
+            text = admin_record.get("sector_headers", {}).get(sector_id, text)
+        return {"success": True, "text": text}
+    except Exception as e:
+        return {"success": False, "error": str(e)}
 
 @app.get("/test")
 async def test():
