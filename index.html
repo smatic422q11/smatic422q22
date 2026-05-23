@@ -784,41 +784,57 @@ async function sendeChat() {
         // Optional: alert("Kein Admin-Zugriff.");
     }
 } 
- async function beweisStarten() {
-    // Startet Kamera im Kontext deines aktuellen Sektors
-    await starteVideoKonferenz();
-}
+async function starteVideoKonferenz() {
+    try {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+        window.meinStream = stream;
 
-async function beweisZuweisen(partnerPeerId) {
-    // Nutzt den Stream aus deinem globalen Peer-System
-    const call = meinPeer.call(partnerPeerId, window.meinStream);
-    
-    // Dynamische Adressierung: Findet den richtigen Slot für den Sektor
-    call.on('stream', (remoteStream) => {
-        // Hier wird sichergestellt, dass immer das Remote-Ziel im Sektor-Kontext bleibt
-        const partnerSlot = document.getElementById('v-slot-2'); 
-        if(partnerSlot) {
-            partnerSlot.innerHTML = `<video autoplay playsinline style="width:100%; height:100%; object-fit:cover;"></video>`;
-            partnerSlot.querySelector('video').srcObject = remoteStream;
+        // Finde den ersten freien Slot im aktuellen Sektor
+        const slots = document.querySelectorAll('.ebene.aktiv .video-slot');
+        let freierSlot = null;
+
+        for (let slot of slots) {
+            if (!slot.querySelector('video')) { // Wenn noch kein Video-Element da ist
+                freierSlot = slot;
+                break;
+            }
         }
-    });
-}
 
-function beweisLoeschen() {
-    // Reset nur innerhalb der aktuell aktiven Ebene 4
-    const activeGrid = document.querySelector('.ebene.aktiv .video-grid');
-    if(activeGrid) {
-        activeGrid.querySelectorAll('.video-slot').forEach((slot, i) => {
-            slot.innerHTML = `SLOT ${i + 1}`;
-        });
+        if (freierSlot) {
+            // Slot belegen
+            freierSlot.innerHTML = `<video autoplay playsinline muted style="width:100%; height:100%; object-fit:cover;"></video>`;
+            freierSlot.querySelector('video').srcObject = stream;
+        } else {
+            // HIER DIE ERWEITERUNG: Sektor voll, erstelle Überlauf
+            alert("Sektor voll! Erstelle dynamischen Überlauf-Sektor...");
+            erstelleUeberlaufSektor(); 
+        }
+
+    } catch (err) {
+        console.error("Kamera-Fehler:", err);
     }
-    if (typeof meinPeer !== 'undefined') meinPeer.destroy();
 }
 
-function beweisVorschau() {
-    // Zeigt ID spezifisch für den aktuellen Sektor an
-    alert("Sektor " + (parseInt(aktuelleSektorId)+1) + " | Peer-ID: " + meinPeer.id);
-}    
+function erstelleUeberlaufSektor() {
+    // Erstellt dynamisch ein neues Grid, ohne den User warten zu lassen
+    const container = document.getElementById('main-container'); // Dein Hauptcontainer
+    const neuerSektor = document.createElement('div');
+    neuerSektor.className = 'ebene aktiv';
+    neuerSektor.innerHTML = `<h3>ÜBERLAUF-SEKTOR</h3><div class="video-grid">...</div>`;
+    container.appendChild(neuerSektor);
+}
+
+function stoppeVideoKonferenz() {
+    // Stoppt alle aktiven Spuren (Kamera & Mikrofon)
+    if (window.meinStream) {
+        window.meinStream.getTracks().forEach(track => track.stop());
+        window.meinStream = null;
+    }
+    // Falls PeerJS genutzt wird, Verbindung trennen
+    if (typeof meinPeer !== 'undefined') {
+        meinPeer.disconnect();
+    }
+}
  </script>
 </body>
 </html>  
