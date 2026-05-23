@@ -576,16 +576,22 @@ def aktualisiere_sektor_fortschritt(email, sector_id, daten_typ, inhalt):
 # 2. Anpassung in der Live-Ermittlung, damit Gemini den Kontext versteht
 @app.post("/get-live-ermittlung/{sector_id}")
 async def get_live_ermittlung(sector_id: str, request: Request):
-    such_anfrage = "allgemeine Suche"
     try:
         data = await request.json()
         email = data.get("email", "").lower().strip()
         user_record = db.codes.find_one({"email": email})
-        user_name = user_record.get("name") if user_record and user_record.get("name") else email.split('@')[0].capitalize()  
-    
-        google_ergebnisse = deine_such_funktion(sector_id, such_anfrage
+        user_name = user_record.get("name") if user_record and user_record.get("name") else email.split('@')[0].capitalize()
+
+        # HIER: Ersetze diesen Teil durch deinen tatsächlichen Datenbankaufruf
+        # Beispiel: google_ergebnisse = db.sektoren.find_one({"sector_id": sector_id})
+        google_ergebnisse = db.deine_collection.find_one({"sector_id": sector_id})
+
+        # Jetzt prüfen wir, ob die Variable befüllt wurde
         if not google_ergebnisse:
-            return {"error": "Keine Daten gefunden"}
+            return {"message": "Keine Live-Widersprüche im Sektor gefunden."}
+        
+        # Wenn Daten gefunden wurden, geht es hier weiter
+        return {"status": "Erfolg", "daten": google_ergebnisse}
         
         if sector_id == "0":
             such_anfrage = '("Psychische Überlastung" OR "Emotionale Entfremdung") AND Gesellschaft AND "aktuelle Trends"'
