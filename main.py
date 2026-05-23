@@ -581,62 +581,50 @@ async def get_live_ermittlung(sector_id: str, request: Request):
         email = data.get("email", "").lower().strip()
         user_record = db.codes.find_one({"email": email})
         user_name = user_record.get("name") if user_record and user_record.get("name") else email.split('@')[0].capitalize()
-
-        # HIER: Ersetze diesen Teil durch deinen tatsächlichen Datenbankaufruf
-        # Beispiel: google_ergebnisse = db.sektoren.find_one({"sector_id": sector_id})
-        google_ergebnisse = db.deine_collection.find_one({"sector_id": sector_id})
-
-        # Jetzt prüfen wir, ob die Variable befüllt wurde
-        if not google_ergebnisse:
-            return {"message": "Keine Live-Widersprüche im Sektor gefunden."}
-        
-        # Wenn Daten gefunden wurden, geht es hier weiter
-        return {"status": "Erfolg", "daten": google_ergebnisse}
         
         if sector_id == "0":
-            such_anfrage = '("Psychische Überlastung" OR "Emotionale Entfremdung") AND Gesellschaft AND "aktuelle Trends"'
+            such_anfrage = "Psychische Überlastung Gesellschaft OR Emotionale Kälte Einsamkeit aktuell"
         elif sector_id == "1":
-            such_anfrage = '("Zivilcourage" OR "Menschlichkeit") AND ("Krise" OR "Debatte") AND 2026'
+            such_anfrage = "Zivilcourage Vorfall OR Menschlichkeit Krise Opfermodus Debatte"
         elif sector_id == "2":
-            such_anfrage = '("Hassrede" OR "Polarisierung") AND Versöhnung AND Gesellschaft AND 2026'
+            such_anfrage = "Hassrede Gewalt aktuell OR Versöhnung Konflikt Gesellschaft"
         elif sector_id == "3":
-            such_anfrage = '("Bürgerrechte" OR "Meinungsfreiheit") AND "Einschränkungen" AND Widerstand'
+            such_anfrage = "Bürgerrechte Einschränkung OR Widerstand Demonstration Freiheit"
         elif sector_id == "4":
-            such_anfrage = '("Korruption" OR "Politikversagen") AND Moral AND "aktuelle News"'
+            such_anfrage = "Korruption Skandal aktuell OR Verantwortung Politik Moral Versagen"
         elif sector_id == "5":
-            such_anfrage = '("Seelische Gesundheit" OR "Burnout-Gesellschaft") AND Prävention AND "Krise"'
+            such_anfrage = "Seelische Gesundheit Krise OR Gesellschaft Erschöpfung Burnout"
         elif sector_id == "6":
-            such_anfrage = '("Kindeswohl" OR "Kinderarmut") AND ("Gewaltprävention" OR "aktuelle Debatte")'
+            such_anfrage = "Kindeswohl Gefährdung Vorfall OR Kinderarmut Gewalt Familie aktuell"
         elif sector_id == "7":
-            such_anfrage = '("Zensur" OR "Kunstfreiheit") AND ("Mainstream-Kritik" OR "Kulturkampf")'
+            such_anfrage = "Zensur Kunst Freiheit OR Anpassung Mainstream Kultur Kritik"
         elif sector_id == "8":
-            such_anfrage = '("LGBTQ-Diskriminierung" OR "gesellschaftliche Gewalt") AND "Diskurs" AND 2026'
+            such_anfrage = "LGBTQ Diskriminierung Gewalt OR Kirche Homophobie Drag Vorfall"
         elif sector_id == "9":
-            such_anfrage = '("Tradition" OR "Moderne") AND "Werteverfall" AND ("Erziehungsdebatte" OR "Kulturwandel")'
+            such_anfrage = "Tradition Moderne Konflikt OR Werteverfall Erziehung aktuelle Debatte"
         elif sector_id == "13":
-            such_anfrage = '("Mobbing" OR "Cybermobbing") AND ("Prävention" OR "psychologische Folgen")'
+            such_anfrage = "Mobbing Schule Arbeitsplatz Vorfall OR Cybermobbing Suizid aktuell"
         elif sector_id == "16":
-            such_anfrage = '("Obdachlosigkeit" OR "soziale Ausgrenzung") AND ("Kälteschutz" OR "Systemkritik")'
+            such_anfrage = "Obdachlosigkeit Kälte Gewalt OR Armut Ausgrenzung System Krise"
         elif sector_id == "18":
-            such_anfrage = '("Alleinerziehende" OR "Elternschaft") AND ("Armutsfalle" OR "Überforderung") AND "Lösungsansätze"'
+            such_anfrage = "Alleinerziehende Armutsgrenze OR Überforderung Erschöpfung Mütter Väter"
         elif sector_id == "19":
-            such_anfrage = '("Gesellschaftliche Spaltung" OR "Kollektives Bewusstsein") AND "Versöhnung" AND "Lösungen"'
+            such_anfrage = "Spaltung der Gesellschaft Krise OR Annäherung Versöhnung Konflikte weltweit OR Kollektives Bewusstsein"
         else:
             seelen_name = SECTOR_NAMES.get(sector_id, "KI")
-            such_anfrage = f"{seelen_name} aktuelle Nachrichten Konflikte"  
+            such_anfrage = f"{seelen_name} aktuelle Nachrichten Konflikte"
         
         google_ergebnisse = perform_google_search(such_anfrage)
         seelen_name = SECTOR_NAMES.get(sector_id, "KI")
 
         prompt = (
-           f"Du bist der persönliche Reflektions-Begleiter für den User ({user_name}) in Sektor: {seelen_name}.\n"
-           f"Aufgabe: Analysiere die letzte Eingabe des Users im Sektor {seelen_name} tiefgründig.\n"
-           f"1. Hole aus den Google-Ergebnissen ({google_ergebnisse}) reale, aktuelle Beispiele oder gesellschaftliche Berichte, die das Thema des Sektors und die Aussage des Users widerspiegeln.\n"
-           f"2. Zeige dem User durch diese Beispiele, dass er mit seiner Meinung/Erfahrung nicht alleine ist – egal ob zustimmend oder kontrovers.\n"
-           f"3. Konfrontiere den User sanft, aber direkt: Spiegle ihm seine eigene Haltung (z.B. Vorurteile, Ideale, Wegschauen) und frage ihn, wo er sich in dieser gesellschaftlichen Debatte wiederfindet.\n"
-           f"4. Kein technischer Bericht! Schreibe direkt den User an. Sei ehrlich, menschlich und etwas provokant, damit er über seine Aussage nachdenkt.\n\n"
-           f"Antworte in einem lockeren, direkten Ton, der den User zur Reflektion einlädt."
-      )
+            f"Du bist der unbestechliche KI-Scanner für Sektor: {seelen_name}.\n"
+            f"Aufgabe: Eine tiefe, ausführliche Live-Ermittlung für den User ({user_name}) in der M&M Community.\n"
+            f"Nutze den Platz maximal aus. Schreibe lange Analysen.\n\n"
+            f"DATEN:\n{google_ergebnisse}\n\n"
+            f"Antworte AUSSCHLIESSLICH mit dem nackten JSON-Objekt ohne Einleitung.\n"
+            '{"themen": ["...", "..."], "übersicht": "...", "was_bewegt_die_menschen": "...", "perspektiven": "...", "gedanken_zum_mitnehmen": "..."}'
+        )
 
         api_key = os.getenv("GEMINI_API_KEY")   
         if api_key:
@@ -653,11 +641,10 @@ async def get_live_ermittlung(sector_id: str, request: Request):
             aktualisiere_sektor_fortschritt(email, sector_id, "letzter_scan", ergebnis_json)
             return {"success": True, "data": ergebnis_json}
                 
-        return {"success": True, "data": {"widersprueche": ["Fehler"], "lagebericht": "Schnittstelle offline"}}
+        return {"success": True, "data": {"themen": ["Fehler"], "übersicht": "Schnittstelle offline"}}
         
-   except Exception as e:
-        # Hier wird der tatsächliche Fehler geloggt, falls die DB-Abfrage fehlschlägt
-        return {"error": f"Fehler bei der Ermittlung: {str(e)}"}
+    except Exception as e:
+        return {"success": True, "data": {"themen": [f"Fehler: {str(e)}"]}}
 @app.post("/admin/update-sector")
 async def handle_update_sector(request: Request):
     try:
