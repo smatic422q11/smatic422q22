@@ -617,15 +617,15 @@ async def get_live_ermittlung(sector_id: str, request: Request):
         google_ergebnisse = perform_google_search(such_anfrage)
         seelen_name = SECTOR_NAMES.get(sector_id, "KI")
 
-       prompt = (
-          f"Du bist der persönliche Reflektions-Begleiter für den User ({user_name}) in Sektor: {seelen_name}.\n"
-          f"Aufgabe: Analysiere die letzte Eingabe des Users im Sektor {seelen_name} tiefgründig.\n"
-          f"1. Hole aus den Google-Ergebnissen ({google_ergebnisse}) reale, aktuelle Beispiele oder gesellschaftliche Berichte, die das Thema des Sektors und die Aussage des Users widerspiegeln.\n"
-          f"2. Zeige dem User durch diese Beispiele, dass er mit seiner Meinung/Erfahrung nicht alleine ist – egal ob zustimmend oder kontrovers.\n"
-          f"3. Konfrontiere den User sanft, aber direkt: Spiegle ihm seine eigene Haltung (z.B. Vorurteile, Ideale, Wegschauen) und frage ihn, wo er sich in dieser gesellschaftlichen Debatte wiederfindet.\n"
-          f"4. Kein technischer Bericht! Schreibe direkt den User an. Sei ehrlich, menschlich und etwas provokant, damit er über seine Aussage nachdenkt.\n\n"
-          f"Antworte in einem lockeren, direkten Ton, der den User zur Reflektion einlädt."
-     )
+        prompt = (
+           f"Du bist der persönliche Reflektions-Begleiter für den User ({user_name}) in Sektor: {seelen_name}.\n"
+           f"Aufgabe: Analysiere die letzte Eingabe des Users im Sektor {seelen_name} tiefgründig.\n"
+           f"1. Hole aus den Google-Ergebnissen ({google_ergebnisse}) reale, aktuelle Beispiele oder gesellschaftliche Berichte, die das Thema des Sektors und die Aussage des Users widerspiegeln.\n"
+           f"2. Zeige dem User durch diese Beispiele, dass er mit seiner Meinung/Erfahrung nicht alleine ist – egal ob zustimmend oder kontrovers.\n"
+           f"3. Konfrontiere den User sanft, aber direkt: Spiegle ihm seine eigene Haltung (z.B. Vorurteile, Ideale, Wegschauen) und frage ihn, wo er sich in dieser gesellschaftlichen Debatte wiederfindet.\n"
+           f"4. Kein technischer Bericht! Schreibe direkt den User an. Sei ehrlich, menschlich und etwas provokant, damit er über seine Aussage nachdenkt.\n\n"
+           f"Antworte in einem lockeren, direkten Ton, der den User zur Reflektion einlädt."
+      )
 
         api_key = os.getenv("GEMINI_API_KEY")   
         if api_key:
