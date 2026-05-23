@@ -582,34 +582,34 @@ async def get_live_ermittlung(sector_id: str, request: Request):
         user_record = db.codes.find_one({"email": email})
         user_name = user_record.get("name") if user_record and user_record.get("name") else email.split('@')[0].capitalize()
         
-        if sector_id == "0":
-        such_anfrage = '("Psychische Überlastung" OR "Emotionale Entfremdung") AND Gesellschaft AND "aktuelle Trends"'
-        elif sector_id == "1":
-        such_anfrage = '("Zivilcourage" OR "Menschlichkeit") AND ("Krise" OR "Debatte") AND 2026'
-        elif sector_id == "2":
-        such_anfrage = '("Hassrede" OR "Polarisierung") AND Versöhnung AND Gesellschaft AND 2026'
-        elif sector_id == "3":
-        such_anfrage = '("Bürgerrechte" OR "Meinungsfreiheit") AND "Einschränkungen" AND Widerstand'
-        elif sector_id == "4":
-        such_anfrage = '("Korruption" OR "Politikversagen") AND Moral AND "aktuelle News"'
-        elif sector_id == "5":
-        such_anfrage = '("Seelische Gesundheit" OR "Burnout-Gesellschaft") AND Prävention AND "Krise"'
-        elif sector_id == "6":
-        such_anfrage = '("Kindeswohl" OR "Kinderarmut") AND ("Gewaltprävention" OR "aktuelle Debatte")'
-        elif sector_id == "7":
-        such_anfrage = '("Zensur" OR "Kunstfreiheit") AND ("Mainstream-Kritik" OR "Kulturkampf")'
-        elif sector_id == "8":
-        such_anfrage = '("LGBTQ-Diskriminierung" OR "gesellschaftliche Gewalt") AND "Diskurs" AND 2026'
-        elif sector_id == "9":
-        such_anfrage = '("Tradition" OR "Moderne") AND "Werteverfall" AND ("Erziehungsdebatte" OR "Kulturwandel")'
-        elif sector_id == "13":
-        such_anfrage = '("Mobbing" OR "Cybermobbing") AND ("Prävention" OR "psychologische Folgen")'
-        elif sector_id == "16":
-        such_anfrage = '("Obdachlosigkeit" OR "soziale Ausgrenzung") AND ("Kälteschutz" OR "Systemkritik")'
-        elif sector_id == "18":
-        such_anfrage = '("Alleinerziehende" OR "Elternschaft") AND ("Armutsfalle" OR "Überforderung") AND "Lösungsansätze"'
-        elif sector_id == "19":
-        such_anfrage = '("Gesellschaftliche Spaltung" OR "Kollektives Bewusstsein") AND "Versöhnung" AND "Lösungen"'   
+       if sector_id == "0":
+    such_anfrage = '("Psychische Überlastung" OR "Emotionale Entfremdung") AND Gesellschaft AND "aktuelle Trends"'
+elif sector_id == "1":
+    such_anfrage = '("Zivilcourage" OR "Menschlichkeit") AND ("Krise" OR "Debatte") AND 2026'
+elif sector_id == "2":
+    such_anfrage = '("Hassrede" OR "Polarisierung") AND Versöhnung AND Gesellschaft AND 2026'
+elif sector_id == "3":
+    such_anfrage = '("Bürgerrechte" OR "Meinungsfreiheit") AND "Einschränkungen" AND Widerstand'
+elif sector_id == "4":
+    such_anfrage = '("Korruption" OR "Politikversagen") AND Moral AND "aktuelle News"'
+elif sector_id == "5":
+    such_anfrage = '("Seelische Gesundheit" OR "Burnout-Gesellschaft") AND Prävention AND "Krise"'
+elif sector_id == "6":
+    such_anfrage = '("Kindeswohl" OR "Kinderarmut") AND ("Gewaltprävention" OR "aktuelle Debatte")'
+elif sector_id == "7":
+    such_anfrage = '("Zensur" OR "Kunstfreiheit") AND ("Mainstream-Kritik" OR "Kulturkampf")'
+elif sector_id == "8":
+    such_anfrage = '("LGBTQ-Diskriminierung" OR "gesellschaftliche Gewalt") AND "Diskurs" AND 2026'
+elif sector_id == "9":
+    such_anfrage = '("Tradition" OR "Moderne") AND "Werteverfall" AND ("Erziehungsdebatte" OR "Kulturwandel")'
+elif sector_id == "13":
+    such_anfrage = '("Mobbing" OR "Cybermobbing") AND ("Prävention" OR "psychologische Folgen")'
+elif sector_id == "16":
+    such_anfrage = '("Obdachlosigkeit" OR "soziale Ausgrenzung") AND ("Kälteschutz" OR "Systemkritik")'
+elif sector_id == "18":
+    such_anfrage = '("Alleinerziehende" OR "Elternschaft") AND ("Armutsfalle" OR "Überforderung") AND "Lösungsansätze"'
+elif sector_id == "19":
+    such_anfrage = '("Gesellschaftliche Spaltung" OR "Kollektives Bewusstsein") AND "Versöhnung" AND "Lösungen"'
         else:
             seelen_name = SECTOR_NAMES.get(sector_id, "KI")
             such_anfrage = f"{seelen_name} aktuelle Nachrichten Konflikte"
