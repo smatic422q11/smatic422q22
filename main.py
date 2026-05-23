@@ -625,10 +625,12 @@ async def get_live_ermittlung(sector_id: str, request: Request):
             f"Benutze keine Wörter wie 'Divergenz', 'Verschleierung', 'Entitäten', 'Asymmetrie' oder 'Protokolle'.\n"
             f"Erkläre die Dinge so einfach, dass sie jeder Mensch sofort versteht – wie bei einem Gespräch unter Freunden auf Augenhöhe.\n"
             f"Bleibe bodenständig, warmherzig und gemeinschaftsorientiert.\n\n"
+            f"Blicke dabei über den Tellerrand der Community hinaus und verbinde die Stimmung im Sektor mit dem aktuellen Zeitgeist, den Nachrichten und der Stimmung in der echten Welt da draußen.\n\n"
+            f"Verknüpfe die internen Gefühle der Menschen mit den echten Geschehnissen und Diskussionen aus dem gesamten Web.\n"
             f"Echte Daten aus dem Web für diesen Sektor:\n{google_ergebnisse}\n\n"
             f"Aktuelle Web-Ergebnisse und Nachrichten für diesen Sektor:\n{google_ergebnisse}\n\n"
             f"Antworte AUSSCHLIESSLICH mit dem nackten JSON-Objekt ohne Einleitung:\n"
-            '{"widersprueche": ["...", "..."], "lagebericht": "...", "akteure": "...", "kontrast": "...", "fazit": "...","Ein ehrlicher Blick auf die große Welt und unseren Sektor": "...","gedanken_zum_mitnehmen": "..."}'
+            '{"widersprueche": ["...", "..."], "lagebericht": "...", "akteure": "...", "kontrast": "...", "fazit": "...","Ein ehrlicher Blick auf die große Welt und unseren Sektor": "...","gedanken_zum_mitnehmen": "...","Was die Menschen weltweit in diesem Bereich beschäftigt": "..."}'
         ) 
 
         api_key = os.getenv("GEMINI_API_KEY")   
