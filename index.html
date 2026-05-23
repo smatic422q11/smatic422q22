@@ -49,6 +49,10 @@
         .video-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; width: 90%; margin-top: 60px; }
         .video-slot { aspect-ratio: 3/2; background: #111; border: 1px solid #003d8f; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; color: #666; }
         .video-controls { display: flex; gap: 20px; margin-top: auto; margin-bottom: 80px; }
+        .box.status-blau { border-color: #003d8f !important; }
+        .box.status-gelb { border-color: #ffd700 !important; }
+        .box.status-rot { border-color: #ff4d4d !important; }
+        .box.status-gruen { border-color: #00ff00 !important; }
 
         /* SPECIAL CONTENT */
         .special-content { margin-top: 140px; width: 85%; text-align: center; }
@@ -378,12 +382,23 @@
        let alleSektorenVerlaeufe = {};
        let globaleBiografieDaten = "";
      
-       themen.forEach((t, i) => {
-    grid.innerHTML += `
-        <div class="box">
-            <div class="text" onclick="waehleSektor(${i})">${t}</div>
-        </div>`;
-});
+     // HIER EINFÜGEN:
+    let sektorStatus = {};
+    for(let i=0; i<22; i++) sektorStatus[i] = 0; 
+    sektorStatus[0] = 1; 
+
+    function renderDashboard() {
+        const grid = document.getElementById('main-grid');
+        grid.innerHTML = '';
+        themen.forEach((t, i) => {
+            let statusKlasse = ['status-blau', 'status-gelb', 'status-rot', 'status-gruen'][sektorStatus[i] || 0];
+            grid.innerHTML += `
+                <div class="box ${statusKlasse}">
+                    <div class="text" onclick="waehleSektor(${i})">${i+1} | ${t}</div>
+                </div>`;
+        });
+    }
+    renderDashboard();
 
 function waehleSektor(id) {
     aktuelleSektorId = id.toString();
@@ -727,8 +742,15 @@ async function handleVerifyAccess() {
         const data = await response.json();
 
         if (data.success) {
-            userEmail = emailInput; // E-Mail für später merken
-            chatVerlauf = data.history || []; // Bestehenden Chat laden
+            userEmail = emailInput; 
+            chatVerlauf = data.history || []; 
+            
+            // HIER DIE ERWEITERUNG (sicher eingefügt):
+            if (data.sektoren) {
+                sektorStatus = data.sektoren;
+                renderDashboard(); // Aktualisiert das Grid sofort nach dem Login
+            }
+            
             alert("Zugang gewährt! Willkommen zurück.");
         } else {
             alert("Schlüsselcode ungültig.");
