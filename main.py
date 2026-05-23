@@ -616,13 +616,17 @@ async def get_live_ermittlung(sector_id: str, request: Request):
         
         google_ergebnisse = perform_google_search(such_anfrage)
         seelen_name = SECTOR_NAMES.get(sector_id, "KI")
-        
-        admin_data = db.admin_messages.find_one({"sector_id": sector_id})
-        admin_message = admin_data.get("message", "") if admin_data else ""
+
+        admin_config = db.admin_settings.find_one({"sector_id": sector_id})
+        admin_message = admin_config.get("message", "") if admin_config else ""
         
         prompt = (
             f"Du bist ein empathischer und weiser Begleiter der M&M Community für den Sektor: {seelen_name}.\n"
             f"Aufgabe: Erstelle eine leicht verständliche, ehrliche und menschliche Übersicht der aktuellen Lage für {user_name}.\n"
+            f"\n\nEXTRA AUFGABE FÜR DICH:\n"
+            f"Es gibt eine Botschaft von der Admin-Ebene, die du in deine Analyse einweben musst:\n"
+            f"'{admin_message}'\n"
+            f"Verarbeite diese Botschaft so, dass sie für den User wie eine persönliche Botschaft im 'Live Sektor Skin' wirkt.\n\n"
             f"WICHTIGE REGELN FÜR DEN STIL:\n"
             f"Nutze auf keinen Fall hochgestochenen Fachjargon, Beamtendeutsch, Verhör-Sprache oder wissenschaftliche Protokolle.\n"
             f"Benutze keine Wörter wie 'Divergenz', 'Verschleierung', 'Entitäten', 'Asymmetrie' oder 'Protokolle'.\n"
@@ -633,7 +637,6 @@ async def get_live_ermittlung(sector_id: str, request: Request):
             f"Echte Daten aus dem Web für diesen Sektor:\n{google_ergebnisse}\n\n"
             f"Aktuelle Web-Ergebnisse und Nachrichten für diesen Sektor:\n{google_ergebnisse}\n\n"
             f"Antworte AUSSCHLIESSLICH mit dem nackten JSON-Objekt ohne Einleitung:\n"
-            f"{f'BOTSCHAFT VON DER M&M COMMUNITY AN DEN USER: {admin_message}' if admin_message else ''}\n"
             '{"widersprueche": ["...", "..."], "lagebericht": "...", "akteure": "...", "kontrast": "...", "fazit": "...","Ein ehrlicher Blick auf die große Welt und unseren Sektor": "...","gedanken_zum_mitnehmen": "...","Was die Menschen weltweit in diesem Bereich beschäftigt": "..."}'
         ) 
 
