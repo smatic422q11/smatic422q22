@@ -632,12 +632,13 @@ async def get_live_ermittlung(sector_id: str, request: Request):
         
         response = requests.post(url, json={"contents": [{"parts": [{"text": prompt}]}]}, timeout=20)
         
-        if response.status_code == 200:
+       if response.status_code == 200:
             res_data = response.json()
             raw_text = res_data['candidates'][0]['content']['parts'][0]['text'].strip()
             raw_text = re.sub(r'^```json\s*|\s*```$', '', raw_text, flags=re.MULTILINE)
-            
-            # Falls die KI trotz Anweisung schwafelt, versuchen wir das JSON sauber zu parsen
+            ergebnis_json = json.loads(raw_text)
+            aktualisiere_sektor_fortschritt(email, sector_id, "letzter_scan", ergebnis_json)
+            return {"success": True, "data": ergebnis_json}
             try:
                 ergebnis_json = json.loads(raw_text)
             except:
