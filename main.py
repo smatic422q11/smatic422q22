@@ -655,8 +655,9 @@ async def get_live_ermittlung(sector_id: str, request: Request):
                 
         return {"success": True, "data": {"widersprueche": ["Fehler"], "lagebericht": "Schnittstelle offline"}}
         
-    except Exception as e:
-        return {"success": True, "data": {"widersprueche": [f"Fehler: {str(e)}"]}}
+   except Exception as e:
+        # Hier wird der tatsächliche Fehler geloggt, falls die DB-Abfrage fehlschlägt
+        return {"error": f"Fehler bei der Ermittlung: {str(e)}"}
 @app.post("/admin/update-sector")
 async def handle_update_sector(request: Request):
     try:
