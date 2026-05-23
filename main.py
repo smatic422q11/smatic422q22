@@ -617,18 +617,18 @@ async def get_live_ermittlung(sector_id: str, request: Request):
         google_ergebnisse = perform_google_search(such_anfrage)
         seelen_name = SECTOR_NAMES.get(sector_id, "KI")
         
-       prompt = (
-           f"Du bist ein empathischer und weiser Begleiter der M&M Community für den Sektor: {seelen_name}.\n"
-           f"Aufgabe: Erstelle eine leicht verständliche, ehrliche und menschliche Übersicht der aktuellen Lage für {user_name}.\n"
-           f"WICHTIGE REGELN FÜR DEN STIL:\n"
-           f"- Nutze auf keinen Fall hochgestochenen Fachjargon, Beamtendeutsch, Verhör-Sprache oder wissenschaftliche Protokolle.\n"
-           f"- Benutze keine Wörter wie 'Divergenz', 'Verschleierung', 'Entitäten', 'Asymmetrie' oder 'Protokolle'.\n"
-           f"- Erkläre die Dinge so einfach, dass sie jeder Mensch sofort versteht – wie bei einem Gespräch unter Freunden auf Augenhöhe.\n"
-           f"- Bleibe bodenständig, warmherzig und gemeinschaftsorientiert.\n\n"
-           f"Echte Daten aus dem Web für diesen Sektor:\n{google_ergebnisse}\n\n"
-           f"Antworte AUSSCHLIESSLICH mit dem nackten JSON-Objekt ohne Einleitung:\n"
-           '{"themen": ["Was läuft gut?", "Wo hakt es gerade?"], "übersicht": "Die Lage einfach erklärt.", "was_bewegt_die_menschen": "Was sagen die Leute im Netz?", "perspektiven": "Welche unterschiedlichen Meinungen gibt es?", "gedanken_zum_mitnehmen": "Ein positiver, aufbauender Impuls für die Community."}'
-      ) 
+        prompt = (
+            f"Du bist ein empathischer und weiser Begleiter der M&M Community für den Sektor: {seelen_name}.\n"
+            f"Aufgabe: Erstelle eine leicht verständliche, ehrliche und menschliche Übersicht der aktuellen Lage für {user_name}.\n"
+            f"WICHTIGE REGELN FÜR DEN STIL:\n"
+            f"- Nutze auf keinen Fall hochgestochenen Fachjargon, Beamtendeutsch, Verhör-Sprache oder wissenschaftliche Protokolle.\n"
+            f"- Benutze keine Wörter wie 'Divergenz', 'Verschleierung', 'Entitäten', 'Asymmetrie' oder 'Protokolle'.\n"
+            f"- Erkläre die Dinge so einfach, dass sie jeder Mensch sofort versteht – wie bei einem Gespräch unter Freunden auf Augenhöhe.\n"
+            f"- Bleibe bodenständig, warmherzig und gemeinschaftsorientiert.\n\n"
+            f"Echte Daten aus dem Web für diesen Sektor:\n{google_ergebnisse}\n\n"
+            f"Antworte AUSSCHLIESSLICH mit dem nackten JSON-Objekt ohne Einleitung:\n"
+            '{"themen": ["Was läuft gut?", "Wo hakt es gerade?"], "übersicht": "Die Lage einfach erklärt.", "was_bewegt_die_menschen": "Was sagen die Leute im Netz?", "perspektiven": "Welche unterschiedlichen Meinungen gibt es?", "gedanken_zum_mitnehmen": "Ein positiver, aufbauender Impuls für die Community."}'
+       ) 
 
         api_key = os.getenv("GEMINI_API_KEY")   
         if api_key:
