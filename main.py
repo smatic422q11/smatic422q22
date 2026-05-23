@@ -615,6 +615,8 @@ async def get_live_ermittlung(sector_id: str, request: Request):
             such_anfrage = f"{seelen_name} aktuelle Nachrichten Konflikte"
         
         google_ergebnisse = perform_google_search(such_anfrage)
+        if not google_ergebnisse:
+            return {"error": "Keine Daten gefunden"}
         seelen_name = SECTOR_NAMES.get(sector_id, "KI")
 
         prompt = (
