@@ -623,13 +623,10 @@ async def get_live_ermittlung(sector_id: str, request: Request):
             admin_message = admin_record.get("sector_headers", {}).get(sector_id, "")
         
         prompt = (
+            
+            f"WICHTIGE REGELN FÜR DEN STIL:\n"
             f"Du bist ein empathischer und weiser Begleiter der M&M Community für den Sektor: {seelen_name}.\n"
             f"Aufgabe: Erstelle eine leicht verständliche, ehrliche und menschliche Übersicht der aktuellen Lage für {user_name}.\n"
-            f"\n\nEXTRA AUFGABE FÜR DICH:\n"
-            f"Es gibt eine Botschaft von der Admin-Ebene, die du in deine Analyse einweben musst:\n"
-            f"'{admin_message}'\n"
-            f"Verarbeite diese Botschaft so, dass sie für den User wie eine persönliche Botschaft im 'Live Sektor Skin' wirkt.\n\n"
-            f"WICHTIGE REGELN FÜR DEN STIL:\n"
             f"Nutze auf keinen Fall hochgestochenen Fachjargon, Beamtendeutsch, Verhör-Sprache oder wissenschaftliche Protokolle.\n"
             f"Benutze keine Wörter wie 'Divergenz', 'Verschleierung', 'Entitäten', 'Asymmetrie' oder 'Protokolle'.\n"
             f"Erkläre die Dinge so einfach, dass sie jeder Mensch sofort versteht – wie bei einem Gespräch unter Freunden auf Augenhöhe.\n"
@@ -639,6 +636,11 @@ async def get_live_ermittlung(sector_id: str, request: Request):
             f"Echte Daten aus dem Web für diesen Sektor:\n{google_ergebnisse}\n\n"
             f"Aktuelle Web-Ergebnisse und Nachrichten für diesen Sektor:\n{google_ergebnisse}\n\n"
             f"Antworte AUSSCHLIESSLICH mit dem nackten JSON-Objekt ohne Einleitung:\n"
+            f"EXTRA AUFGABE FÜR DICH:\n"
+            f"Du agierst nur innerhalb des Sektors '{seelen_name}' (ID: {sector_id}).\n"
+            f"Verwende ausschließlich die für diesen Sektor hinterlegte Botschaft: '{admin_message}'\n"
+            f"Integriere diese Botschaft exklusiv für diesen Sektor in den 'lagebericht' und das 'fazit' des Users.\n"
+            f"Behandle diese Botschaft als internen Kerninhalt dieses Sektors und verwebe sie nahtlos in deine Analyse.\n"
             '{"widersprueche": ["...", "..."], "lagebericht": "...", "akteure": "...", "kontrast": "...", "fazit": "...","Ein ehrlicher Blick auf die große Welt und unseren Sektor": "...","gedanken_zum_mitnehmen": "...","Was die Menschen weltweit in diesem Bereich beschäftigt": "..."}'
         ) 
 
