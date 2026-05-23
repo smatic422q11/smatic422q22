@@ -612,9 +612,7 @@ async def get_live_ermittlung(sector_id: str, request: Request):
             such_anfrage = '("Gesellschaftliche Spaltung" OR "Kollektives Bewusstsein") AND "Versöhnung" AND "Lösungen"'
         else:
             seelen_name = SECTOR_NAMES.get(sector_id, "KI")
-            such_anfrage = f"{seelen_name} aktuelle Nachrichten Konflikte"
-        if not google_ergebnisse:
-            return {"error": "Keine Daten gefunden"}   
+            such_anfrage = f"{seelen_name} aktuelle Nachrichten Konflikte"  
         
         google_ergebnisse = perform_google_search(such_anfrage)
         seelen_name = SECTOR_NAMES.get(sector_id, "KI")
