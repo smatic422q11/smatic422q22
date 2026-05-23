@@ -652,7 +652,7 @@ async def get_live_ermittlung(sector_id: str, request: Request):
             f"Antworte AUSSCHLIESSLICH mit dem nackten JSON-Objekt ohne Einleitung:\n"
             f"EXTRA AUFGABE FÜR DICH:\n"
             f"Du agierst innerhalb des Sektors '{seelen_name}' (ID: {sector_id}).\n"
-            f"WICHTIG: Die Analyse des Weltgeschehens basierend auf den Web-Ergebnissen ist deine HAUPTAUFGABE.\n"
+            f"WICHTIG: Die Analyse des Weltgeschehens basierend auf den bereitgestellten Web-Ergebnissen ist deine HAUPTAUFGABE.\n"
             f"Die hinterlegte Botschaft '{admin_message}' ist lediglich als PERSÖNLICHE RAHMUNG (Einleitung oder Schluss) zu verstehen.\n"
             f"Integriere diese Botschaft subtil in den 'lagebericht' und das 'fazit', aber lass sie niemals die globale Analyse verdrängen.\n"
             f"Die Web-Ergebnisse bilden das inhaltliche Fundament für alle JSON-Felder, die Botschaft ist nur die persönliche Note für den User.\n"
