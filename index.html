@@ -382,24 +382,36 @@
        let alleSektorenVerlaeufe = {};
        let globaleBiografieDaten = "";
      
-     // HIER EINFÜGEN:
     let sektorStatus = {};
-    for(let i=0; i<22; i++) sektorStatus[i] = 0; 
-    sektorStatus[0] = 1; 
+for(let i = 0; i < 22; i++) {
+    sektorStatus[i] = 0; // Alle sind blau (0)
+}
+sektorStatus[0] = 1; // Sektor 1 ist gelb (1)
 
-   function renderDashboard() {
+// 2. DAS RENDER-GESETZ
+function renderDashboard() {
     const grid = document.getElementById('main-grid');
-    grid.innerHTML = '';
+    if (!grid) {
+        console.error("Grid-Element nicht gefunden!");
+        return;
+    }
+    grid.innerHTML = ''; // Leeren
+    
     themen.forEach((t, i) => {
-        // Hier wird die CSS-Klasse hinzugefügt
-        let statusKlasse = ['status-blau', 'status-gelb', 'status-rot', 'status-gruen'][sektorStatus[i] || 0];
-        
+        let statusWert = sektorStatus[i] || 0; 
+        let klassenNamen = ['status-blau', 'status-gelb', 'status-rot', 'status-gruen'];
+
         grid.innerHTML += `
-            <div class="box ${statusKlasse}">
+            <div class="box ${klassenNamen[statusWert]}">
                 <div class="text" onclick="waehleSektor(${i})">${i+1} | ${t}</div>
             </div>`;
     });
 }
+
+// 3. WICHTIG: Sofort ausführen, wenn die Seite geladen ist
+document.addEventListener("DOMContentLoaded", function() {
+    renderDashboard();
+});
 
 function waehleSektor(id) {
     aktuelleSektorId = id.toString();
