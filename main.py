@@ -582,7 +582,7 @@ async def get_live_ermittlung(sector_id: str, request: Request):
         user_record = db.codes.find_one({"email": email})
         user_name = user_record.get("name") if user_record and user_record.get("name") else email.split('@')[0].capitalize()
         
-       if sector_id == "0":
+        if sector_id == "0":
             such_anfrage = '("Psychische Überlastung" OR "Emotionale Entfremdung") AND Gesellschaft AND "aktuelle Trends"'
         elif sector_id == "1":
             such_anfrage = '("Zivilcourage" OR "Menschlichkeit") AND ("Krise" OR "Debatte") AND 2026'
