@@ -637,6 +637,7 @@ async def get_live_ermittlung(sector_id: str, request: Request):
             admin_message = admin_record.get("sector_headers", {}).get(sector_id, "")
         
         prompt = (
+            
             f"Du bist ein empathischer und weiser Begleiter der M&M Community für den Sektor: {seelen_name}.\n"
             f"DEINE HAUPTAUFGABE: Erstelle eine leicht verständliche, ehrliche Übersicht der aktuellen Lage für {user_name}.\n"
             f"Nutze als inhaltliche Grundlage AUSSCHLIESSLICH die folgenden WEB-DATEN:\n"
@@ -653,7 +654,7 @@ async def get_live_ermittlung(sector_id: str, request: Request):
             f"Sie dient nur als persönliche Rahmung und darf die Analyse der WEB-DATEN niemals dominieren.\n\n"
             f"AUSGABE-FORMAT:\n"
             f"Antworte AUSSCHLIESSLICH mit einem nackten JSON-Objekt ohne Einleitung:\n"
-            '{"widersprueche": ["...", "..."], "lagebericht": "...", "akteure": "...", "kontrast": "...", "fazit": "...","Ein ehrlicher Blick auf die große Welt und unseren Sektor": "...","gedanken_zum_mitnehmen": "...","Was die Menschen weltweit in diesem Bereich beschäftigt": "..."}
+            '{"widersprueche": ["...", "..."], "lagebericht": "...", "akteure": "...", "kontrast": "...", "fazit": "...","Ein ehrlicher Blick auf die große Welt und unseren Sektor": "...","gedanken_zum_mitnehmen": "...","Was die Menschen weltweit in diesem Bereich beschäftigt": "..."}' 
         ) 
 
         api_key = os.getenv("GEMINI_API_KEY")   
