@@ -389,24 +389,22 @@ function renderDashboard() {
     grid.innerHTML = '';
     themen.forEach((t, i) => {
         let statusKlasse = ['status-blau', 'status-gelb', 'status-rot', 'status-gruen'][sektorStatus[i] || 0];
-        grid.innerHTML += `
-            <div class="box ${statusKlasse}">
-                <div class="text" onclick="waehleSektor(${i})">${i+1} | ${t}</div>
-            </div>`;
-    });
-} 
-     
+       grid.innerHTML += `
+    <div class="box ${statusKlasse}">
+        <div class="text" onclick="waehleSektor(${i})">${t}</div>
+    </div>`;
+        
 function initInitialGrid() {
     grid.innerHTML = '';
     themen.forEach((t, i) => {
         grid.innerHTML += `
             <div class="box">
-                <div class="text" onclick="waehleSektor(${i})">${i+1} | ${t}</div>
+                <div class="text" onclick="waehleSektor(${i})">${t}</div>
             </div>`;
     });
 }
-initInitialGrid(); // Das führt den Aufbau sofort aus!
-     
+initInitialGrid(); // Das baut das Grid sofort beim Laden auf     
+
 function waehleSektor(id) {
     aktuelleSektorId = id.toString();
     const chatBox = document.getElementById('chat-box');
