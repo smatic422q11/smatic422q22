@@ -713,7 +713,6 @@ async function handleAnkerSetzen() {
         alert("Server-Verbindung fehlgeschlagen.");
     }
 }
-
 async function handleVerifyAccess() {
     const emailInput = document.getElementById('db-mail').value.trim();
     const codeInput = document.getElementById('db-code').value.trim();
@@ -737,6 +736,7 @@ async function handleVerifyAccess() {
         alert("Fehler bei der Kommunikation.");
     }
 }
+
 async function sendeChat() {
     const inputField = document.getElementById('chat-in');
     const userMessage = inputField.value.trim();
