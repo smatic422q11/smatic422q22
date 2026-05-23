@@ -643,17 +643,17 @@ async def get_live_ermittlung(sector_id: str, request: Request):
             f"{google_ergebnisse}\n\n"
             
             f"STIL-REGELN:\n"
-            f"- Einfach, menschlich, wie unter Freunden auf Augenhöhe.\n"
-            f"- Keine Fachbegriffe (verboten: Divergenz, Verschleierung, Entitäten, Protokolle, Asymmetrie).\n"
-            f"- Bleibe bodenständig und warmherzig.\n\n"
+            f"Einfach, menschlich, wie unter Freunden auf Augenhöhe.\n"
+            f"Keine Fachbegriffe (verboten: Divergenz, Verschleierung, Entitäten, Protokolle, Asymmetrie).\n"
+            f"Bleibe bodenständig und warmherzig.\n\n"
             
             f"FILTER-REGELN (WICHTIG):\n"
-            f"- Analysiere NUR Informationen, die sich auf den Sektor '{seelen_name}' beziehen.\n"
-            f"- Ignoriere allgemeine Finanzen oder Politik, die keinen direkten Bezug zu '{seelen_name}' haben.\n\n"
+            f"Analysiere NUR Informationen, die sich auf den Sektor '{seelen_name}' beziehen.\n"
+            f"Ignoriere allgemeine Finanzen oder Politik, die keinen direkten Bezug zu '{seelen_name}' haben.\n\n"
             
             f"INTEGRATION DER ADMIN-BOTSCHAFT:\n"
-            f"- Integriere die Admin-Botschaft '{admin_message}' subtil NUR in 'lagebericht' und 'fazit'.\n"
-            f"- Sie dient nur als persönliche Rahmung und darf die Analyse der WEB-DATEN niemals dominieren.\n\n"
+            f"Integriere die Admin-Botschaft '{admin_message}' subtil NUR in 'lagebericht' und 'fazit'.\n"
+            f"Sie dient nur als persönliche Rahmung und darf die Analyse der WEB-DATEN niemals dominieren.\n\n"
             
             f"AUSGABE-FORMAT:\n"
             f"Antworte AUSSCHLIESSLICH mit einem nackten JSON-Objekt ohne Einleitung:\n"
