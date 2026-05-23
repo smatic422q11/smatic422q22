@@ -619,12 +619,6 @@ async def get_live_ermittlung(sector_id: str, request: Request):
             google_ergebnisse = "Keine spezifischen aktuellen Web-Ereignisse gefunden. Analysiere auf Basis allgemeiner Sektor-Kenntnisse."   
         seelen_name = SECTOR_NAMES.get(sector_id, "KI")
         
-
-        admin_record = db.codes.find_one({"email": "mmcommunity22@gmail.com"})
-        admin_message = ""
-        if admin_record:
-            admin_message = admin_record.get("sector_headers", {}).get(sector_id, "")
-        
         prompt = (
             
             f"EINGABE-DATEN FÜR DIE ANALYSE (PROZESSIERE DIESE DATEN ZUERST):\n"
