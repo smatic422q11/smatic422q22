@@ -382,7 +382,7 @@
        let alleSektorenVerlaeufe = {};
        let globaleBiografieDaten = "";
        let sektorStatus = {}; // Globaler Speicher für Farben
-   
+
 // Diese Funktion malt das Grid erst, wenn du sie rufst
 function renderDashboard() {
     const grid = document.getElementById('main-grid');
@@ -394,8 +394,19 @@ function renderDashboard() {
                 <div class="text" onclick="waehleSektor(${i})">${i+1} | ${t}</div>
             </div>`;
     });
+} 
+     
+function initInitialGrid() {
+    grid.innerHTML = '';
+    themen.forEach((t, i) => {
+        grid.innerHTML += `
+            <div class="box">
+                <div class="text" onclick="waehleSektor(${i})">${i+1} | ${t}</div>
+            </div>`;
+    });
 }
-  
+initInitialGrid(); // Das führt den Aufbau sofort aus!
+     
 function waehleSektor(id) {
     aktuelleSektorId = id.toString();
     const chatBox = document.getElementById('chat-box');
