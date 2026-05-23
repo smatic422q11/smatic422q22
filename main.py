@@ -626,6 +626,7 @@ async def get_live_ermittlung(sector_id: str, request: Request):
             f"Erkläre die Dinge so einfach, dass sie jeder Mensch sofort versteht – wie bei einem Gespräch unter Freunden auf Augenhöhe.\n"
             f"Bleibe bodenständig, warmherzig und gemeinschaftsorientiert.\n\n"
             f"Echte Daten aus dem Web für diesen Sektor:\n{google_ergebnisse}\n\n"
+            f"Aktuelle Web-Ergebnisse und Nachrichten für diesen Sektor:\n{google_ergebnisse}\n\n"
             f"Antworte AUSSCHLIESSLICH mit dem nackten JSON-Objekt ohne Einleitung:\n"
             '{"widersprueche": ["...", "..."], "lagebericht": "...", "akteure": "...", "kontrast": "...", "fazit": "...","Ein ehrlicher Blick auf die große Welt und unseren Sektor": "...","gedanken_zum_mitnehmen": "..."}'
         ) 
