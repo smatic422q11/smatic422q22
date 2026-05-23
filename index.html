@@ -49,10 +49,6 @@
         .video-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; width: 90%; margin-top: 60px; }
         .video-slot { aspect-ratio: 3/2; background: #111; border: 1px solid #003d8f; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; color: #666; }
         .video-controls { display: flex; gap: 20px; margin-top: auto; margin-bottom: 80px; }
-         status-blau { background-color: #003d8f !important; }
-        .status-gelb { background-color: #ffd700 !important; color: #000 !important; }
-        .status-rot { background-color: #ff4d4d !important; }
-        .status-gruen { background-color: #00ff00 !important; color: #000 !important; }
 
         /* SPECIAL CONTENT */
         .special-content { margin-top: 140px; width: 85%; text-align: center; }
@@ -381,30 +377,14 @@
        let aktuelleSektorId = "0";
        let alleSektorenVerlaeufe = {};
        let globaleBiografieDaten = "";
-       let sektorStatus = {}; // Globaler Speicher für Farben
-
-// Diese Funktion malt das Grid erst, wenn du sie rufst
-function renderDashboard() {
-    const grid = document.getElementById('main-grid');
-    grid.innerHTML = '';
-    themen.forEach((t, i) => {
-        let statusKlasse = ['status-blau', 'status-gelb', 'status-rot', 'status-gruen'][sektorStatus[i] || 0];
-       grid.innerHTML += `
-    <div class="box ${statusKlasse}">
-        <div class="text" onclick="waehleSektor(${i})">${t}</div>
-    </div>`;
-        
-function initInitialGrid() {
-    grid.innerHTML = '';
-    themen.forEach((t, i) => {
-        grid.innerHTML += `
-            <div class="box">
-                <div class="text" onclick="waehleSektor(${i})">${t}</div>
-            </div>`;
-    });
-}
-initInitialGrid(); // Das baut das Grid sofort beim Laden auf     
-
+     
+ themen.forEach((t, i) => {
+    grid.innerHTML += `
+        <div class="box">
+            <div class="text" onclick="waehleSektor(${i})">${t}</div>
+        </div>`;
+});
+     
 function waehleSektor(id) {
     aktuelleSektorId = id.toString();
     const chatBox = document.getElementById('chat-box');
