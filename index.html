@@ -784,6 +784,41 @@ async function sendeChat() {
         console.log("Zugriff verweigert: Nur für den Administrator.");
         // Optional: alert("Kein Admin-Zugriff.");
     }
+} 
+ async function beweisStarten() {
+    // Startet Kamera im Kontext deines aktuellen Sektors
+    await starteVideoKonferenz();
+}
+
+async function beweisZuweisen(partnerPeerId) {
+    // Nutzt den Stream aus deinem globalen Peer-System
+    const call = meinPeer.call(partnerPeerId, window.meinStream);
+    
+    // Dynamische Adressierung: Findet den richtigen Slot für den Sektor
+    call.on('stream', (remoteStream) => {
+        // Hier wird sichergestellt, dass immer das Remote-Ziel im Sektor-Kontext bleibt
+        const partnerSlot = document.getElementById('v-slot-2'); 
+        if(partnerSlot) {
+            partnerSlot.innerHTML = `<video autoplay playsinline style="width:100%; height:100%; object-fit:cover;"></video>`;
+            partnerSlot.querySelector('video').srcObject = remoteStream;
+        }
+    });
+}
+
+function beweisLoeschen() {
+    // Reset nur innerhalb der aktuell aktiven Ebene 4
+    const activeGrid = document.querySelector('.ebene.aktiv .video-grid');
+    if(activeGrid) {
+        activeGrid.querySelectorAll('.video-slot').forEach((slot, i) => {
+            slot.innerHTML = `SLOT ${i + 1}`;
+        });
+    }
+    if (typeof meinPeer !== 'undefined') meinPeer.destroy();
+}
+
+function beweisVorschau() {
+    // Zeigt ID spezifisch für den aktuellen Sektor an
+    alert("Sektor " + (parseInt(aktuelleSektorId)+1) + " | Peer-ID: " + meinPeer.id);
 }    
  </script>
 </body>
