@@ -755,13 +755,15 @@ async function handleVerifyAccess() {
         const data = await response.json();
 
         if (data.success) {
-            userEmail = emailInput; 
-            chatVerlauf = data.history || []; 
+            userEmail = emailInput; // E-Mail für später merken
+            chatVerlauf = data.history || []; // Bestehenden Chat laden
             
-            // HIER DIE ERWEITERUNG (sicher eingefügt):
+            // HIER DIE ERWEITERUNG:
+            // Erst wenn der Login erfolgreich ist, laden wir die Farben.
+            // Deine bestehende Logik bleibt oben komplett erhalten.
             if (data.sektoren) {
                 sektorStatus = data.sektoren;
-                renderDashboard(); // Aktualisiert das Grid sofort nach dem Login
+                renderDashboard(); // Erst jetzt werden die Farben gemalt!
             }
             
             alert("Zugang gewährt! Willkommen zurück.");
