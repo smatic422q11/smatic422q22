@@ -538,7 +538,12 @@ async def chat(request: Request):
         return {"reply": "System-Fehler.", "info_fuer_ki": str(e)}
 
 @app.get("/get-sector-text/{sector_id}")
-async def get_sector_text(sector_id: str):
+async def get_sector_text(sector_id: str, email: str):
+    # 1. Sicherheitsprüfung
+    if email.lower().strip() != "mmcommunity22@gmail.com":
+        return {"success": False, "message": "Nicht autorisiert"}
+        
+    # 2. Datenabruf
     try:
         admin_record = db.codes.find_one({"email": "mmcommunity22@gmail.com"})
         text = "Gefühlsvorderung. \nKeine Admin-Sichtweise hinterlegt."
