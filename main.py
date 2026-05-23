@@ -616,7 +616,7 @@ async def get_live_ermittlung(sector_id: str, request: Request):
         
         google_ergebnisse = perform_google_search(such_anfrage)
         if not google_ergebnisse or len(google_ergebnisse) < 50:
-        google_ergebnisse = "Keine spezifischen aktuellen Web-Ereignisse gefunden. Analysiere auf Basis allgemeiner Sektor-Kenntnisse."   
+            google_ergebnisse = "Keine spezifischen aktuellen Web-Ereignisse gefunden. Analysiere auf Basis allgemeiner Sektor-Kenntnisse."   
         seelen_name = SECTOR_NAMES.get(sector_id, "KI")
         
 
@@ -637,7 +637,6 @@ async def get_live_ermittlung(sector_id: str, request: Request):
             f"Nutze den Platz maximal aus. Schreibe lange Analysen.\n\n"
             f"DATEN:\n{google_ergebnisse}\n\n"
             f"Antworte AUSSCHLIESSLICH mit dem nackten JSON-Objekt ohne Einleitung.\n"
-            '{"widersprueche": ["...", "..."], "lagebericht": "...", "akteure": "...", "kontrast": "...", "fazit": "..."}'
             f"Du bist ein empathischer und weiser Begleiter der M&M Community für den Sektor: {seelen_name}.\n"
             f"DEINE HAUPTAUFGABE: Erstelle eine leicht verständliche, ehrliche Übersicht der aktuellen Lage für {user_name}.\n"
             f"Nutze als inhaltliche Grundlage AUSSCHLIESSLICH die folgenden WEB-DATEN:\n"
