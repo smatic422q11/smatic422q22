@@ -193,20 +193,27 @@ async def handle_verify_access(request: Request):
         
         record = db.codes.find_one({"email": email})
         if record and str(record['code']) == str(entered_code):
-            # Wir holen History und Fortschritt direkt aus der 'codes' Collection
+            # Wir holen History und Fortschritt aus der 'codes' Collection
             fortschritt = record.get("fortschritt", 0)
             history = record.get("history", [])
             user_role = record.get("role", "user")
+            
+            # HIER DIE ERGÄNZUNG:
+            # Wir nehmen das, was du wahrscheinlich als 'sektoren' gespeichert hast,
+            # oder wir nutzen 'fortschritt', falls du die Sektoren daraus ableitest.
+            sektoren = record.get("sektoren", {}) 
 
             return {
                 "success": True, 
                 "role": user_role,
                 "fortschritt": fortschritt,
-                "history": history
+                "history": history,
+                "sektoren": sektoren  # <--- Das ist die Brücke zum Frontend
             }
-        return JSONResponse(content={"success": False}, status_code=401)
+        else:
+            return {"success": False}
     except Exception as e:
-        return JSONResponse(content={"success": False}, status_code=500)
+        return {"success": False, "error": str(e)}
 
 
 # --- SEKTOR NAMEN & SEELEN (MIT SYSTEM INSTRUCTIONS) ---
