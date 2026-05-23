@@ -627,7 +627,7 @@ async def get_live_ermittlung(sector_id: str, request: Request):
             f"Bleibe bodenständig, warmherzig und gemeinschaftsorientiert.\n\n"
             f"Echte Daten aus dem Web für diesen Sektor:\n{google_ergebnisse}\n\n"
             f"Antworte AUSSCHLIESSLICH mit dem nackten JSON-Objekt ohne Einleitung:\n"
-            '{"themen": ["Was läuft gut?", "Wo hakt es gerade?"], "übersicht": "Die Lage einfach erklärt.", "was_bewegt_die_menschen": "Was sagen die Leute im Netz?", "perspektiven": "Welche unterschiedlichen Meinungen gibt es?", "gedanken_zum_mitnehmen": "Ein positiver, aufbauender Impuls für die Community."}'
+            '{"widersprueche": ["...", "..."], "lagebericht": "...", "akteure": "...", "kontrast": "...", "fazit": "..."}'
         ) 
 
         api_key = os.getenv("GEMINI_API_KEY")   
