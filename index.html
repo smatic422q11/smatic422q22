@@ -395,7 +395,7 @@ function renderDashboard() {
             </div>`;
     });
 }
-    
+  
 function waehleSektor(id) {
     aktuelleSektorId = id.toString();
     const chatBox = document.getElementById('chat-box');
@@ -738,8 +738,13 @@ async function handleVerifyAccess() {
         const data = await response.json();
 
         if (data.success) {
-            userEmail = emailInput; // E-Mail für später merken
-            chatVerlauf = data.history || []; // Bestehenden Chat laden
+            userEmail = emailInput; 
+            chatVerlauf = data.history || []; 
+            
+            // Erst HIER werden die Daten geladen und das Grid gefüllt
+            sektorStatus = data.sektoren || {}; 
+            renderDashboard(); 
+            
             alert("Zugang gewährt! Willkommen zurück.");
         } else {
             alert("Schlüsselcode ungültig.");
