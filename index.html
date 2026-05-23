@@ -66,7 +66,7 @@
 <body>
 
     <div class="dashboard-header">
-        <div class="logo-ring" onclick="wechselEbene('ebene1')" ondblclick="wechselEbene('admin_ebene')">
+        <div class="logo-ring" onclick="wechselEbene('ebene1')" ondblclick="versucheAdminEbene()">
             <div class="logo-mm">M&M</div>
             <div class="logo-community">COMMUNITY</div>
         </div>
@@ -502,7 +502,7 @@ async function starteScanOptik(themenIndex) {
     textArea.innerHTML = `<span style="color:#ff4d4d; font-weight:900;">KI-ERMITTLUNG AKTIV...</span>`;
 
     try {
-        const resText = await fetch(`/get-sector-text/${themenIndex}`);
+        const resText = await fetch(`/get-sector-text/${themenIndex}?email=${encodeURIComponent(userEmail)}`);
         const dataText = await resText.json();
         if (dataText.success) { adminEl.innerText = dataText.text; }
     } catch (e) { adminEl.innerText = "Fehler beim Laden der Sichtweise."; }
@@ -776,6 +776,15 @@ async function sendeChat() {
         console.error("Fehler beim Senden:", e);
     }
 }
+ function versucheAdminEbene() {
+    // 'userEmail' ist die Variable, die du beim Login speicherst
+    if (userEmail === "mmcommunity22@gmail.com") {
+        wechselEbene('admin_ebene');
+    } else {
+        console.log("Zugriff verweigert: Nur für den Administrator.");
+        // Optional: alert("Kein Admin-Zugriff.");
+    }
+}    
  </script>
 </body>
 </html>  
