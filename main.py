@@ -628,11 +628,13 @@ async def get_live_ermittlung(sector_id: str, request: Request):
         )
 
         api_key = os.getenv("GEMINI_API_KEY")   
-        url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key={api_key.strip().replace('[', '').replace(']', '')}"
+        if api_key:
+            api_key = api_key.strip().replace("[", "").replace("]", "")
+            
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key={api_key}"
+        response = requests.post(url, json={"contents": [{"parts": [{"text": prompt}]}]}, timeout=15)
         
-        response = requests.post(url, json={"contents": [{"parts": [{"text": prompt}]}]}, timeout=20)
-        
-      if response.status_code == 200:
+        if response.status_code == 200:
             res_data = response.json()
             raw_text = res_data['candidates'][0]['content']['parts'][0]['text'].strip()
             raw_text = re.sub(r'^```json\s*|\s*```$', '', raw_text, flags=re.MULTILINE)
