@@ -615,7 +615,10 @@ async def get_live_ermittlung(sector_id: str, request: Request):
             such_anfrage = f"{seelen_name} aktuelle Nachrichten Konflikte"
         
         google_ergebnisse = perform_google_search(such_anfrage)
+        if not google_ergebnisse or len(google_ergebnisse) < 50:
+        google_ergebnisse = "Keine spezifischen aktuellen Web-Ereignisse gefunden. Analysiere auf Basis allgemeiner Sektor-Kenntnisse."   
         seelen_name = SECTOR_NAMES.get(sector_id, "KI")
+        
 
         admin_record = db.codes.find_one({"email": "mmcommunity22@gmail.com"})
         admin_message = ""
@@ -624,6 +627,11 @@ async def get_live_ermittlung(sector_id: str, request: Request):
         
         prompt = (
             
+            f"EINGABE-DATEN FÜR DIE ANALYSE (PROZESSIERE DIESE DATEN ZUERST):\n"
+            f"<data>\n{google_ergebnisse}\n</data>\n\n"
+            f"ADMIN-NOTIZ (NUR ALS RAHMEN ZU NUTZEN):\n"
+            f"<admin>\n{admin_message}\n</admin>\n\n"
+            f"REGEL: Analysiere den Inhalt von <data> vollständig, bevor du die Notiz aus <admin> einbaust."
             f"Du bist der unbestechliche KI-Scanner für Sektor: {seelen_name}.\n"
             f"Aufgabe: Eine tiefe, ausführliche Live-Ermittlung für den User ({user_name}) in der M&M Community.\n"
             f"Nutze den Platz maximal aus. Schreibe lange Analysen.\n\n"
