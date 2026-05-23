@@ -582,7 +582,7 @@ async def get_live_ermittlung(sector_id: str, request: Request):
         user_record = db.codes.find_one({"email": email})
         user_name = user_record.get("name") if user_record and user_record.get("name") else email.split('@')[0].capitalize()
         
-        elif sector_id ==  "0":
+        if sector_id == "0":
             such_anfrage = "Psychische Überlastung Gesellschaft OR Emotionale Kälte Einsamkeit aktuell"
         elif sector_id == "1":
             such_anfrage = "Zivilcourage Vorfall OR Menschlichkeit Krise Opfermodus Debatte"
@@ -627,7 +627,7 @@ async def get_live_ermittlung(sector_id: str, request: Request):
             f"Bleibe bodenständig, warmherzig und gemeinschaftsorientiert.\n\n"
             f"Echte Daten aus dem Web für diesen Sektor:\n{google_ergebnisse}\n\n"
             f"Antworte AUSSCHLIESSLICH mit dem nackten JSON-Objekt ohne Einleitung:\n"
-            '{"widersprueche": ["...", "..."], "lagebericht": "...", "akteure": "...", "kontrast": "...", "fazit": "..."}'
+            '{"widersprueche": ["...", "..."], "lagebericht": "...", "akteure": "...", "kontrast": "...", "fazit": "...","Ein ehrlicher Blick auf die große Welt und unseren Sektor": "...","gedanken_zum_mitnehmen": "..."}'
         ) 
 
         api_key = os.getenv("GEMINI_API_KEY")   
