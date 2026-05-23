@@ -620,7 +620,7 @@ async def get_live_ermittlung(sector_id: str, request: Request):
         admin_record = db.codes.find_one({"email": "mmcommunity22@gmail.com"})
         admin_text = ""
         if admin_record:
-        admin_text = admin_record.get("sector_headers", {}).get(sector_id, "")
+            admin_text = admin_record.get("sector_headers", {}).get(sector_id, "")
         
         prompt = (
             f"Du bist ein empathischer und weiser Begleiter der M&M Community für den Sektor: {seelen_name}.\n"
