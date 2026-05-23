@@ -538,20 +538,29 @@ async def chat(request: Request):
         return {"reply": "System-Fehler.", "info_fuer_ki": str(e)}
 
 @app.get("/get-sector-text/{sector_id}")
-async def get_sector_text(sector_id: str, email: str):
-    # 1. Sicherheitsprüfung
-    if email.lower().strip() != "mmcommunity22@gmail.com":
-        return {"success": False, "message": "Nicht autorisiert"}
+async def get_sector_text(sector_id: str, email: str = ""):
+    admin_record = db.codes.find_one({"email": "mmcommunity22@gmail.com"})
+    
+    display_text = "Gefühlsvorderung."
+    admin_input = ""
+    
+    if admin_record and "sector_headers" in admin_record:
+        sector_data = admin_record["sector_headers"].get(sector_id, {})
         
-    # 2. Datenabruf
-    try:
-        admin_record = db.codes.find_one({"email": "mmcommunity22@gmail.com"})
-        text = "Gefühlsvorderung. \nKeine Admin-Sichtweise hinterlegt."
-        if admin_record:
-            text = admin_record.get("sector_headers", {}).get(sector_id, text)
-        return {"success": True, "text": text}
-    except Exception as e:
-        return {"success": False, "error": str(e)}
+        # Prüfung, ob neues Format (Dict) oder alter String
+        if isinstance(sector_data, dict):
+            display_text = sector_data.get("user_display", display_text)
+            admin_input = sector_data.get("admin_input", "")
+        else:
+            display_text = sector_data 
+
+    # Logik:
+    # 1. Admin darf alles sehen (und den admin_input für die KI laden)
+    if email.lower().strip() == "mmcommunity22@gmail.com":
+        return {"success": True, "text": display_text, "admin_input": admin_input}
+        
+    # 2. Jeder User darf den öffentlichen Text sehen
+    return {"success": True, "text": display_text}
 
 @app.get("/test")
 async def test():
@@ -668,6 +677,7 @@ async def get_live_ermittlung(sector_id: str, request: Request):
         
     except Exception as e:
         return {"success": True, "data": {"widersprueche": [f"Fehler: {str(e)}"]}}
+        
 @app.post("/admin/update-sector")
 async def handle_update_sector(request: Request):
     try:
@@ -675,13 +685,26 @@ async def handle_update_sector(request: Request):
         email = data.get("email", "").lower().strip()
         sector_id = str(data.get("sector_id", "0"))
         status = data.get("status", "")
+        # NEU: Empfange zwei Felder
         header_text = data.get("header_text", "")
+        public_text = data.get("public_text", "") 
+
         if email != "mmcommunity22@gmail.com":
             return JSONResponse(content={"success": False, "message": "Nicht autorisiert"}, status_code=403)
+        
         if status == "update-text":
-            db.codes.update_one({"email": email}, {"$set": {f"sector_headers.{sector_id}": header_text}}, upsert=True)
+            # Speichere getrennt für KI und User
+            db.codes.update_one(
+                {"email": "mmcommunity22@gmail.com"}, 
+                {"$set": {
+                    f"sector_headers.{sector_id}.admin_input": header_text,
+                    f"sector_headers.{sector_id}.user_display": public_text
+                }}, 
+                upsert=True
+            )
             return {"success": True, "message": "Gespeichert."}
-        db.codes.update_one({"email": email}, {"$set": {f"sector_status.{sector_id}": status}}, upsert=True)
+            
+        db.codes.update_one({"email": "mmcommunity22@gmail.com"}, {"$set": {f"sector_status.{sector_id}": status}}, upsert=True)
         return {"success": True, "message": "Status gesetzt."}
     except Exception as e:
         return JSONResponse(content={"success": False, "error": str(e)}, status_code=500)
