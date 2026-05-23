@@ -707,26 +707,13 @@ async def handle_update_sector(request: Request):
         email = data.get("email", "").lower().strip()
         sector_id = str(data.get("sector_id", "0"))
         status = data.get("status", "")
-        # NEU: Empfange zwei Felder
         header_text = data.get("header_text", "")
-        public_text = data.get("public_text", "") 
-
         if email != "mmcommunity22@gmail.com":
             return JSONResponse(content={"success": False, "message": "Nicht autorisiert"}, status_code=403)
-        
         if status == "update-text":
-            # Speichere getrennt für KI und User
-            db.codes.update_one(
-                {"email": "mmcommunity22@gmail.com"}, 
-                {"$set": {
-                    f"sector_headers.{sector_id}.admin_input": header_text,
-                    f"sector_headers.{sector_id}.user_display": public_text
-                }}, 
-                upsert=True
-            )
+            db.codes.update_one({"email": email}, {"$set": {f"sector_headers.{sector_id}": header_text}}, upsert=True)
             return {"success": True, "message": "Gespeichert."}
-            
-        db.codes.update_one({"email": "mmcommunity22@gmail.com"}, {"$set": {f"sector_status.{sector_id}": status}}, upsert=True)
+        db.codes.update_one({"email": email}, {"$set": {f"sector_status.{sector_id}": status}}, upsert=True)
         return {"success": True, "message": "Status gesetzt."}
     except Exception as e:
         return JSONResponse(content={"success": False, "error": str(e)}, status_code=500)
