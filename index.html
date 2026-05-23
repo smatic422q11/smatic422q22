@@ -25,8 +25,8 @@
         .auth-btn { background: #ffd700; color: #000; border: none; padding: 5px 12px; font-weight: bold; font-size: 0.7rem; cursor: pointer; text-transform: uppercase; }
 
         .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; width: 90%; max-width: 1300px; padding: 5px 0; flex-grow: 1; }
-        .box { display: flex; border: none; background-color: #000; position: relative; overflow: hidden; align-items: center; justify-content: center; }
-        .text { padding: 4px; text-transform: uppercase; font-size: 0.65rem; cursor: pointer; text-align: center; font-weight: 600; width: 100%; color: #fff !important; background-color: transparent !important; }
+        .box { display: flex; border: 2px solid #003d8f; background-color: #000 !important; position: relative; overflow: hidden; align-items: center; justify-content: center; }
+        .text { padding: 4px; text-transform: uppercase; font-size: 0.65rem; cursor: pointer; text-align: center; font-weight: 600; width: 100%; color: #fff !important; background-color: #000 !important; }
 
         .fundament-container { display: flex; width: 97%; max-width: 1480px; gap: 15px; flex-shrink: 0; }
         .fundament-box { flex: 1; display: flex; border: 2px solid #003d8f; background: #000; min-height: 50px; align-items: center; justify-content: center; cursor: pointer; }
@@ -378,13 +378,13 @@
        let alleSektorenVerlaeufe = {};
        let globaleBiografieDaten = "";
      
- themen.forEach((t, i) => {
+       themen.forEach((t, i) => {
     grid.innerHTML += `
         <div class="box">
             <div class="text" onclick="waehleSektor(${i})">${t}</div>
         </div>`;
 });
-     
+
 function waehleSektor(id) {
     aktuelleSektorId = id.toString();
     const chatBox = document.getElementById('chat-box');
@@ -727,13 +727,8 @@ async function handleVerifyAccess() {
         const data = await response.json();
 
         if (data.success) {
-            userEmail = emailInput; 
-            chatVerlauf = data.history || []; 
-            
-            // Erst HIER werden die Daten geladen und das Grid gefüllt
-            sektorStatus = data.sektoren || {}; 
-            renderDashboard(); 
-            
+            userEmail = emailInput; // E-Mail für später merken
+            chatVerlauf = data.history || []; // Bestehenden Chat laden
             alert("Zugang gewährt! Willkommen zurück.");
         } else {
             alert("Schlüsselcode ungültig.");
