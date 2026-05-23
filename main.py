@@ -616,35 +616,41 @@ async def get_live_ermittlung(sector_id: str, request: Request):
         
         google_ergebnisse = perform_google_search(such_anfrage)
         seelen_name = SECTOR_NAMES.get(sector_id, "KI")
-
+        
         prompt = (
-            f"Du bist der unbestechliche KI-Scanner für Sektor: {seelen_name}.\n"
-            f"Aufgabe: Eine tiefe, ausführliche Live-Ermittlung für den User ({user_name}) in der M&M Community.\n"
-            f"Nutze den Platz maximal aus. Schreibe lange Analysen.\n\n"
-            f"DATEN:\n{google_ergebnisse}\n\n"
-            f"Antworte AUSSCHLIESSLICH mit dem nackten JSON-Objekt ohne Einleitung.\n"
-            '{"themen": ["...", "..."], "übersicht": "...", "was_bewegt_die_menschen": "...", "perspektiven": "...", "gedanken_zum_mitnehmen": "..."}'
+            f"Du bist der M&M Community Begleiter für den Sektor: {seelen_name}.\n"
+            f"Aufgabe: Fasse die aktuellen Informationen aus dem Internet für {user_name} zusammen.\n"
+            f"Schreibe in einfachen, direkten Worten. Vermeide Fachjargon, medizinische Begriffe oder einen prüfenden Ton.\n"
+            f"Sei ein aufmerksamer Beobachter des Zeitgeistes.\n\n"
+            f"Hier sind die aktuellen Daten aus dem Netz:\n{google_ergebnisse}\n\n"
+            f"Antworte NUR mit diesem JSON-Format:\n"
+            '{"themen": ["Punkt 1", "Punkt 2"], "übersicht": "Kurze, verständliche Zusammenfassung der Lage.", "was_bewegt_die_menschen": "Was wird diskutiert?", "perspektiven": "Was sind die verschiedenen Ansichten?", "gedanken_zum_mitnehmen": "Ein motivierender Gedanke für den User."}'
         )
 
         api_key = os.getenv("GEMINI_API_KEY")   
-        if api_key:
-            api_key = api_key.strip().replace("[", "").replace("]", "")
-            
-        url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key={api_key}"
-        response = requests.post(url, json={"contents": [{"parts": [{"text": prompt}]}]}, timeout=15)
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key={api_key.strip().replace('[', '').replace(']', '')}"
+        
+        response = requests.post(url, json={"contents": [{"parts": [{"text": prompt}]}]}, timeout=20)
         
         if response.status_code == 200:
             res_data = response.json()
             raw_text = res_data['candidates'][0]['content']['parts'][0]['text'].strip()
             raw_text = re.sub(r'^```json\s*|\s*```$', '', raw_text, flags=re.MULTILINE)
-            ergebnis_json = json.loads(raw_text)
+            
+            # Falls die KI trotz Anweisung schwafelt, versuchen wir das JSON sauber zu parsen
+            try:
+                ergebnis_json = json.loads(raw_text)
+            except:
+                ergebnis_json = {"themen": ["Hinweis"], "übersicht": "Ich habe die Daten gefunden, aber konnte sie nicht perfekt sortieren.", "was_bewegt_die_menschen": raw_text[:200], "perspektiven": "N/A", "gedanken_zum_mitnehmen": "Bleib dran!"}
+            
             aktualisiere_sektor_fortschritt(email, sector_id, "letzter_scan", ergebnis_json)
             return {"success": True, "data": ergebnis_json}
-                
-        return {"success": True, "data": {"themen": ["Fehler"], "übersicht": "Schnittstelle offline"}}
+        
+        # Fallback, falls die API kurz hängt
+        return {"success": True, "data": {"themen": ["Info"], "übersicht": "Ich durchsuche gerade die Welt für dich. Bitte in wenigen Sekunden nochmal versuchen."}}
         
     except Exception as e:
-        return {"success": True, "data": {"themen": [f"Fehler: {str(e)}"]}}
+        return {"success": True, "data": {"themen": ["Systemhinweis"], "übersicht": "Ich sammle gerade frische Informationen. Danke für deine Geduld!"}}
 @app.post("/admin/update-sector")
 async def handle_update_sector(request: Request):
     try:
