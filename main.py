@@ -651,10 +651,11 @@ async def get_live_ermittlung(sector_id: str, request: Request):
             f"Aktuelle Web-Ergebnisse und Nachrichten für diesen Sektor:\n{google_ergebnisse}\n\n"
             f"Antworte AUSSCHLIESSLICH mit dem nackten JSON-Objekt ohne Einleitung:\n"
             f"EXTRA AUFGABE FÜR DICH:\n"
-            f"Du agierst nur innerhalb des Sektors '{seelen_name}' (ID: {sector_id}).\n"
-            f"Verwende ausschließlich die für diesen Sektor hinterlegte Botschaft: '{admin_message}'\n"
-            f"Integriere diese Botschaft exklusiv für diesen Sektor in den 'lagebericht' und das 'fazit' des Users.\n"
-            f"Behandle diese Botschaft als internen Kerninhalt dieses Sektors und verwebe sie nahtlos in deine Analyse.\n"
+            f"Du agierst innerhalb des Sektors '{seelen_name}' (ID: {sector_id}).\n"
+            f"WICHTIG: Die Analyse des Weltgeschehens basierend auf den Web-Ergebnissen ist deine HAUPTAUFGABE.\n"
+            f"Die hinterlegte Botschaft '{admin_message}' ist lediglich als PERSÖNLICHE RAHMUNG (Einleitung oder Schluss) zu verstehen.\n"
+            f"Integriere diese Botschaft subtil in den 'lagebericht' und das 'fazit', aber lass sie niemals die globale Analyse verdrängen.\n"
+            f"Die Web-Ergebnisse bilden das inhaltliche Fundament für alle JSON-Felder, die Botschaft ist nur die persönliche Note für den User.\n"
             '{"widersprueche": ["...", "..."], "lagebericht": "...", "akteure": "...", "kontrast": "...", "fazit": "...","Ein ehrlicher Blick auf die große Welt und unseren Sektor": "...","gedanken_zum_mitnehmen": "...","Was die Menschen weltweit in diesem Bereich beschäftigt": "..."}'
         ) 
 
