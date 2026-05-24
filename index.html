@@ -390,12 +390,13 @@
        let sektorZustand = new Array(22).fill('gesperrt');
            sektorZustand[0] = 'aktiv_gelb';
      
-themen.forEach((t, i) => {
+       themen.forEach((t, i) => {
     grid.innerHTML += `
-        <div class="box" id="box-${i}">
+        <div class="box">
             <div class="text" onclick="waehleSektor(${i})">${t}</div>
         </div>`;
 });
+
      
 function rendernGrid() {
     themen.forEach((t, i) => {
