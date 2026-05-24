@@ -559,6 +559,19 @@ async function starteScanOptik(themenIndex) {
         textArea.innerHTML = "Scanner-Verbindung fehlgeschlagen."; 
     }
 }
+ function aktualisiereSektorOptik(fortschrittsListe) {
+    fortschrittsListe.forEach((status, i) => {
+        const box = document.getElementById(`sektor-box-${i}`);
+        if (!box) return;
+
+        box.classList.remove('status-blau', 'status-rot', 'status-gelb', 'status-gruen');
+
+        if (status === 'erledigt') box.classList.add('status-gruen');
+        else if (status === 'aktiv') box.classList.add('status-gelb');
+        else if (status === 'wartend') box.classList.add('status-rot');
+        else box.classList.add('status-blau');
+    });
+}    
      
 // EBENE 3: Die emotionale Reise (Bilder KOMPLETT abgewürgt für Wolken-Test!)
 function starteChatHintergrund() {
@@ -739,6 +752,12 @@ async function handleVerifyAccess() {
         if (data.success) {
             userEmail = emailInput; // E-Mail für später merken
             chatVerlauf = data.history || []; // Bestehenden Chat laden
+            
+            // HIER: Die neue Optik-Logik anstoßen
+            if (data.fortschritt) {
+                aktualisiereSektorOptik(data.fortschritt);
+            }
+            
             alert("Zugang gewährt! Willkommen zurück.");
         } else {
             alert("Schlüsselcode ungültig.");
