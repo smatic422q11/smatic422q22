@@ -571,29 +571,28 @@ def aktualisiere_sektor_fortschritt(email, sector_id, daten_typ, inhalt):
         print(f"Fehler beim Speichern des Fortschritts: {e}")
         
 def get_fortschritts_status(user_record):
-    """
-    Erstellt das Array für das Frontend (20 Sektoren).
-    Status: 'geschlossen', 'wartend', 'aktiv', 'erledigt'
-    """
     status_liste = []
-    # Angenommen, 'sector_statuses' ist ein Dict in MongoDB, z.B. {"0": "secure", "1": "secure"}
+    # Hole die bisherigen Erfolge
     gespeicherte_status = user_record.get("sector_statuses", {})
     
-    # Wir iterieren durch alle 20 Sektoren (0 bis 19)
-    for i in range(20):
-        s_id = str(i)
-        backend_status = gespeicherte_status.get(s_id, "")
-        
-        if backend_status == "secure":
-            status_liste.append("erledigt")
-        elif backend_status == "open":
-            status_liste.append("aktiv")
-        elif backend_status == "waiting":
-            status_liste.append("wartend")
-        else:
-            status_liste.append("geschlossen")
+    # Finde den ersten Sektor, der noch NICHT 'secure' (erledigt) ist
+    erster_offener_sektor = -1
+    for i in range(22):
+        if gespeicherte_status.get(str(i)) != "secure":
+            erster_offener_sektor = i
+            break
             
-    return status_liste        
+    # Jetzt generieren wir das Array:
+    for i in range(22):
+        s_id = str(i)
+        if gespeicherte_status.get(s_id) == "secure":
+            status_liste.append("erledigt") # Grün
+        elif i == erster_offener_sektor:
+            status_liste.append("aktiv")    # Gelb (Blinkend)
+        else:
+            status_liste.append("geschlossen") # Blau (Alles andere)
+            
+    return status_liste
         
 # 2. Anpassung in der Live-Ermittlung, damit Gemini den Kontext versteht
 @app.post("/get-live-ermittlung/{sector_id}")
