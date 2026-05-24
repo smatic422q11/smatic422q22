@@ -459,25 +459,13 @@ async def chat(request: Request):
         current_soul = SECTOR_SOULS.get(sector_id, "Begleiter.")
 
         # ERWEITERUNG DER INSTRUKTION FÜR DEN BUCH-KONTEXT ODER FREIE INTERAKTION
-        system_instruction = (
-            f"IDENTITÄT: Du bist {current_name}, Seele: {current_soul}. "
-            f"KOLLEKTIVES WISSEN: Das gesamte 20-Seelen-Kollektiv arbeitet für {user_name}. "
-            f"DEIN GEGENÜBER: Der User ist {user_name}. " 
-            f"AUFGABE: Wenn dies dein erster kontakt in diesem Sektor ist, BEGRÜSSE {user_name} UNBEDINGT mit seinem Namen. "
-            f"ZEIT: {user_time}. BIO: {bio_context}. "
-            "REGEL: Blende die Uhrzeit NIEMALS starr ein. "
-            "REGEL: Wenn der User 'Gefühlsvorderung' sagt, blende immer ein 'V' ein. "
-            "STIL: Kurz, knackig, direkt. Wahrheit mit 'W'. "
-            
-            # BUCH-LOGIK FÜR DIE SEELEN
-            "HINTERGRUND: Der User nutzt das System zur freien Meinungsbildung ODER schreibt an seiner Biografie für sein E-Book. "
-            "WICHTIG FÜR DEN SEKTOR-ABSCHLUSS: Wenn der User seine Stellungnahme/Sichtweise in diesem Chat klar dargelegt hat "
-            "und das Thema dieses Sektors für die Biografie im Kern ausgearbeitet ist, füge AM ENDE deiner Antwort exakt: [SEKTOR_DONE] hinzu. "
-            
-            "WICHTIG FÜR DAS KOLLEKTIV: Wenn der User dir in diesem Sektor zum ersten Mal seinen echten Namen nennt "
-            "oder seinen Namen korrigiert, schreibe AM ENDE deiner Antwort exakt: [NEUER_NAME:HierDerName]. "
-            "Ersetze 'HierDerName' durch den tatsächlichen Namen des Users (z.B. [NEUER_NAME:Goran])."
-        )
+       system_instruction = (
+       f"IDENTITÄT: Du bist der Chronist und Archivar für {seelen_name}. "
+       f"AUFGABE: Beobachte die Entwicklung von {user_name} und spiegle seine Gedanken im Kontext des kollektiven Gedächtnisses der M&M Community. "
+       f"STIL: Sachlich, biografisch, reflektiert. Keine klinischen Diagnosen. "
+       "REGEL: Wenn der User 'Gefühlsvorderung' sagt, blende ein 'V' ein. "
+       "REGEL: Wenn das Thema für die Biografie im Kern ausgearbeitet ist, füge am Ende: [SEKTOR_DONE] hinzu. "
+       )
 
         messages_for_gemini = user_record.get("sector_histories", {}).get(sector_id, []) if user_record else []
 
@@ -625,12 +613,16 @@ async def get_live_ermittlung(sector_id: str, request: Request):
         seelen_name = SECTOR_NAMES.get(sector_id, "KI")
 
         prompt = (
-            f"Du bist der unbestechliche KI-Scanner für Sektor: {seelen_name}.\n"
-            f"Aufgabe: Eine tiefe, ausführliche Live-Ermittlung für den User ({user_name}) in der M&M Community.\n"
-            f"Nutze den Platz maximal aus. Schreibe lange Analysen.\n\n"
+            f"Du bist der biografische Begleiter für Sektor: {seelen_name}.\n"
+            f"Aufgabe: Erstelle eine fundierte Reflexion für den User ({user_name}) im Kontext der M&M Community.\n"
+            f"Nutze den Platz maximal aus. Schreibe detaillierte, reflektierte Beobachtungen über den biografischen Fortschritt.\n\n"
             f"DATEN:\n{google_ergebnisse}\n\n"
             f"Antworte AUSSCHLIESSLICH mit dem nackten JSON-Objekt ohne Einleitung.\n"
-            '{"widersprueche": ["...", "..."], "lagebericht": "...", "akteure": "...", "kontrast": "...", "fazit": "..."}'
+            '{"themen_resonanz": "Wie reagiert der User auf die sektor-spezifische These?", '
+            '"charakter_entwicklung": "Welche persönliche Entwicklung zeigt der User in diesem Sektor?", '
+            '"biografie_fortschritt": "Welche Erkenntnisse wurden für das eBook gewonnen?", '
+            '"community_kontrast": "Wie fügt sich der User in das kollektive Gedächtnis ein?", '
+            '"fazit_chronik": "Zusammenfassender biografischer Lagebericht."}'
         )
         api_key = os.getenv("GEMINI_API_KEY")   
         if api_key:
