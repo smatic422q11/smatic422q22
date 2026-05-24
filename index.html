@@ -408,26 +408,6 @@ function synchronisiereSektoren(statusArray) {
     // Nach dem Sync zeichnen wir die Boxen neu
     updateBoxFarben();
 }
-function updateBoxFarben() {
-    themen.forEach((t, i) => {
-        const box = document.getElementById(`box-${i}`);
-        if (box) {
-            let aktiverIndex = sektorZustand.indexOf('aktiv_gelb');
-            
-            // Logik: Grün, Gelb(Blinken) oder Gesperrt
-            if (sektorZustand[i] === 'erledigt_gruen') {
-                box.className = 'box erledigt_gruen';
-            } else if (i === aktiverIndex) {
-                box.className = 'box aktiv_gelb blink-animation';
-            } else {
-                box.className = 'box gesperrt';
-            }
-        } else {
-            console.warn("Box nicht gefunden: box-" + i);
-        }
-    });
-}
-     
 function waehleSektor(id) {
     // 1. Wächter: Authentifizierung
     if (userEmail === "") {
