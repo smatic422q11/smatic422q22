@@ -427,20 +427,6 @@ function updateBoxFarben() {
         }
     });
 }
-
-function schliesseSektorAb(id) {
-    // 1. Aktuellen grün machen
-    sektorZustand[id] = 'erledigt_gruen';
-    
-    // 2. Nächsten aktivieren (gelb blinkend)
-    let naechster = parseInt(id) + 1;
-    if (naechster < sektorZustand.length) {
-        sektorZustand[naechster] = 'aktiv_gelb';
-    }
-    
-    // 3. Optik sofort aktualisieren
-    updateBoxFarben();
-}
      
 function waehleSektor(id) {
     // 1. Wächter: Authentifizierung
