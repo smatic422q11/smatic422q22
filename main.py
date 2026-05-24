@@ -623,8 +623,7 @@ async def get_live_ermittlung(sector_id: str, request: Request):
             f"Aufgabe: Eine tiefe, ausführliche Live-Ermittlung für den User ({user_name}) in der M&M Community.\n"
             f"charakter_entwicklung: "Welche persönliche Entwicklung zeigt der User in diesem Sektor?",\n'
             f"Nutze den Platz maximal aus. Schreibe lange Analysen.\n\n"
-            f"DATEN:\n{google_ergebnisse}\n\n"
-            f"themen_resonanz: "Wie reagiert der User auf die sektor-spezifische These?",\n'
+            f"themen_resonanz: Wie reagiert der User auf die sektor-spezifische These.\n'
             f"Antworte AUSSCHLIESSLICH mit dem nackten JSON-Objekt ohne Einleitung.\n"
             '{"widersprueche": ["...", "..."], "lagebericht": "...", "akteure": "...", "kontrast": "...", "fazit": "..."}'
         )
