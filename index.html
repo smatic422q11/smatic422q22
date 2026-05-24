@@ -702,6 +702,16 @@ async function ladeNeueAdminStats() {
     } catch (e) { console.error("Fehler beim Laden der Admin-Stats:", e); }
 }
 
+     
+async function ladeNeueAdminStats() {
+    const zaehler = document.getElementById('admin-schluessel-zaehler');
+    try {
+       const response = await fetch('/admin/stats');
+        const data = await response.json();
+        if (data.success && zaehler) { zaehler.innerText = data.total_souls; }
+    } catch (e) { console.error("Fehler beim Laden der Admin-Stats:", e); }
+}
+
 
      
 async function ladeNeueAdminStats() {
