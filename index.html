@@ -402,29 +402,25 @@
 });
 
 function waehleSektor(id) {
-    // 1. ADMIN-CHECK (Türöffner für dich)
+    // 1. ADMIN-CHECK
     const adminMail = document.getElementById('db-mail').value.trim();
-    const isAdmin = (adminMail === "mmcommunity22@gmail.com"); // Deine Admin-Mail
+    const isAdmin = (adminMail === "mmcommunity22@gmail.com");
 
-    // 2. SPERR-LOGIK (Nur für normale User aktiv)
+    // 2. SPERR-LOGIK
     const box = document.getElementById(`sektor-box-${id}`);
-    
-    // Wenn NICHT Admin UND die Box ist blau -> Sperren
     if (!isAdmin && box && box.classList.contains('status-blau')) {
         alert("Dieser Sektor ist noch verschlossen. Vollende erst deine aktuelle Mission.");
         return; 
     }
 
-    // 3. BESTEHENDE LOGIK (Läuft für alle weiter)
+    // 3. BESTEHENDE LOGIK (Chat-Verläufe laden)
     aktuelleSektorId = id.toString();
     const chatBox = document.getElementById('chat-box');
 
-    // Falls Sektor-Speicher leer ist, neu anlegen
     if (!alleSektorenVerlaeufe[aktuelleSektorId]) {
         alleSektorenVerlaeufe[aktuelleSektorId] = [];
         chatBox.innerHTML = `<i>Verbindung zu Sektor ${themen[id]} (${seelenNamen[id]}) bereit...</i>`;
     } else {
-        // Chat-Fenster leeren und alte Nachrichten dieses Sektors laden
         chatBox.innerHTML = "";
         alleSektorenVerlaeufe[aktuelleSektorId].forEach(msg => {
             const istUser = msg.role === "user";
@@ -434,13 +430,13 @@ function waehleSektor(id) {
         });
     }
 
-    // 4. EBENEN-WECHSEL (Spezial-Logik für 21 & 22 einbauen, falls nötig)
+    // 4. BESTEHENDER EBENEN-WECHSEL (Genau wie vorher, ohne ID als 2. Parameter, falls das dein Problem war)
     if (id == 20) {
-        wechselEbene('ebene21', id);
+        wechselEbene('ebene21');
     } else if (id == 21) {
-        wechselEbene('ebene22', id);
+        wechselEbene('ebene22');
     } else {
-        wechselEbene('ebene2', id);
+        wechselEbene('ebene2', id); // Hier behalten wir id, falls deine Funktion das braucht
     }
 }
         const adminSelect = document.getElementById('admin-sektor-auswahl'); if (adminSelect) { themen.forEach((t, i) => { adminSelect.innerHTML += `<option value="${i}">Sektor ${i+1}: ${t}</option>`; }); }
