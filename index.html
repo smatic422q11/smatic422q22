@@ -380,11 +380,35 @@
        let sektorZustand = new Array(22).fill('gesperrt');
      
        themen.forEach((t, i) => {
-    grid.innerHTML += `
+     grid.innerHTML += `
         <div class="box">
             <div class="text" onclick="waehleSektor(${i})">${t}</div>
         </div>`;
 });
+     
+function synchronisiereSektoren(statusArray) {
+    // statusArray kommt vom Server (z.B. ["erledigt", "erledigt", "aktiv", ...])
+    // Wir mappen das auf deine CSS-Klassen
+    statusArray.forEach((s, i) => {
+        if (s === "erledigt") sektorZustand[i] = 'erledigt_gruen';
+        else if (s === "aktiv") sektorZustand[i] = 'aktiv_gelb';
+        else if (s === "wartend") sektorZustand[i] = 'wartet_rot';
+        else sektorZustand[i] = 'gesperrt';
+    });
+    
+    // Nach dem Sync zeichnen wir die Boxen neu
+    updateBoxFarben();
+}
+
+function updateBoxFarben() {
+    const boxen = document.querySelectorAll('.box');
+    boxen.forEach((box, i) => {
+        // Wir setzen die Klasse basierend auf dem Zustand
+        let blinken = (sektorZustand[i] === 'aktiv_gelb') ? ' blink-animation' : '';
+        box.className = 'box ' + sektorZustand[i] + blinken;
+    });
+}
+      
 function waehleSektor(id) {
     // DER WÄCHTER: Wenn keine E-Mail gesetzt ist, wird der Klick ignoriert
     if (userEmail === "") {
