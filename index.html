@@ -388,36 +388,31 @@
        let alleSektorenVerlaeufe = {};
        let globaleBiografieDaten = "";
        let sektorZustand = new Array(22).fill('gesperrt');
-sektorZustand[0] = 'aktiv_gelb';
-
-// 2. NUR diese eine Funktion baut alles
+           sektorZustand[0] = 'aktiv_gelb';
+     
+themen.forEach((t, i) => {
+    grid.innerHTML += `
+        <div class="box" id="box-${i}">
+            <div class="text" onclick="waehleSektor(${i})">${t}</div>
+        </div>`;
+});
+     
 function rendernGrid() {
-    const grid = document.getElementById('main-grid');
-    if (!grid) return; // Sicherheits-Check
-    
-    grid.innerHTML = ""; 
-    
     themen.forEach((t, i) => {
-        let klasse = "box " + (sektorZustand[i] || 'gesperrt'); 
-        let blinken = (sektorZustand[i] === 'aktiv_gelb') ? 'blink-animation' : '';
-        
-        grid.innerHTML += `
-            <div class="${klasse} ${blinken}" onclick="waehleSektor(${i})">
-                <div class="text">${t}</div>
-            </div>`;
+        const box = document.getElementById(`box-${i}`);
+        if (box) {
+            // Klassen resetten und neue zuweisen
+            box.className = "box " + sektorZustand[i] + " " + 
+                            (sektorZustand[i] === 'aktiv_gelb' ? 'blink-animation' : '');
+        }
     });
 
+    // Fundament färben
     const box21 = document.getElementById('sektor21-box');
     const box22 = document.getElementById('sektor22-box');
-    if (box21) box21.className = 'fundament-box ' + (sektorZustand[20] || 'gesperrt');
-    if (box22) box22.className = 'fundament-box ' + (sektorZustand[21] || 'gesperrt');
+    if (box21) box21.className = 'fundament-box ' + sektorZustand[20];
+    if (box22) box22.className = 'fundament-box ' + sektorZustand[21];
 }
-
-// 3. WICHTIG: Erst nach dem Laden der Seite ausführen
-window.onload = function() {
-    rendernGrid();
-};
-    
      
 function waehleSektor(id) {
     // 1. Authentifizierung prüfen (Der Anker)
