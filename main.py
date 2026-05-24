@@ -625,17 +625,15 @@ async def get_live_ermittlung(sector_id: str, request: Request):
         seelen_name = SECTOR_NAMES.get(sector_id, "KI")
 
         prompt = (
-            
-            f"Du bist der biografische Begleiter für Sektor: {seelen_name}.\n"
-            f"Aufgabe: Erstelle eine fundierte Reflexion für den User ({user_name}) im Kontext der M&M Community.\n"
-            f"Nutze den Platz maximal aus. Schreibe detaillierte, reflektierte Beobachtungen über den biografischen Fortschritt.\n\n"
-            f"DATEN:\n{google_ergebnisse}\n\n"
-            f"themen_resonanz": "Wie reagiert der User auf die sektor-spezifische These?",\n'
-            f"charakter_entwicklung": "Welche persönliche Entwicklung zeigt der User in diesem Sektor?",\n'
-            f"biografie_fortschritt": "Welche Erkenntnisse wurden für das eBook gewonnen?",\n'
-            f"community_kontrast": "Wie fügt sich der User in das kollektive Gedächtnis ein?",\n'
-            f"fazit_chronik": "Zusammenfassender biografischer Lagebericht."\n'
-            '{"widersprueche": ["...", "..."], "lagebericht": "...", "akteure": "...", "kontrast": "...", "fazit": "..."}'
+            f"Antworte AUSSCHLIESSLICH mit dem nackten JSON-Objekt ohne Einleitung.\n"
+            f"{{\n"
+            f'"themen_resonanz": "Wie reagiert der User auf die sektor-spezifische These?",\n'
+            f'"charakter_entwicklung": "Welche persönliche Entwicklung zeigt der User in diesem Sektor?",\n'
+            f'"biografie_fortschritt": "Welche Erkenntnisse wurden für das eBook gewonnen?",\n'
+            f'"community_kontrast": "Wie fügt sich der User in das kollektive Gedächtnis ein?",\n'
+            f'"fazit_chronik": "Zusammenfassender biografischer Lagebericht."\n'
+            f"}}"
+            '{"widersprueche": ["...", "..."], "lagebericht": "...", "akteure": "...", "kontrast": "...", "fazit": "..."}'   
         )
         api_key = os.getenv("GEMINI_API_KEY")   
         if api_key:
