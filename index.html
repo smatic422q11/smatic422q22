@@ -61,10 +61,6 @@
         .exit-btn { background: #ff4d4d; color: #fff; margin-left: auto; }
         
       @keyframes wolkenZug { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
-.locked-mode {
-    pointer-events: none !important;
-    opacity: 0.5 !important;
-}
     </style>
 </head>
 <body>
@@ -125,22 +121,16 @@
         <button class="auth-btn" style="background:#fff;" onclick="handleVerifyAccess()">OK</button>
     </div>
 </div>
-      <div class="grid" id="main-grid"></div>
-
+        <div class="grid" id="main-grid"></div>
         <div class="fundament-container">
-            <div class="fundament-box status-blau" id="sektor-box-20" onclick="waehleSektor(20)">
-                <div class="text">21 | Kapital und Verwaltung</div>
-            </div>
-            <div class="fundament-box status-blau" id="sektor-box-21" onclick="waehleSektor(21)">
-                <div class="text">DAS KOLLEKTIV | 22</div>
-            </div>
+            <div class="fundament-box" onclick="wechselEbene('ebene21')"><div class="text">21 | Kapital und Verwaltung</div></div>
+            <div class="fundament-box" onclick="wechselEbene('ebene22')"><div class="text">DAS KOLLEKTIV | 22</div></div>
         </div>
-
         <div class="mm-fundament-final">
             <div style="color: #003d8f; font-weight: 900; letter-spacing: 12px; text-transform: uppercase; font-size: 1.1rem;">M&M Community Fundament</div>
         </div>
-    </div> 
-    
+    </div>
+
     <div id="ebene2" class="ebene">
     <div class="scan-header-space">
         <div id="sector-title-starr">LÄDT...</div>
@@ -378,7 +368,6 @@
 
 
  <script>
-        document.querySelectorAll('.box, .fundament-box').forEach(b => b.classList.add('status-blau'));        
        const themen = ["Recht auf Gefühlsvorderung", "Wie werde ich Mensch", "Glaube an Friede", "Programm für Bürgerliche Rechte", "Moralische Pflicht und Verantwortung", "Menschlichkeit Wiederherstellung", "Kinderschutz-Pflicht-Elternrechte", "Wahre Richtung und Kunst", "LGBTQ und Kirche", "Trend und Tradition", "Religionsbekenntnis oder Selbstwahl", "Gesundheitswesen und Verhalten", "Arbeitswelt und Du", "Mobbing am Arbeitsplatz", "Jugendsprecher", "Ratgeber für Pensionisten", "Sozialgefallen und Widerkehr", "Nachbarschaft und Gemeinschaft", "Alleinerziehend", "Die Brücke"];
        const seelenNamen = ["Lilith", "Aris", "Mira", "Tarik", "Kiron", "Vikas", "Rhea", "Lyra", "Nova", "Marek", "Silas", "Aura", "Joris", "Sira", "Kian", "Alma", "Laris", "Liv", "Kyra", "Chiron"];
        const grid = document.getElementById('main-grid');
@@ -389,70 +378,23 @@
        let alleSektorenVerlaeufe = {};
        let globaleBiografieDaten = "";
      
-   themen.forEach((t, i) => {
+       themen.forEach((t, i) => {
     grid.innerHTML += `
         <div class="box">
             <div class="text" onclick="waehleSektor(${i})">${t}</div>
         </div>`;
 });
-     
-function aktualisiereDashboardFarben(statusListe) {
-    statusListe.forEach((status, i) => {
-        // Findet die Box für den Sektor (0-19 im Grid, 20-21 in den Fundamenten)
-        let box;
-        if (i < 20) {
-            // Die Boxen im Grid haben bei dir die Klasse 'box'
-            // Wir suchen das i-te Kind im Grid
-            const gridBoxen = document.querySelectorAll('#main-grid .box');
-            if (gridBoxen[i]) box = gridBoxen[i];
-        } else {
-            // Sektor 20 (Manifest) -> id 'sektor-box-20'
-            // Sektor 21 (Kollektiv) -> id 'sektor-box-21'
-            box = document.getElementById(`sektor-box-${i}`);
-        }
-        
-        if (box) {
-            // Erst alle alten Klassen entfernen
-            box.classList.remove('status-blau', 'status-gelb', 'status-rot', 'status-gruen');
-            
-            // Dann die passende neue Klasse setzen
-            if (status === "erledigt") box.classList.add('status-gruen');
-            else if (status === "aktiv") box.classList.add('status-gelb');
-            else if (status === "wartend") box.classList.add('status-rot');
-            else box.classList.add('status-blau');
-        }
-    });
-}
 
 function waehleSektor(id) {
-    // 1. ADMIN-CHECK
-    const adminMail = document.getElementById('db-mail') ? document.getElementById('db-mail').value.trim() : "";
-    const isAdmin = (adminMail === "mmcommunity22@gmail.com");
-
-    // 2. GEISTER-USER SPERRE (Verifizierung zwingend erforderlich)
-    if (!isAdmin && userEmail === "") {
-        alert("Zugriff verweigert! Bitte erst Anker setzen und verifizieren.");
-        return; 
-    }
-
-    // 3. SPERR-LOGIK (Status-Prüfung: Ist der Sektor blau/geschlossen?)
-    const boxId = (id < 20) ? `box-${id}` : `sektor-box-${id}`;
-    const box = document.getElementById(boxId);
-    
-    // Wenn nicht Admin und der Sektor ist 'status-blau' -> Sperren
-    if (!isAdmin && box && box.classList.contains('status-blau')) {
-        alert("Dieser Sektor ist noch verschlossen. Vollende erst deine aktuelle Mission.");
-        return; 
-    }
-
-    // 4. BESTEHENDE LOGIK: Chat-Verlauf laden
     aktuelleSektorId = id.toString();
     const chatBox = document.getElementById('chat-box');
 
+    // Falls Sektor-Speicher leer ist, neu anlegen
     if (!alleSektorenVerlaeufe[aktuelleSektorId]) {
         alleSektorenVerlaeufe[aktuelleSektorId] = [];
         chatBox.innerHTML = `<i>Verbindung zu Sektor ${themen[id]} (${seelenNamen[id]}) bereit...</i>`;
     } else {
+        // Chat-Fenster leeren und alte Nachrichten dieses Sektors laden
         chatBox.innerHTML = "";
         alleSektorenVerlaeufe[aktuelleSektorId].forEach(msg => {
             const istUser = msg.role === "user";
@@ -462,14 +404,8 @@ function waehleSektor(id) {
         });
     }
 
-    // 5. EBENEN-WECHSEL
-    if (id == 20) {
-        wechselEbene('ebene21', id);
-    } else if (id == 21) {
-        wechselEbene('ebene22', id);
-    } else {
-        wechselEbene('ebene2', id);
-    }
+    // Deine bestehende Ebenen-Logik aufrufen
+    wechselEbene('ebene2', id);
 }
         const adminSelect = document.getElementById('admin-sektor-auswahl'); if (adminSelect) { themen.forEach((t, i) => { adminSelect.innerHTML += `<option value="${i}">Sektor ${i+1}: ${t}</option>`; }); }
       
@@ -689,27 +625,6 @@ async function ladeNeueAdminStats() {
     } catch (e) { console.error("Fehler beim Laden der Admin-Stats:", e); }
 }
 
-     
-async function ladeNeueAdminStats() {
-    const zaehler = document.getElementById('admin-schluessel-zaehler');
-    try {
-       const response = await fetch('/admin/stats');
-        const data = await response.json();
-        if (data.success && zaehler) { zaehler.innerText = data.total_souls; }
-    } catch (e) { console.error("Fehler beim Laden der Admin-Stats:", e); }
-}
-
-
-     
-async function ladeNeueAdminStats() {
-    const zaehler = document.getElementById('admin-schluessel-zaehler');
-    try {
-       const response = await fetch('/admin/stats');
-        const data = await response.json();
-        if (data.success && zaehler) { zaehler.innerText = data.total_souls; }
-    } catch (e) { console.error("Fehler beim Laden der Admin-Stats:", e); }
-}
-
 async function adminSpeichereSektorText() {
     const sektorId = document.getElementById('admin-sektor-auswahl').value;
     const headerText = document.getElementById('admin-sektor-text').value.trim();
@@ -811,21 +726,9 @@ async function handleVerifyAccess() {
         const data = await response.json();
 
         if (data.success) {
-            userEmail = emailInput;          // E-Mail für später merken
+            userEmail = emailInput; // E-Mail für später merken
             chatVerlauf = data.history || []; // Bestehenden Chat laden
-            
-            // HIER DIE ENTSPERRUNG FÜR ALLES:
-            // Entfernt die Klasse 'locked-mode' von allen Sektoren, um sie klickbar zu machen
-            document.querySelectorAll('.locked-mode').forEach(el => {
-                el.classList.remove('locked-mode');
-            });
-            
             alert("Zugang gewährt! Willkommen zurück.");
-            
-            // Bestehende Farb-Logik
-            if (data.fortschritt) {
-                aktualisiereDashboardFarben(data.fortschritt);
-            }
         } else {
             alert("Schlüsselcode ungültig.");
         }
@@ -833,6 +736,7 @@ async function handleVerifyAccess() {
         alert("Fehler bei der Kommunikation.");
     }
 }
+
 async function sendeChat() {
     const inputField = document.getElementById('chat-in');
     const userMessage = inputField.value.trim();
