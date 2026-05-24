@@ -389,25 +389,27 @@
        let globaleBiografieDaten = "";
        let sektorZustand = new Array(20).fill('gesperrt');
             sektorZustand[0] = 'aktiv_gelb'; // Startet immer bei Sektor 1
-
      
-    function rendernGrid() {
+// Diese Funktion ersetzt deinen alten Block komplett
+function rendernGrid() {
     const grid = document.getElementById('main-grid');
-    console.log("Rendern gestartet..."); // Prüfzeile für die Konsole
     
-    if (!grid) {
-        console.error("Fehler: main-grid wurde nicht gefunden!");
-        return;
-    }
-
+    // Wir leeren das Grid und bauen es sofort mit der Logik neu auf
     grid.innerHTML = ""; 
+    
     themen.forEach((t, i) => {
-        grid.innerHTML += `<div class="box">BOX ${i}</div>`; // Einfacher Test
+        // Hier entscheiden wir: Wie sieht die Box aus?
+        let klasse = "box " + sektorZustand[i]; 
+        let blinken = (sektorZustand[i] === 'aktiv_gelb') ? 'blink-animation' : '';
+        
+        // Hier bauen wir das HTML für jede einzelne Box
+        grid.innerHTML += `
+            <div class="${klasse} ${blinken}" onclick="waehleSektor(${i})">
+                <div class="text">${t}</div>
+            </div>`;
     });
-    console.log("Rendern abgeschlossen.");
-}
 
-    // Unteres Fundament (20-21, was Sektoren 21 & 22 entspricht)
+    // Jetzt die Fundament-Boxen (21 & 22)
     const box21 = document.getElementById('sektor21-box');
     const box22 = document.getElementById('sektor22-box');
     
@@ -415,8 +417,10 @@
     if (box22) box22.className = 'fundament-box ' + sektorZustand[21];
 }
 
-// EINMALIGER START: Rendert das Grid direkt beim Laden der Seite
+// JETZT FÜHREN WIR ES EINMALIG AUS, DAMIT DIE BOXEN DA SIND
 rendernGrid();
+     
+    
      
 function waehleSektor(id) {
     // 1. Authentifizierung prüfen (Der Anker)
