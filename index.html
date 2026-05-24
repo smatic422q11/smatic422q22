@@ -389,6 +389,18 @@
        let globaleBiografieDaten = "";
        let sektorZustand = new Array(20).fill('gesperrt');
             sektorZustand[0] = 'aktiv_gelb'; // Startet immer bei Sektor 1
+
+     themen.forEach((t, i) => {
+    // 1. Klasse ermitteln (gesperrt, gelb, rot, grün)
+    let zustandKlasse = sektorZustand[i];
+    // 2. Blink-Animation nur, wenn Sektor aktiv (gelb) ist
+    let blinkenKlasse = (sektorZustand[i] === 'aktiv_gelb') ? 'blink-animation' : '';
+
+    grid.innerHTML += `
+        <div class="box ${zustandKlasse} ${blinkenKlasse}">
+            <div class="text" onclick="waehleSektor(${i})">${t}</div>
+        </div>`;
+});
      
 // Diese Funktion ersetzt deinen alten Block komplett
 function rendernGrid() {
