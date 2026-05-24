@@ -618,11 +618,12 @@ async def get_live_ermittlung(sector_id: str, request: Request):
         seelen_name = SECTOR_NAMES.get(sector_id, "KI")
 
         prompt = (
+            f"DATEN AUS DEM SEKTOR:\n{google_ergebnisse}\n\n"
+            f"DATEN:\n{google_ergebnisse}\n\n"
             f"Du bist das kollektive Gedächtnis der M&M Community, spezialisiert auf den Sektor: {seelen_name}.\n"
             f"Du bist der biografische Begleiter für den Sektor: {seelen_name}.\n"          
             f"Aufgabe: Eine tiefe, ausführliche Live-Ermittlung für den User ({user_name}) in der M&M Community.\n"  
             f"Nutze den Platz maximal aus. Schreibe lange Analysen.\n\n"
-            f"DATEN:\n{google_ergebnisse}\n\n"
             f"Antworte AUSSCHLIESSLICH mit dem nackten JSON-Objekt ohne Einleitung.\n"
             '{"widersprueche": ["...", "..."], "google_ergebnisse": "...", "lagebericht": "...", "akteure": "...", "kontrast": "...", "fazit": "..."}'
         )
