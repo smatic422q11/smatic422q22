@@ -386,20 +386,13 @@
        let alleSektorenVerlaeufe = {};
        let globaleBiografieDaten = "";
      
-  themen.forEach((t, i) => {
+   themen.forEach((t, i) => {
     grid.innerHTML += `
-        <div class="box" style="pointer-events: none; opacity: 0.5;">
+        <div class="box">
             <div class="text" onclick="waehleSektor(${i})">${t}</div>
         </div>`;
-});    
-     grid.innerHTML += `
-    <div class="box" style="pointer-events: none; opacity: 0.5;">
-        <div class="text">21 | Kapital und Verwaltung</div>
-    </div>
-    <div class="box" style="pointer-events: none; opacity: 0.5;">
-        <div class="text">Das Kollektiv | 22</div>
-    </div>`;
-    
+});
+     
 function aktualisiereDashboardFarben(statusListe) {
     statusListe.forEach((status, i) => {
         // Findet die Box für den Sektor (0-19 im Grid, 20-21 in den Fundamenten)
