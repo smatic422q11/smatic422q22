@@ -764,9 +764,19 @@ async function handleVerifyAccess() {
         const data = await response.json();
 
         if (data.success) {
-            userEmail = emailInput; // E-Mail für später merken
-            chatVerlauf = data.history || []; // Bestehenden Chat laden
-            alert("Zugang gewährt! Willkommen zurück.");
+            userEmail = emailInput; 
+            
+            // 1. Chat laden (dein bestehender Code)
+            chatVerlauf = data.history || []; 
+            
+            // 2. DAS BETRIEBSSYSTEM AKTIVIEREN
+            // Wir übergeben das 'fortschritt'-Array (die Liste der Zustände), 
+            // das vom Server kommt, direkt an dein Farbsystem.
+            if (data.fortschritt) {
+                synchronisiereSektoren(data.fortschritt);
+            }
+            
+            alert("Zugang gewährt! Willkommen zurück. Sektoren-Status synchronisiert.");
         } else {
             alert("Schlüsselcode ungültig.");
         }
