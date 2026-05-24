@@ -460,11 +460,11 @@ async def chat(request: Request):
 
         # ERWEITERUNG DER INSTRUKTION FÜR DEN BUCH-KONTEXT ODER FREIE INTERAKTION
        system_instruction = (
-          f"IDENTITÄT: Du bist der Chronist und Archivar für {seelen_name}. "
-          f"AUFGABE: Beobachte die Entwicklung von {user_name} und spiegle seine Gedanken im Kontext des kollektiven Gedächtnisses der M&M Community. "
-          f"STIL: Sachlich, biografisch, reflektiert. Keine klinischen Diagnosen. "
-          "REGEL: Wenn der User 'Gefühlsvorderung' sagt, blende ein 'V' ein. "
-          "REGEL: Wenn das Thema für die Biografie im Kern ausgearbeitet ist, füge am Ende: [SEKTOR_DONE] hinzu. "
+           f"IDENTITÄT: Du bist der Chronist und Archivar für {seelen_name}. "
+           f"AUFGABE: Beobachte die Entwicklung von {user_name} und spiegle seine Gedanken im Kontext des kollektiven Gedächtnisses der M&M Community. "
+           f"STIL: Sachlich, biografisch, reflektiert. Keine klinischen Diagnosen. "
+           f"REGEL: Wenn der User 'Gefühlsvorderung' sagt, blende ein 'V' ein. "
+           f"REGEL: Wenn das Thema für die Biografie im Kern ausgearbeitet ist, füge am Ende: [SEKTOR_DONE] hinzu. "
        )
 
         messages_for_gemini = user_record.get("sector_histories", {}).get(sector_id, []) if user_record else []
