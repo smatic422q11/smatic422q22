@@ -61,15 +61,6 @@
         .exit-btn { background: #ff4d4d; color: #fff; margin-left: auto; }
         
       @keyframes wolkenZug { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
-
-  .box.gesperrt { border-color: #003d8f; opacity: 0.5; cursor: not-allowed; }
-.box.aktiv_gelb { border-color: #ffd700; border-width: 3px; }
-.box.wartet_rot { border-color: #ff4d4d; }
-.box.erledigt_gruen { border-color: #00ff00; }
-
-@keyframes blinken { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
-.blink-animation { animation: blinken 1.5s infinite; }
-        
     </style>
 </head>
 <body>
@@ -132,9 +123,9 @@
 </div>
         <div class="grid" id="main-grid"></div>
         <div class="fundament-container">
-        <div class="fundament-box" id="sektor21-box" onclick="waehleSektor(20)"><div class="text">21 | Kapital und Verwaltung</div></div>
-       <div class="fundament-box" id="sektor22-box" onclick="waehleSektor(21)"><div class="text">DAS KOLLEKTIV | 22</div></div>
-</div>
+            <div class="fundament-box" onclick="wechselEbene('ebene21')"><div class="text">21 | Kapital und Verwaltung</div></div>
+            <div class="fundament-box" onclick="wechselEbene('ebene22')"><div class="text">DAS KOLLEKTIV | 22</div></div>
+        </div>
         <div class="mm-fundament-final">
             <div style="color: #003d8f; font-weight: 900; letter-spacing: 12px; text-transform: uppercase; font-size: 1.1rem;">M&M Community Fundament</div>
         </div>
@@ -375,63 +366,26 @@
     </div>
 </div>
 
- <script> 
-     let sektorZustand = new Array(22).fill('gesperrt');
-     sektorZustand[0] = 'aktiv_gelb';
-    const themen = ["Recht auf Gefühlsvorderung", "Wie werde ich Mensch", "Glaube an Friede", "Programm für Bürgerliche Rechte", "Moralische Pflicht und Verantwortung", "Menschlichkeit Wiederherstellung", "Kinderschutz-Pflicht-Elternrechte", "Wahre Richtung und Kunst", "LGBTQ und Kirche", "Trend und Tradition", "Religionsbekenntnis oder Selbstwahl", "Gesundheitswesen und Verhalten", "Arbeitswelt und Du", "Mobbing am Arbeitsplatz", "Jugendsprecher", "Ratgeber für Pensionisten", "Sozialgefallen und Widerkehr", "Nachbarschaft und Gemeinschaft", "Alleinerziehend", "Die Brücke"];
-    const seelenNamen = ["Lilith", "Aris", "Mira", "Tarik", "Kiron", "Vikas", "Rhea", "Lyra", "Nova", "Marek", "Silas", "Aura", "Joris", "Sira", "Kian", "Alma", "Laris", "Liv", "Kyra", "Chiron"];
-    let aktuelleEbeneIdx = 1;
-    let userEmail = ""; 
-    let aktuelleSektorId = "0";
-    let alleSektorenVerlaeufe = {};
-    let globaleBiografieDaten = "";
 
-    // 2. Warten bis HTML wirklich bereit ist, dann bauen
-    document.addEventListener("DOMContentLoaded", function() {
-        const grid = document.getElementById('main-grid');
-        
-        // Bauen
-        themen.forEach((t, i) => {
-            grid.innerHTML += `
-                <div class="box" id="box-${i}">
-                    <div class="text" onclick="waehleSektor(${i})">${t}</div>
-                </div>`;
-        });
-
-        // Einmaliges Färben
-        rendernGrid();
-    });
-
-    function rendernGrid() {
-        // Nur färben, nicht bauen!
-        themen.forEach((t, i) => {
-            const box = document.getElementById(`box-${i}`);
-            if (box) {
-                let blinken = (sektorZustand[i] === 'aktiv_gelb') ? 'blink-animation' : '';
-                box.className = "box " + sektorZustand[i] + " " + blinken;
-            }
-        });
-
-        const box21 = document.getElementById('sektor21-box');
-        const box22 = document.getElementById('sektor22-box');
-        if (box21) box21.className = 'fundament-box ' + sektorZustand[20];
-        if (box22) box22.className = 'fundament-box ' + sektorZustand[21];
-    }
+ <script>
+       const themen = ["Recht auf Gefühlsvorderung", "Wie werde ich Mensch", "Glaube an Friede", "Programm für Bürgerliche Rechte", "Moralische Pflicht und Verantwortung", "Menschlichkeit Wiederherstellung", "Kinderschutz-Pflicht-Elternrechte", "Wahre Richtung und Kunst", "LGBTQ und Kirche", "Trend und Tradition", "Religionsbekenntnis oder Selbstwahl", "Gesundheitswesen und Verhalten", "Arbeitswelt und Du", "Mobbing am Arbeitsplatz", "Jugendsprecher", "Ratgeber für Pensionisten", "Sozialgefallen und Widerkehr", "Nachbarschaft und Gemeinschaft", "Alleinerziehend", "Die Brücke"];
+       const seelenNamen = ["Lilith", "Aris", "Mira", "Tarik", "Kiron", "Vikas", "Rhea", "Lyra", "Nova", "Marek", "Silas", "Aura", "Joris", "Sira", "Kian", "Alma", "Laris", "Liv", "Kyra", "Chiron"];
+       const grid = document.getElementById('main-grid');
+       let aktuelleEbeneIdx = 1;
+       let scanSlideshow;
+       let userEmail = ""; 
+       let aktuelleSektorId = "0";
+       let alleSektorenVerlaeufe = {};
+       let globaleBiografieDaten = "";
      
-function waehleSektor(id) {
-    // 1. Authentifizierung prüfen (Der Anker)
-    if (userEmail === "") {
-        alert("Du musst dich erst verifizieren (Anker setzen & Code eingeben), bevor du Sektoren betreten kannst.");
-        return;
-    }
-    
-    // 2. Riegel: Nur wenn Sektor nicht gesperrt ist, geht es weiter
-    if (sektorZustand[id] === 'gesperrt') {
-        alert("Sektor ist noch gesperrt. Schließe erst deine Mission ab.");
-        return;
-    }
+       themen.forEach((t, i) => {
+    grid.innerHTML += `
+        <div class="box">
+            <div class="text" onclick="waehleSektor(${i})">${t}</div>
+        </div>`;
+});
 
-    // Ab hier: Die Logik für den Chat und Sektor-Aufbau
+function waehleSektor(id) {
     aktuelleSektorId = id.toString();
     const chatBox = document.getElementById('chat-box');
 
@@ -440,6 +394,7 @@ function waehleSektor(id) {
         alleSektorenVerlaeufe[aktuelleSektorId] = [];
         chatBox.innerHTML = `<i>Verbindung zu Sektor ${themen[id]} (${seelenNamen[id]}) bereit...</i>`;
     } else {
+        // Chat-Fenster leeren und alte Nachrichten dieses Sektors laden
         chatBox.innerHTML = "";
         alleSektorenVerlaeufe[aktuelleSektorId].forEach(msg => {
             const istUser = msg.role === "user";
@@ -449,8 +404,9 @@ function waehleSektor(id) {
         });
     }
 
-    // Ebene 2 aktivieren
+    // Deine bestehende Ebenen-Logik aufrufen
     wechselEbene('ebene2', id);
+}
         const adminSelect = document.getElementById('admin-sektor-auswahl'); if (adminSelect) { themen.forEach((t, i) => { adminSelect.innerHTML += `<option value="${i}">Sektor ${i+1}: ${t}</option>`; }); }
       
         // 2. Funktion für die Rechtliche Texte
@@ -609,32 +565,14 @@ function starteChatHintergrund() {
 
 // Die Steuerung beim Wechseln der Ebenen
 function wechselEbene(id, index = null) {
-    const geschuetzteEbenen = ['ebene2', 'ebene3', 'ebene4', 'ebene21', 'ebene22', 'admin_ebene'];
-    
-    // 1. Wächter: Ist der User verifiziert? (userEmail wird beim Login gesetzt)
-    if (geschuetzteEbenen.includes(id) && userEmail === "") {
-        alert("Zugriff verweigert! Bitte erst Anker setzen und Schlüsselcode validieren.");
-        return; 
+    if (typeof chatSlideshow !== 'undefined') {
+        clearInterval(chatSlideshow);
     }
 
-    // 2. Admin-Spezial-Wächter
-    if (id === 'admin_ebene' && userEmail !== "mmcommunity22@gmail.com") {
-        alert("Zugriff verweigert: Nur für Administrator.");
-        return; 
-    }
-
-    // Bereinigung laufender Prozesse
-    if (typeof chatSlideshow !== 'undefined') clearInterval(chatSlideshow);
-
-    // Ebenen-Umschaltung
     document.querySelectorAll('.ebene').forEach(e => e.classList.remove('aktiv'));
-    const zielEbene = document.getElementById(id);
-    if (zielEbene) zielEbene.classList.add('aktiv');
-    
-    // Admin-Stats laden
+    document.getElementById(id).classList.add('aktiv');
     if (id === 'admin_ebene') { ladeNeueAdminStats(); }
 
-    // Funktionsspezifische Logik
     if (id === 'ebene2' && index !== null) {
         starteScanOptik(index); 
     } else if (id === 'ebene3') {
@@ -643,10 +581,9 @@ function wechselEbene(id, index = null) {
         if (typeof scanSlideshow !== 'undefined') clearInterval(scanSlideshow);
     }
 
-    // Sichtbarkeit der Navigation
     document.getElementById('legal-links').style.visibility = (id === 'ebene1') ? 'visible' : 'hidden';
 
-    // Navigation weiter/zurück
+    // Navigations-Code für weiter-nav etc.
     if(id === 'ebene1') {
         aktuelleEbeneIdx = 1;
         document.getElementById('weiter-nav').style.display = 'none';
@@ -657,6 +594,27 @@ function wechselEbene(id, index = null) {
         document.getElementById('weiter-nav').style.display = 'none';
     }
 }
+        function naechste() {
+            if(aktuelleEbeneIdx < 4) wechselEbene('ebene' + (aktuelleEbeneIdx + 1));
+        }
+
+     document.addEventListener('keypress', function (e) {
+    if (e.key === 'Enter') {
+        const activeEl = document.activeElement;
+        
+        // Wenn du im Chat tippst -> Senden!
+        if (activeEl.id === 'chat-in') {
+            sendeChat();
+        } 
+        // Falls du gerade im Login-Bereich bist
+        else if (activeEl.id === 'db-mail') {
+            handleAnkerSetzen();
+        }
+        else if (activeEl.id === 'db-code') {
+            handleVerifyAccess();
+        }
+    }
+}); 
      
 async function ladeNeueAdminStats() {
     const zaehler = document.getElementById('admin-schluessel-zaehler');
@@ -891,13 +849,6 @@ function erstelleUeberlaufSektor() {
     }
     container.appendChild(neuerSektor);
 }
- function schalteSektorFrei(id) {
-    sektorZustand[id] = 'erledigt_gruen';
-    if (id + 1 < sektorZustand.length) {
-        sektorZustand[id + 1] = 'aktiv_gelb'; // Nächster wird gelb blinkend
-    }
-    rendernGrid(); // Alles neu zeichnen
-}   
  </script>
 </body>
 </html>  
