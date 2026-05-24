@@ -394,16 +394,18 @@
 function waehleSektor(id) {
     // 1. ADMIN-CHECK (Türöffner für dich)
     const adminMail = document.getElementById('db-mail').value.trim();
-    const isAdmin = (adminMail === "mmcommunity22@gmail.com");
+    const isAdmin = (adminMail === "mmcommunity22@gmail.com"); // Deine Admin-Mail
 
-    // 2. SPERR-LOGIK (Nur für normale User aktiv, Admin darf überall hin)
+    // 2. SPERR-LOGIK (Nur für normale User aktiv)
     const box = document.getElementById(`sektor-box-${id}`);
+    
+    // Wenn NICHT Admin UND die Box ist blau -> Sperren
     if (!isAdmin && box && box.classList.contains('status-blau')) {
         alert("Dieser Sektor ist noch verschlossen. Vollende erst deine aktuelle Mission.");
-        return; // Stoppt hier für User, Admin läuft weiter
+        return; 
     }
 
-    // 3. BESTEHENDE LOGIK (Chat-Verläufe laden)
+    // 3. BESTEHENDE LOGIK (Läuft für alle weiter)
     aktuelleSektorId = id.toString();
     const chatBox = document.getElementById('chat-box');
 
@@ -422,9 +424,14 @@ function waehleSektor(id) {
         });
     }
 
-    // 4. BESTEHENDER EBENEN-WECHSEL
-    // Wir nutzen hier id für alle Sektoren, damit wechselEbene weiß, wohin es geht
-    wechselEbene('ebene2', id);
+    // 4. EBENEN-WECHSEL (Spezial-Logik für 21 & 22 einbauen, falls nötig)
+    if (id == 20) {
+        wechselEbene('ebene21', id);
+    } else if (id == 21) {
+        wechselEbene('ebene22', id);
+    } else {
+        wechselEbene('ebene2', id);
+    }
 }
         const adminSelect = document.getElementById('admin-sektor-auswahl'); if (adminSelect) { themen.forEach((t, i) => { adminSelect.innerHTML += `<option value="${i}">Sektor ${i+1}: ${t}</option>`; }); }
       
@@ -634,6 +641,7 @@ function wechselEbene(id, index = null) {
         }
     }
 }); 
+
      
 async function ladeNeueAdminStats() {
     const zaehler = document.getElementById('admin-schluessel-zaehler');
