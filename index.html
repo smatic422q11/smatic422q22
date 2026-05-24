@@ -385,21 +385,20 @@
        let aktuelleSektorId = "0";
        let alleSektorenVerlaeufe = {};
        let globaleBiografieDaten = "";
-       const alleBoxen = [...themen, "21 | Kapital und Verwaltung", "Das Kollektiv | 22"];
-
-alleBoxen.forEach((t, i) => {
-    // Hier prüfen wir den Status. 
-    // Wenn 'isVerified' nicht true ist, werden die Boxen gesperrt.
-    const isVerified = false; // Diesen Wert steuerst du über dein Login-System
-    const isDisabled = !isVerified; 
-
+     
+  themen.forEach((t, i) => {
     grid.innerHTML += `
-        <div class="box ${isDisabled ? 'locked' : ''}" 
-             id="box-${i}" 
-             style="${isDisabled ? 'pointer-events: none; opacity: 0.5;' : ''}">
+        <div class="box" style="pointer-events: none; opacity: 0.5;">
             <div class="text" onclick="waehleSektor(${i})">${t}</div>
         </div>`;
-});
+});    
+     grid.innerHTML += `
+    <div class="box" style="pointer-events: none; opacity: 0.5;">
+        <div class="text">21 | Kapital und Verwaltung</div>
+    </div>
+    <div class="box" style="pointer-events: none; opacity: 0.5;">
+        <div class="text">Das Kollektiv | 22</div>
+    </div>`;
     
 function aktualisiereDashboardFarben(statusListe) {
     statusListe.forEach((status, i) => {
