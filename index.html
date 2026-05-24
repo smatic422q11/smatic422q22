@@ -384,12 +384,31 @@
        let alleSektorenVerlaeufe = {};
        let globaleBiografieDaten = "";
      
-       themen.forEach((t, i) => {
+     themen.forEach((t, i) => {
     grid.innerHTML += `
-        <div class="box">
+        <div class="box status-blau" id="box-${i}">
             <div class="text" onclick="waehleSektor(${i})">${t}</div>
         </div>`;
 });
+     
+ function aktualisiereDashboardFarben(statusListe) {
+    statusListe.forEach((status, i) => {
+        // IDs: Sektor 0-19 sind 'sektor-box-i' (in deinem Grid)
+        // Sektor 20-21 sind 'sektor-box-20' / 'sektor-box-21'
+        const id = (i < 20) ? `sektor-box-${i}` : `sektor-box-${i}`; 
+        // WICHTIG: Dein Grid erzeugt IDs intern anders! 
+        // Wenn du dein Grid unten hast:
+        const box = document.getElementById(i < 20 ? `box-${i}` : `sektor-box-${i}`);
+        
+        if (box) {
+            box.classList.remove('status-blau', 'status-gelb', 'status-rot', 'status-gruen');
+            if (status === "erledigt") box.classList.add('status-gruen');
+            else if (status === "aktiv") box.classList.add('status-gelb');
+            else if (status === "wartend") box.classList.add('status-rot');
+            else box.classList.add('status-blau');
+        }
+    });
+}    
 
 function waehleSektor(id) {
     // 1. ADMIN-CHECK (Türöffner für dich)
@@ -753,9 +772,16 @@ async function handleVerifyAccess() {
         const data = await response.json();
 
         if (data.success) {
-            userEmail = emailInput; // E-Mail für später merken
+            userEmail = emailInput;         // E-Mail für später merken
             chatVerlauf = data.history || []; // Bestehenden Chat laden
+            
             alert("Zugang gewährt! Willkommen zurück.");
+            
+            // HIER DIE AKTUALISIERUNG:
+            // Wir übergeben das 'fortschritt'-Array vom Server direkt an deine Farb-Logik
+            if (data.fortschritt) {
+                aktualisiereDashboardFarben(data.fortschritt);
+            }
         } else {
             alert("Schlüsselcode ungültig.");
         }
@@ -763,7 +789,6 @@ async function handleVerifyAccess() {
         alert("Fehler bei der Kommunikation.");
     }
 }
-
 async function sendeChat() {
     const inputField = document.getElementById('chat-in');
     const userMessage = inputField.value.trim();
