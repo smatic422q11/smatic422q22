@@ -390,14 +390,16 @@
        let sektorZustand = new Array(20).fill('gesperrt');
             sektorZustand[0] = 'aktiv_gelb'; // Startet immer bei Sektor 1
 
-     themen.forEach((t, i) => {
-    // 1. Klasse ermitteln (gesperrt, gelb, rot, grün)
-    let zustandKlasse = sektorZustand[i];
-    // 2. Blink-Animation nur, wenn Sektor aktiv (gelb) ist
-    let blinkenKlasse = (sektorZustand[i] === 'aktiv_gelb') ? 'blink-animation' : '';
+    themen.forEach((t, i) => {
+    // 1. Sichere Klassen-Definition (Default: 'gesperrt', falls der Zustand undefiniert ist)
+    let status = (typeof sektorZustand !== 'undefined' && sektorZustand[i]) ? sektorZustand[i] : 'gesperrt';
+    
+    // 2. Blinken nur, wenn wirklich aktiv
+    let blinken = (status === 'aktiv_gelb') ? 'blink-animation' : '';
 
+    // 3. Box bauen
     grid.innerHTML += `
-        <div class="box ${zustandKlasse} ${blinkenKlasse}">
+        <div class="box ${status} ${blinken}">
             <div class="text" onclick="waehleSektor(${i})">${t}</div>
         </div>`;
 });
