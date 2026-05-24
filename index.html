@@ -390,34 +390,34 @@
        let alleSektorenVerlaeufe = {};
        let globaleBiografieDaten = "";       
      
-       themen.forEach((t, i) => {
+     themen.forEach((t, i) => {
+    // Hier fügen wir die ID "box-" + i hinzu!
     grid.innerHTML += `
-        <div class="box">
+        <div class="box" id="box-${i}">
             <div class="text" onclick="waehleSektor(${i})">${t}</div>
         </div>`;
 });
      
 function rendernGrid() {
-    // 1. Oben: Sektor 1 bis 20
+    // Nur färben, nicht bauen!
     themen.forEach((t, i) => {
         const box = document.getElementById(`box-${i}`);
         if (box) {
-            box.className = "box " + sektorZustand[i] + " " + 
-                            (sektorZustand[i] === 'aktiv_gelb' ? 'blink-animation' : '');
+            // Setze die Klasse auf: "box" + Status + Blinken
+            let blinken = (sektorZustand[i] === 'aktiv_gelb') ? 'blink-animation' : '';
+            box.className = "box " + sektorZustand[i] + " " + blinken;
         }
     });
 
-    // 2. Unten: Das Fundament (Sektor 21 & 22)
+    // Fundament färben
     const box21 = document.getElementById('sektor21-box');
     const box22 = document.getElementById('sektor22-box');
-    
     if (box21) box21.className = 'fundament-box ' + sektorZustand[20];
     if (box22) box22.className = 'fundament-box ' + sektorZustand[21];
 }
 
-// Einmaliger Aufruf nach dem Bauen
+// EINMALIG nach dem Bauen ausführen
 rendernGrid();
-
      
 function waehleSektor(id) {
     // 1. Authentifizierung prüfen (Der Anker)
