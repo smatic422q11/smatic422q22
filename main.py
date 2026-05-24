@@ -618,7 +618,6 @@ async def get_live_ermittlung(sector_id: str, request: Request):
         seelen_name = SECTOR_NAMES.get(sector_id, "KI")
 
         prompt = (
-            f"Du bist der unbestechliche KI-Scanner für Sektor: {seelen_name}.\n"
             f"Du bist der biografische Begleiter für den Sektor: {seelen_name}.\n"          
             f"Aufgabe: Eine tiefe, ausführliche Live-Ermittlung für den User ({user_name}) in der M&M Community.\n"  
             f"Nutze den Platz maximal aus. Schreibe lange Analysen.\n\n"
