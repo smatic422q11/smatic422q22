@@ -565,32 +565,32 @@ function starteChatHintergrund() {
 
 // Die Steuerung beim Wechseln der Ebenen
 function wechselEbene(id, index = null) {
-    // SICHERHEITSPRÜFUNG: Wenn Ebene nicht das Dashboard (ebene1) ist, prüfe auf Verifizierung
     const geschuetzteEbenen = ['ebene2', 'ebene3', 'ebene4', 'ebene21', 'ebene22', 'admin_ebene'];
     
+    // 1. Wächter: Ist der User verifiziert? (userEmail wird beim Login gesetzt)
     if (geschuetzteEbenen.includes(id) && userEmail === "") {
         alert("Zugriff verweigert! Bitte erst Anker setzen und Schlüsselcode validieren.");
-        return; // Bricht die Funktion ab, bevor die Ebene aktiv wird
+        return; 
     }
 
-    if (typeof chatSlideshow !== 'undefined') {
-        clearInterval(chatSlideshow);
+    // 2. Admin-Spezial-Wächter
+    if (id === 'admin_ebene' && userEmail !== "mmcommunity22@gmail.com") {
+        alert("Zugriff verweigert: Nur für Administrator.");
+        return; 
     }
 
+    // Bereinigung laufender Prozesse
+    if (typeof chatSlideshow !== 'undefined') clearInterval(chatSlideshow);
+
+    // Ebenen-Umschaltung
     document.querySelectorAll('.ebene').forEach(e => e.classList.remove('aktiv'));
-    document.getElementById(id).classList.add('aktiv');
+    const zielEbene = document.getElementById(id);
+    if (zielEbene) zielEbene.classList.add('aktiv');
     
-    // Admin-Zugriff prüfen
-    if (id === 'admin_ebene') { 
-        if (userEmail === "mmcommunity22@gmail.com") {
-            ladeNeueAdminStats(); 
-        } else {
-            alert("Zugriff verweigert: Nur für Administrator.");
-            wechselEbene('ebene1'); // Zurückwerfen
-            return;
-        }
-    }
+    // Admin-Stats laden
+    if (id === 'admin_ebene') { ladeNeueAdminStats(); }
 
+    // Funktionsspezifische Logik
     if (id === 'ebene2' && index !== null) {
         starteScanOptik(index); 
     } else if (id === 'ebene3') {
@@ -599,9 +599,10 @@ function wechselEbene(id, index = null) {
         if (typeof scanSlideshow !== 'undefined') clearInterval(scanSlideshow);
     }
 
+    // Sichtbarkeit der Navigation
     document.getElementById('legal-links').style.visibility = (id === 'ebene1') ? 'visible' : 'hidden';
 
-    // Navigations-Code für weiter-nav etc.
+    // Navigation weiter/zurück
     if(id === 'ebene1') {
         aktuelleEbeneIdx = 1;
         document.getElementById('weiter-nav').style.display = 'none';
