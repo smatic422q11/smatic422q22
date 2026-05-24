@@ -375,49 +375,48 @@
     </div>
 </div>
 
+ <script> 
+     let sektorZustand = new Array(22).fill('gesperrt');
+     sektorZustand[0] = 'aktiv_gelb';
+    const themen = ["Recht auf Gefühlsvorderung", "Wie werde ich Mensch", "Glaube an Friede", "Programm für Bürgerliche Rechte", "Moralische Pflicht und Verantwortung", "Menschlichkeit Wiederherstellung", "Kinderschutz-Pflicht-Elternrechte", "Wahre Richtung und Kunst", "LGBTQ und Kirche", "Trend und Tradition", "Religionsbekenntnis oder Selbstwahl", "Gesundheitswesen und Verhalten", "Arbeitswelt und Du", "Mobbing am Arbeitsplatz", "Jugendsprecher", "Ratgeber für Pensionisten", "Sozialgefallen und Widerkehr", "Nachbarschaft und Gemeinschaft", "Alleinerziehend", "Die Brücke"];
+    const seelenNamen = ["Lilith", "Aris", "Mira", "Tarik", "Kiron", "Vikas", "Rhea", "Lyra", "Nova", "Marek", "Silas", "Aura", "Joris", "Sira", "Kian", "Alma", "Laris", "Liv", "Kyra", "Chiron"];
+    let aktuelleEbeneIdx = 1;
+    let userEmail = ""; 
+    let aktuelleSektorId = "0";
+    let alleSektorenVerlaeufe = {};
+    let globaleBiografieDaten = "";
 
- <script>
-     
-       let sektorZustand = new Array(22).fill('gesperrt');
-         sektorZustand[0] = 'aktiv_gelb';
-       const themen = ["Recht auf Gefühlsvorderung", "Wie werde ich Mensch", "Glaube an Friede", "Programm für Bürgerliche Rechte", "Moralische Pflicht und Verantwortung", "Menschlichkeit Wiederherstellung", "Kinderschutz-Pflicht-Elternrechte", "Wahre Richtung und Kunst", "LGBTQ und Kirche", "Trend und Tradition", "Religionsbekenntnis oder Selbstwahl", "Gesundheitswesen und Verhalten", "Arbeitswelt und Du", "Mobbing am Arbeitsplatz", "Jugendsprecher", "Ratgeber für Pensionisten", "Sozialgefallen und Widerkehr", "Nachbarschaft und Gemeinschaft", "Alleinerziehend", "Die Brücke"];
-       const seelenNamen = ["Lilith", "Aris", "Mira", "Tarik", "Kiron", "Vikas", "Rhea", "Lyra", "Nova", "Marek", "Silas", "Aura", "Joris", "Sira", "Kian", "Alma", "Laris", "Liv", "Kyra", "Chiron"];
-       const grid = document.getElementById('main-grid');
-       let aktuelleEbeneIdx = 1;
-       let scanSlideshow;
-       let userEmail = ""; 
-       let aktuelleSektorId = "0";
-       let alleSektorenVerlaeufe = {};
-       let globaleBiografieDaten = "";       
-     
-     themen.forEach((t, i) => {
-    // Hier fügen wir die ID "box-" + i hinzu!
-    grid.innerHTML += `
-        <div class="box" id="box-${i}">
-            <div class="text" onclick="waehleSektor(${i})">${t}</div>
-        </div>`;
-});
-     
-function rendernGrid() {
-    // Nur färben, nicht bauen!
-    themen.forEach((t, i) => {
-        const box = document.getElementById(`box-${i}`);
-        if (box) {
-            // Setze die Klasse auf: "box" + Status + Blinken
-            let blinken = (sektorZustand[i] === 'aktiv_gelb') ? 'blink-animation' : '';
-            box.className = "box " + sektorZustand[i] + " " + blinken;
-        }
+    // 2. Warten bis HTML wirklich bereit ist, dann bauen
+    document.addEventListener("DOMContentLoaded", function() {
+        const grid = document.getElementById('main-grid');
+        
+        // Bauen
+        themen.forEach((t, i) => {
+            grid.innerHTML += `
+                <div class="box" id="box-${i}">
+                    <div class="text" onclick="waehleSektor(${i})">${t}</div>
+                </div>`;
+        });
+
+        // Einmaliges Färben
+        rendernGrid();
     });
 
-    // Fundament färben
-    const box21 = document.getElementById('sektor21-box');
-    const box22 = document.getElementById('sektor22-box');
-    if (box21) box21.className = 'fundament-box ' + sektorZustand[20];
-    if (box22) box22.className = 'fundament-box ' + sektorZustand[21];
-}
+    function rendernGrid() {
+        // Nur färben, nicht bauen!
+        themen.forEach((t, i) => {
+            const box = document.getElementById(`box-${i}`);
+            if (box) {
+                let blinken = (sektorZustand[i] === 'aktiv_gelb') ? 'blink-animation' : '';
+                box.className = "box " + sektorZustand[i] + " " + blinken;
+            }
+        });
 
-// EINMALIG nach dem Bauen ausführen
-rendernGrid();
+        const box21 = document.getElementById('sektor21-box');
+        const box22 = document.getElementById('sektor22-box');
+        if (box21) box21.className = 'fundament-box ' + sektorZustand[20];
+        if (box22) box22.className = 'fundament-box ' + sektorZustand[21];
+    }
      
 function waehleSektor(id) {
     // 1. Authentifizierung prüfen (Der Anker)
