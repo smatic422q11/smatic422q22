@@ -386,11 +386,20 @@
        let alleSektorenVerlaeufe = {};
        let globaleBiografieDaten = "";
      
-    themen.forEach((t, i) => {
-    grid.innerHTML += `
+  themen.forEach((t, i) => {
+    if (istVerifiziert) {
+        // Bestehender Code für verifizierte User
+        grid.innerHTML += `
+        <div class="box">
+            <div class="text" onclick="waehleSektor(${i})">${t}</div>
+        </div>`;
+    } else {
+        // Neuer Code für nicht verifizierte User
+        grid.innerHTML += `
         <div class="box status-blau" id="box-${i}" style="pointer-events: none; opacity: 0.5;">
             <div class="text" onclick="waehleSektor(${i})">${t}</div>
         </div>`;
+    }
 });
      
 function aktualisiereDashboardFarben(statusListe) {
