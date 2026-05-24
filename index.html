@@ -814,7 +814,8 @@ async function sendeChat() {
     inputField.value = "";
 
     try {
-        const response = await fetch('/chat', {
+        // ÄNDERUNG HIER: Von /chat-wahrheit auf /chat wechseln!
+       const response = await fetch('/chat', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -838,18 +839,12 @@ async function sendeChat() {
             if (!alleSektorenVerlaeufe[aktuelleSektorId]) alleSektorenVerlaeufe[aktuelleSektorId] = [];
             alleSektorenVerlaeufe[aktuelleSektorId].push({ "role": "user", "parts": [{ "text": userMessage }] });
             alleSektorenVerlaeufe[aktuelleSektorId].push({ "role": "model", "parts": [{ "text": data.reply }] });
-
-            // LOGIK-SCHLUSS: Hier wird der Status geprüft und der Prozess geschlossen
-            if (data.sektor_status === "secure") {
-                schliesseSektorAb(parseInt(aktuelleSektorId));
-                alert("Sektor abgeschlossen. Der nächste Sektor ist nun für dich geöffnet.");
-            }
         }
 
     } catch (e) {
         console.error("Fehler beim Senden:", e);
     }
-
+}
  function versucheAdminEbene() {
     // 'userEmail' ist die Variable, die du beim Login speicherst
     if (userEmail === "mmcommunity22@gmail.com") {
