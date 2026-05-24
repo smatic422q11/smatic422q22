@@ -61,16 +61,6 @@
         .exit-btn { background: #ff4d4d; color: #fff; margin-left: auto; }
         
       @keyframes wolkenZug { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
-        
-        .box.status-blau { border-color: #003d8f; background: #000; box-shadow: inset 0 0 10px rgba(0, 100, 255, 0.2); }
-        .box.status-rot  { border-color: #ff4d4d; background: #550000; }
-       .box.status-gelb { border-color: #ffd700; background: #555500; animation: blink-yellow 1.5s infinite; }
-       .box.status-gruen{ border-color: #00ff00; background: #004400; }
-
-@keyframes blink-yellow {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.6; }
-}
     </style>
 </head>
 <body>
@@ -131,21 +121,16 @@
         <button class="auth-btn" style="background:#fff;" onclick="handleVerifyAccess()">OK</button>
     </div>
 </div>
-       <div class="grid" id="main-grid"></div>
-
-<div class="fundament-container">
-    <div class="fundament-box status-blau" id="sektor-box-20" onclick="waehleSektor(20)">
-        <div class="text">21 | Kapital und Verwaltung</div>
+        <div class="grid" id="main-grid"></div>
+        <div class="fundament-container">
+            <div class="fundament-box" onclick="wechselEbene('ebene21')"><div class="text">21 | Kapital und Verwaltung</div></div>
+            <div class="fundament-box" onclick="wechselEbene('ebene22')"><div class="text">DAS KOLLEKTIV | 22</div></div>
+        </div>
+        <div class="mm-fundament-final">
+            <div style="color: #003d8f; font-weight: 900; letter-spacing: 12px; text-transform: uppercase; font-size: 1.1rem;">M&M Community Fundament</div>
+        </div>
     </div>
-    <div class="fundament-box status-blau" id="sektor-box-21" onclick="waehleSektor(21)">
-        <div class="text">DAS KOLLEKTIV | 22</div>
-    </div>
-</div>
 
-<div class="mm-fundament-final">
-    <div style="color: #003d8f; font-weight: 900; letter-spacing: 12px; text-transform: uppercase; font-size: 1.1rem;">M&M Community Fundament</div>
-</div>
-        
     <div id="ebene2" class="ebene">
     <div class="scan-header-space">
         <div id="sector-title-starr">LÄDT...</div>
@@ -393,34 +378,23 @@
        let alleSektorenVerlaeufe = {};
        let globaleBiografieDaten = "";
      
-     themen.forEach((t, i) => {
-    // Wir geben jeder Box eine eindeutige ID "sektor-box-0", "sektor-box-1" etc.
+       themen.forEach((t, i) => {
     grid.innerHTML += `
-        <div class="box" id="sektor-box-${i}">
+        <div class="box">
             <div class="text" onclick="waehleSektor(${i})">${t}</div>
         </div>`;
 });
 
 function waehleSektor(id) {
-    // 1. ADMIN-CHECK
-    const adminMail = document.getElementById('db-mail').value.trim();
-    const isAdmin = (adminMail === "mmcommunity22@gmail.com");
-
-    // 2. SPERR-LOGIK
-    const box = document.getElementById(`sektor-box-${id}`);
-    if (!isAdmin && box && box.classList.contains('status-blau')) {
-        alert("Dieser Sektor ist noch verschlossen. Vollende erst deine aktuelle Mission.");
-        return; 
-    }
-
-    // 3. BESTEHENDE LOGIK (Chat-Verläufe laden)
     aktuelleSektorId = id.toString();
     const chatBox = document.getElementById('chat-box');
 
+    // Falls Sektor-Speicher leer ist, neu anlegen
     if (!alleSektorenVerlaeufe[aktuelleSektorId]) {
         alleSektorenVerlaeufe[aktuelleSektorId] = [];
         chatBox.innerHTML = `<i>Verbindung zu Sektor ${themen[id]} (${seelenNamen[id]}) bereit...</i>`;
     } else {
+        // Chat-Fenster leeren und alte Nachrichten dieses Sektors laden
         chatBox.innerHTML = "";
         alleSektorenVerlaeufe[aktuelleSektorId].forEach(msg => {
             const istUser = msg.role === "user";
@@ -430,14 +404,8 @@ function waehleSektor(id) {
         });
     }
 
-    // 4. BESTEHENDER EBENEN-WECHSEL (Genau wie vorher, ohne ID als 2. Parameter, falls das dein Problem war)
-    if (id == 20) {
-        wechselEbene('ebene21');
-    } else if (id == 21) {
-        wechselEbene('ebene22');
-    } else {
-        wechselEbene('ebene2', id); // Hier behalten wir id, falls deine Funktion das braucht
-    }
+    // Deine bestehende Ebenen-Logik aufrufen
+    wechselEbene('ebene2', id);
 }
         const adminSelect = document.getElementById('admin-sektor-auswahl'); if (adminSelect) { themen.forEach((t, i) => { adminSelect.innerHTML += `<option value="${i}">Sektor ${i+1}: ${t}</option>`; }); }
       
@@ -580,19 +548,6 @@ async function starteScanOptik(themenIndex) {
         textArea.innerHTML = "Scanner-Verbindung fehlgeschlagen."; 
     }
 }
- function aktualisiereSektorOptik(fortschrittsListe) {
-    fortschrittsListe.forEach((status, i) => {
-        const box = document.getElementById(`sektor-box-${i}`);
-        if (!box) return;
-
-        box.classList.remove('status-blau', 'status-rot', 'status-gelb', 'status-gruen');
-
-        if (status === 'erledigt') box.classList.add('status-gruen');
-        else if (status === 'aktiv') box.classList.add('status-gelb');
-        else if (status === 'wartend') box.classList.add('status-rot');
-        else box.classList.add('status-blau');
-    });
-}    
      
 // EBENE 3: Die emotionale Reise (Bilder KOMPLETT abgewürgt für Wolken-Test!)
 function starteChatHintergrund() {
@@ -773,12 +728,6 @@ async function handleVerifyAccess() {
         if (data.success) {
             userEmail = emailInput; // E-Mail für später merken
             chatVerlauf = data.history || []; // Bestehenden Chat laden
-            
-            // HIER: Die neue Optik-Logik anstoßen
-            if (data.fortschritt) {
-                aktualisiereSektorOptik(data.fortschritt);
-            }
-            
             alert("Zugang gewährt! Willkommen zurück.");
         } else {
             alert("Schlüsselcode ungültig.");
