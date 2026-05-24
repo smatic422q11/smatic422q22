@@ -61,14 +61,13 @@
         .exit-btn { background: #ff4d4d; color: #fff; margin-left: auto; }
         
       @keyframes wolkenZug { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
-        
-.box.gesperrt { border-color: #003d8f; opacity: 0.5; }
-.box.aktiv_gelb { border-color: #ffd700; border-width: 3px; }
-.box.wartet_rot { border-color: #ff4d4d; }
-.box.erledigt_gruen { border-color: #00ff00; }
+       .box.gesperrt { border-color: #003d8f; opacity: 0.5; }
+       .box.aktiv_gelb { border-color: #ffd700; border-width: 3px; }
+       .box.wartet_rot { border-color: #ff4d4d; }
+       .box.erledigt_gruen { border-color: #00ff00; }
 
-@keyframes blinken { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
-.blink-animation { animation: blinken 1.5s infinite; }
+     @keyframes blinken { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
+      .blink-animation { animation: blinken 1.5s infinite; }
         
     </style>
 </head>
@@ -389,12 +388,11 @@
        let sektorZustand = new Array(22).fill('gesperrt');
      
        themen.forEach((t, i) => {
-     grid.innerHTML += `
+    grid.innerHTML += `
         <div class="box">
             <div class="text" onclick="waehleSektor(${i})">${t}</div>
         </div>`;
 });
-     
 function synchronisiereSektoren(statusArray) {
     // statusArray kommt vom Server (z.B. ["erledigt", "erledigt", "aktiv", ...])
     // Wir mappen das auf deine CSS-Klassen
@@ -416,7 +414,8 @@ function updateBoxFarben() {
         let blinken = (sektorZustand[i] === 'aktiv_gelb') ? ' blink-animation' : '';
         box.className = 'box ' + sektorZustand[i] + blinken;
     });
-    
+}
+     
 function waehleSektor(id) {
     aktuelleSektorId = id.toString();
     const chatBox = document.getElementById('chat-box');
@@ -778,6 +777,7 @@ async function handleVerifyAccess() {
         alert("Fehler bei der Kommunikation.");
     }
 }
+
 async function sendeChat() {
     const inputField = document.getElementById('chat-in');
     const userMessage = inputField.value.trim();
@@ -893,3 +893,4 @@ function erstelleUeberlaufSektor() {
  </script>
 </body>
 </html>  
+
