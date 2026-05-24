@@ -417,12 +417,25 @@ function updateBoxFarben() {
 }
      
 function waehleSektor(id) {
-    const berechtigteSektoren = ['gefuelsvorderung', 'wie-werde-ich-mensch']; // Hier die IDs der grünen/gelben Sektoren eintragen
-    const istAdmin = currentUserEmail === "mmcommunity22@gmail.com"; // Deine Admin-E-Mail hier einfügen
+    const berechtigteSektoren = ['gefuelsvorderung', 'wie-werde-ich-mensch'];
+    const istAdmin = currentUserEmail === "mmcommunity22@gmail.com";
+    const istVerifiziert = typeof verifiziert !== 'undefined' && verifiziert === true;
 
-    if (!istAdmin && !berechtigteSektoren.includes(id.toString())) {
-        console.log("Zugriff verweigert.");
-        return;
+    if (!istAdmin) {
+        if (!istVerifiziert) {
+            console.log("Zugriff verweigert: Bitte erst verifizieren.");
+            return;
+        }
+
+        if (id === '21' || id === '22') {
+            console.log("Zugriff verweigert: Sektor 21/22 nur nach Abschluss der Reise.");
+            return;
+        }
+
+        if (!berechtigteSektoren.includes(id.toString())) {
+            console.log("Zugriff verweigert: Sektor nicht freigeschaltet.");
+            return;
+        }
     }
 
     aktuelleSektorId = id.toString();
