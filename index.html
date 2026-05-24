@@ -417,30 +417,35 @@ function updateBoxFarben() {
 }
      
 async function waehleSektor(id) {
-    // 1. Identifikation: Wer fragt an?
-    const user = await getAktuellenUser(); // Deine Funktion, die User-Daten aus DB lädt
+    const isAdmin = (userEmail === "mmcommunity22@gmail.com");
+    
+    // Datenbank-Abfrage zur Prüfung der Berechtigung
+    const zugriffErlaubt = await checkZugriff(id);
 
-    // 2. Admin-Check: Wenn Admin, dann sofort alles offen
-    if (user.email === "mmcommunity22@gmail.com") {
-        ausfuehren(id);
+    // Sicherheits-Filter: Blockiert alles, was kein Admin ist und keine DB-Freigabe hat
+    if (!isAdmin && !zugriffErlaubt) {
+        alert("Zugriff verweigert. Bitte erst verifizieren oder Reise fortsetzen.");
         return;
     }
 
-    // 3. Verifizierungs-Check: Ohne Verifizierung geht gar nichts
-    if (!user.istVerifiziert) {
-        alert("Bitte erst verifizieren.");
-        return;
-    }
+    aktuelleSektorId = id.toString();
+    const chatBox = document.getElementById('chat-box');
 
-    // 4. Datenbank-Abfrage: Dynamische Prüfung
-    // Hier fragst du die DB: "Darf User mit dieser ID rein?"
-    const darfRein = await checkDatenbankBerechtigung(user.email, id);
-
-    if (darfRein) {
-        ausfuehren(id);
+    // Chat-Logik initialisieren oder laden
+    if (!alleSektorenVerlaeufe[aktuelleSektorId]) {
+        alleSektorenVerlaeufe[aktuelleSektorId] = [];
+        chatBox.innerHTML = `<i>Verbindung zu Sektor ${themen[id]} (${seelenNamen[id]}) bereit...</i>`;
     } else {
-        alert("Zugriff verweigert.");
+        chatBox.innerHTML = "";
+        alleSektorenVerlaeufe[aktuelleSektorId].forEach(msg => {
+            const istUser = msg.role === "user";
+            const farbe = istUser ? "#fff" : "#ffd700";
+            const sender = istUser ? "Du" : seelenNamen[aktuelleSektorId];
+            chatBox.innerHTML += `<div style="color: ${farbe}; margin-bottom: 10px;"><b>${sender}:</b> ${msg.parts[0].text}</div>`;
+        });
     }
+
+    wechselEbene('ebene2', id);
 }
         const adminSelect = document.getElementById('admin-sektor-auswahl'); if (adminSelect) { themen.forEach((t, i) => { adminSelect.innerHTML += `<option value="${i}">Sektor ${i+1}: ${t}</option>`; }); }
       
