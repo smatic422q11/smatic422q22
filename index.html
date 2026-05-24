@@ -396,23 +396,28 @@
             <div class="text" onclick="waehleSektor(${i})">${t}</div>
         </div>`;
 });
-
+     
 function rendernGrid() {
+    // 1. Oben: Sektor 1 bis 20
     themen.forEach((t, i) => {
         const box = document.getElementById(`box-${i}`);
         if (box) {
-            // Klassen resetten und neue zuweisen
             box.className = "box " + sektorZustand[i] + " " + 
                             (sektorZustand[i] === 'aktiv_gelb' ? 'blink-animation' : '');
         }
     });
 
-    // Fundament färben
+    // 2. Unten: Das Fundament (Sektor 21 & 22)
     const box21 = document.getElementById('sektor21-box');
     const box22 = document.getElementById('sektor22-box');
+    
     if (box21) box21.className = 'fundament-box ' + sektorZustand[20];
     if (box22) box22.className = 'fundament-box ' + sektorZustand[21];
 }
+
+// Einmaliger Aufruf nach dem Bauen
+rendernGrid();
+
      
 function waehleSektor(id) {
     // 1. Authentifizierung prüfen (Der Anker)
