@@ -61,6 +61,15 @@
         .exit-btn { background: #ff4d4d; color: #fff; margin-left: auto; }
         
       @keyframes wolkenZug { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+
+  .box.gesperrt { border-color: #003d8f; opacity: 0.5; cursor: not-allowed; }
+.box.aktiv_gelb { border-color: #ffd700; border-width: 3px; }
+.box.wartet_rot { border-color: #ff4d4d; }
+.box.erledigt_gruen { border-color: #00ff00; }
+
+@keyframes blinken { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
+.blink-animation { animation: blinken 1.5s infinite; }
+        
     </style>
 </head>
 <body>
@@ -368,6 +377,7 @@
 
 
  <script>
+     
        const themen = ["Recht auf Gefühlsvorderung", "Wie werde ich Mensch", "Glaube an Friede", "Programm für Bürgerliche Rechte", "Moralische Pflicht und Verantwortung", "Menschlichkeit Wiederherstellung", "Kinderschutz-Pflicht-Elternrechte", "Wahre Richtung und Kunst", "LGBTQ und Kirche", "Trend und Tradition", "Religionsbekenntnis oder Selbstwahl", "Gesundheitswesen und Verhalten", "Arbeitswelt und Du", "Mobbing am Arbeitsplatz", "Jugendsprecher", "Ratgeber für Pensionisten", "Sozialgefallen und Widerkehr", "Nachbarschaft und Gemeinschaft", "Alleinerziehend", "Die Brücke"];
        const seelenNamen = ["Lilith", "Aris", "Mira", "Tarik", "Kiron", "Vikas", "Rhea", "Lyra", "Nova", "Marek", "Silas", "Aura", "Joris", "Sira", "Kian", "Alma", "Laris", "Liv", "Kyra", "Chiron"];
        const grid = document.getElementById('main-grid');
@@ -377,6 +387,8 @@
        let aktuelleSektorId = "0";
        let alleSektorenVerlaeufe = {};
        let globaleBiografieDaten = "";
+       let sektorZustand = new Array(20).fill('gesperrt');
+            sektorZustand[0] = 'aktiv_gelb'; // Startet immer bei Sektor 1
      
        themen.forEach((t, i) => {
     grid.innerHTML += `
@@ -384,14 +396,35 @@
             <div class="text" onclick="waehleSektor(${i})">${t}</div>
         </div>`;
 });
-
+     
+ function rendernGrid() {
+    const grid = document.getElementById('main-grid');
+    grid.innerHTML = "";
+    themen.forEach((t, i) => {
+        let blinken = sektorZustand[i] === 'aktiv_gelb' ? 'blink-animation' : '';
+        grid.innerHTML += `
+            <div class="box ${sektorZustand[i]} ${blinken}" onclick="waehleSektor(${i})">
+                <div class="text">${t}</div>
+            </div>`;
+    });
+}
+// Einmal beim Start ausführen
+rendernGrid();
+     
 function waehleSektor(id) {
-    // SICHERHEITSPRÜFUNG: Wenn userEmail leer ist, blockieren wir den Klick
+    // 1. Authentifizierung prüfen (Der Anker)
     if (userEmail === "") {
         alert("Du musst dich erst verifizieren (Anker setzen & Code eingeben), bevor du Sektoren betreten kannst.");
-        return; // Bricht die Funktion hier ab, die Box öffnet sich nicht
+        return;
+    }
+    
+    // 2. Riegel: Nur wenn Sektor nicht gesperrt ist, geht es weiter
+    if (sektorZustand[id] === 'gesperrt') {
+        alert("Sektor ist noch gesperrt. Schließe erst deine Mission ab.");
+        return;
     }
 
+    // Ab hier: Die Logik für den Chat und Sektor-Aufbau
     aktuelleSektorId = id.toString();
     const chatBox = document.getElementById('chat-box');
 
@@ -409,8 +442,8 @@ function waehleSektor(id) {
         });
     }
 
+    // Ebene 2 aktivieren
     wechselEbene('ebene2', id);
-}
         const adminSelect = document.getElementById('admin-sektor-auswahl'); if (adminSelect) { themen.forEach((t, i) => { adminSelect.innerHTML += `<option value="${i}">Sektor ${i+1}: ${t}</option>`; }); }
       
         // 2. Funktion für die Rechtliche Texte
@@ -851,6 +884,13 @@ function erstelleUeberlaufSektor() {
     }
     container.appendChild(neuerSektor);
 }
+ function schalteSektorFrei(id) {
+    sektorZustand[id] = 'erledigt_gruen';
+    if (id + 1 < sektorZustand.length) {
+        sektorZustand[id + 1] = 'aktiv_gelb'; // Nächster wird gelb blinkend
+    }
+    rendernGrid(); // Alles neu zeichnen
+}   
  </script>
 </body>
 </html>  
