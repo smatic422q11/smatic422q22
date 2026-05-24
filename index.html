@@ -390,17 +390,11 @@
        let sektorZustand = new Array(20).fill('gesperrt');
             sektorZustand[0] = 'aktiv_gelb'; // Startet immer bei Sektor 1
      
-       themen.forEach((t, i) => {
-    grid.innerHTML += `
-        <div class="box">
-            <div class="text" onclick="waehleSektor(${i})">${t}</div>
-        </div>`;
-});
-     
-function rendernGrid() {
-    // Oberes Grid rendern (wie gehabt)
+     function rendernGrid() {
     const grid = document.getElementById('main-grid');
-    grid.innerHTML = "";
+    grid.innerHTML = ""; // Alles leeren
+    
+    // Oberes Grid (0-19)
     themen.forEach((t, i) => {
         let blinken = sektorZustand[i] === 'aktiv_gelb' ? 'blink-animation' : '';
         grid.innerHTML += `
@@ -409,10 +403,16 @@ function rendernGrid() {
             </div>`;
     });
 
-    // UNTEN: Fundament-Boxen dynamisch färben
-    document.getElementById('sektor21-box').className = 'fundament-box ' + sektorZustand[20];
-    document.getElementById('sektor22-box').className = 'fundament-box ' + sektorZustand[21];
+    // Unteres Fundament (20-21, was Sektoren 21 & 22 entspricht)
+    const box21 = document.getElementById('sektor21-box');
+    const box22 = document.getElementById('sektor22-box');
+    
+    if (box21) box21.className = 'fundament-box ' + sektorZustand[20];
+    if (box22) box22.className = 'fundament-box ' + sektorZustand[21];
 }
+
+// EINMALIGER START: Rendert das Grid direkt beim Laden der Seite
+rendernGrid();
      
 function waehleSektor(id) {
     // 1. Authentifizierung prüfen (Der Anker)
