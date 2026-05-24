@@ -61,6 +61,24 @@
         .exit-btn { background: #ff4d4d; color: #fff; margin-left: auto; }
         
       @keyframes wolkenZug { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+        
+   /* Design-Fix: Rahmen für alle Boxen erzwingen */
+.box, .fundament-box {
+    border: 2px solid #003d8f !important;
+    background: #000 !important;
+}
+
+/* Leuchten für den Status 'aktiv' (gelb) */
+@keyframes blink-yellow {
+    0%, 100% { border-color: #ffd700; box-shadow: 0 0 15px #ffd700; }
+    50% { border-color: #aa9900; box-shadow: 0 0 5px #aa9900; }
+}
+.status-gelb { animation: blink-yellow 1.5s infinite !important; border: 2px solid #ffd700 !important; }
+
+/* Andere Stati */
+.status-blau { border: 2px solid #003d8f !important; }
+.status-rot { border: 2px solid #ff4d4d !important; }
+.status-gruen { border: 2px solid #00ff00 !important; }
     </style>
 </head>
 <body>
@@ -421,20 +439,22 @@ function aktualisiereDashboardFarben(statusListe) {
 }
 
 function waehleSektor(id) {
-    // 1. ADMIN-CHECK (Türöffner für dich)
+    // 1. ADMIN-CHECK
     const adminMail = document.getElementById('db-mail').value.trim();
-    const isAdmin = (adminMail === "mmcommunity22@gmail.com"); // Deine Admin-Mail
+    const isAdmin = (adminMail === "mmcommunity22@gmail.com");
 
     // 2. SPERR-LOGIK (Nur für normale User aktiv)
-    const box = document.getElementById(`sektor-box-${id}`);
+    // Wir prüfen die ID dynamisch: Grid-Boxen haben 'box-id', Spezial-Boxen 'sektor-box-id'
+    const boxId = (id < 20) ? `box-${id}` : `sektor-box-${id}`;
+    const box = document.getElementById(boxId);
     
-    // Wenn NICHT Admin UND die Box ist blau -> Sperren
+    // Wenn NICHT Admin UND die Box hat den Status 'status-blau' -> Sperren
     if (!isAdmin && box && box.classList.contains('status-blau')) {
         alert("Dieser Sektor ist noch verschlossen. Vollende erst deine aktuelle Mission.");
         return; 
     }
 
-    // 3. BESTEHENDE LOGIK (Läuft für alle weiter)
+    // 3. BESTEHENDE LOGIK: Chat-Verlauf laden (Original-Struktur)
     aktuelleSektorId = id.toString();
     const chatBox = document.getElementById('chat-box');
 
@@ -453,7 +473,7 @@ function waehleSektor(id) {
         });
     }
 
-    // 4. EBENEN-WECHSEL (Spezial-Logik für 21 & 22 einbauen, falls nötig)
+    // 4. BESTEHENDER EBENEN-WECHSEL (Spezial-Logik für 21 & 22)
     if (id == 20) {
         wechselEbene('ebene21', id);
     } else if (id == 21) {
