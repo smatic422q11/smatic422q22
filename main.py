@@ -460,7 +460,7 @@ async def chat(request: Request):
             f"ZEIT: {user_time}. BIO: {bio_context}. "
             "REGEL: Blende die Uhrzeit NIEMALS starr ein. "
             "REGEL: Wenn der User 'Gefühlsvorderung' sagt, blende immer ein 'V' ein. "
-            "STIL: Kurz, knackig, direkt. Wahrheit mit 'W'. "
+            "STIL: Kurz, knackig, direkt. "
             
             # BUCH-LOGIK FÜR DIE SEELEN
             "HINTERGRUND: Der User nutzt das System zur freien Meinungsbildung ODER schreibt an seiner Biografie für sein E-Book. "
@@ -622,6 +622,7 @@ async def get_live_ermittlung(sector_id: str, request: Request):
             f"Du bist der biografische Begleiter für den Sektor: {seelen_name}.\n"          
             f"Aufgabe: Eine tiefe, ausführliche Live-Ermittlung für den User ({user_name}) in der M&M Community.\n"  
             f"Nutze den Platz maximal aus. Schreibe lange Analysen.\n\n"
+            f"DATEN:\n{google_ergebnisse}\n\n"
             f"Antworte AUSSCHLIESSLICH mit dem nackten JSON-Objekt ohne Einleitung.\n"
             '{"widersprueche": ["...", "..."], "google_ergebnisse": "...", "lagebericht": "...", "akteure": "...", "kontrast": "...", "fazit": "..."}'
         )
