@@ -416,34 +416,27 @@ function updateBoxFarben() {
     });
 }
      
-function waehleSektor(id) {
-    const istAdmin = currentUserEmail === "mmcommunity22@gmail.com";
-    const istVerifiziert = typeof verifiziert !== 'undefined' && verifiziert === true;
+async function waehleSektor(id) {
+    const isAdmin = (userEmail === "deine-admin-email@beispiel.com");
+    
+    // 1. Datenbank-Abfrage: Ist der Sektor für diesen User freigeschaltet?
+    const zugriffErlaubt = await checkZugriff(id);
 
-    if (!istAdmin) {
-        if (!istVerifiziert) {
-            console.log("Zugriff verweigert: Bitte erst verifizieren.");
-            return;
-        }
-
-        if (id === '21' || id === '22') {
-            console.log("Zugriff verweigert: Sektor 21/22 nur nach Abschluss der Reise.");
-            return;
-        }
-
-        if (!checkDatabaseAccess(id)) {
-            console.log("Zugriff verweigert: Sektor laut Datenbank nicht freigeschaltet.");
-            return;
-        }
+    // 2. Sicherheits-Filter
+    if (!isAdmin && !zugriffErlaubt) {
+        alert("Zugriff verweigert. Bitte erst verifizieren oder Reise fortsetzen.");
+        return;
     }
 
     aktuelleSektorId = id.toString();
     const chatBox = document.getElementById('chat-box');
 
+    // Falls Sektor-Speicher leer ist, neu anlegen
     if (!alleSektorenVerlaeufe[aktuelleSektorId]) {
         alleSektorenVerlaeufe[aktuelleSektorId] = [];
         chatBox.innerHTML = `<i>Verbindung zu Sektor ${themen[id]} (${seelenNamen[id]}) bereit...</i>`;
     } else {
+        // Chat-Fenster leeren und alte Nachrichten dieses Sektors laden
         chatBox.innerHTML = "";
         alleSektorenVerlaeufe[aktuelleSektorId].forEach(msg => {
             const istUser = msg.role === "user";
@@ -453,6 +446,7 @@ function waehleSektor(id) {
         });
     }
 
+    // Deine bestehende Ebenen-Logik aufrufen
     wechselEbene('ebene2', id);
 }
         const adminSelect = document.getElementById('admin-sektor-auswahl'); if (adminSelect) { themen.forEach((t, i) => { adminSelect.innerHTML += `<option value="${i}">Sektor ${i+1}: ${t}</option>`; }); }
