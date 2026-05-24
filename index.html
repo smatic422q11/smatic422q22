@@ -565,13 +565,31 @@ function starteChatHintergrund() {
 
 // Die Steuerung beim Wechseln der Ebenen
 function wechselEbene(id, index = null) {
+    // SICHERHEITSPRÜFUNG: Wenn Ebene nicht das Dashboard (ebene1) ist, prüfe auf Verifizierung
+    const geschuetzteEbenen = ['ebene2', 'ebene3', 'ebene4', 'ebene21', 'ebene22', 'admin_ebene'];
+    
+    if (geschuetzteEbenen.includes(id) && userEmail === "") {
+        alert("Zugriff verweigert! Bitte erst Anker setzen und Schlüsselcode validieren.");
+        return; // Bricht die Funktion ab, bevor die Ebene aktiv wird
+    }
+
     if (typeof chatSlideshow !== 'undefined') {
         clearInterval(chatSlideshow);
     }
 
     document.querySelectorAll('.ebene').forEach(e => e.classList.remove('aktiv'));
     document.getElementById(id).classList.add('aktiv');
-    if (id === 'admin_ebene') { ladeNeueAdminStats(); }
+    
+    // Admin-Zugriff prüfen
+    if (id === 'admin_ebene') { 
+        if (userEmail === "mmcommunity22@gmail.com") {
+            ladeNeueAdminStats(); 
+        } else {
+            alert("Zugriff verweigert: Nur für Administrator.");
+            wechselEbene('ebene1'); // Zurückwerfen
+            return;
+        }
+    }
 
     if (id === 'ebene2' && index !== null) {
         starteScanOptik(index); 
@@ -594,27 +612,6 @@ function wechselEbene(id, index = null) {
         document.getElementById('weiter-nav').style.display = 'none';
     }
 }
-        function naechste() {
-            if(aktuelleEbeneIdx < 4) wechselEbene('ebene' + (aktuelleEbeneIdx + 1));
-        }
-
-     document.addEventListener('keypress', function (e) {
-    if (e.key === 'Enter') {
-        const activeEl = document.activeElement;
-        
-        // Wenn du im Chat tippst -> Senden!
-        if (activeEl.id === 'chat-in') {
-            sendeChat();
-        } 
-        // Falls du gerade im Login-Bereich bist
-        else if (activeEl.id === 'db-mail') {
-            handleAnkerSetzen();
-        }
-        else if (activeEl.id === 'db-code') {
-            handleVerifyAccess();
-        }
-    }
-}); 
      
 async function ladeNeueAdminStats() {
     const zaehler = document.getElementById('admin-schluessel-zaehler');
