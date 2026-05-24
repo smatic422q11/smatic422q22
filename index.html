@@ -411,39 +411,51 @@ function synchronisiereSektoren(statusArray) {
 
 function updateBoxFarben() {
     const boxen = document.querySelectorAll('.box');
+    let aktiverIndex = sektorZustand.indexOf('aktiv_gelb');
+
     boxen.forEach((box, i) => {
-        // Wir setzen die Klasse basierend auf dem Zustand
-        let blinken = (sektorZustand[i] === 'aktiv_gelb') ? ' blink-animation' : '';
-        box.className = 'box ' + sektorZustand[i] + blinken;
+        if (sektorZustand[i] === 'erledigt_gruen') {
+            box.className = 'box erledigt_gruen';
+        } else if (i === aktiverIndex) {
+            box.className = 'box aktiv_gelb blink-animation';
+        } else {
+            box.className = 'box gesperrt';
+        }
     });
 }
-      
+function schliesseSektorAb(id) {
+    // 1. Aktuellen grün machen
+    sektorZustand[id] = 'erledigt_gruen';
+    
+    // 2. Nächsten aktivieren (gelb blinkend)
+    let naechster = parseInt(id) + 1;
+    if (naechster < sektorZustand.length) {
+        sektorZustand[naechster] = 'aktiv_gelb';
+    }
+    
+    // 3. Optik sofort aktualisieren
+    updateBoxFarben();
+}
+     
 function waehleSektor(id) {
-    // DER WÄCHTER: Wenn keine E-Mail gesetzt ist, wird der Klick ignoriert
+    // 1. Wächter: Authentifizierung
     if (userEmail === "") {
         alert("Zugriff verweigert! Bitte zuerst Anker setzen und verifizieren.");
-        return; // Hier stoppt die Funktion, der Sektor öffnet sich nicht
+        return;
     }
 
-    // Wenn verifiziert, läuft dein Code wie bisher weiter
+    // 2. LINEARER PROZESS: Darf er hier rein?
+    // Wir prüfen, ob der Sektor gelb blinkt. Nur dann darf er geöffnet werden.
+    if (sektorZustand[id] !== 'aktiv_gelb') {
+        alert("Sektor gesperrt. Du musst den vorangegangenen Sektor erst vollenden.");
+        return;
+    }
+
+    // Wenn beide Hürden genommen sind, geht es weiter
     aktuelleSektorId = id.toString();
-    const chatBox = document.getElementById('chat-box');
-
-    if (!alleSektorenVerlaeufe[aktuelleSektorId]) {
-        alleSektorenVerlaeufe[aktuelleSektorId] = [];
-        chatBox.innerHTML = `<i>Verbindung zu Sektor ${themen[id]} (${seelenNamen[id]}) bereit...</i>`;
-    } else {
-        chatBox.innerHTML = "";
-        alleSektorenVerlaeufe[aktuelleSektorId].forEach(msg => {
-            const istUser = msg.role === "user";
-            const farbe = istUser ? "#fff" : "#ffd700";
-            const sender = istUser ? "Du" : seelenNamen[aktuelleSektorId];
-            chatBox.innerHTML += `<div style="color: ${farbe}; margin-bottom: 10px;"><b>${sender}:</b> ${msg.parts[0].text}</div>`;
-        });
-    }
-
+    // ... (dein restlicher Code für chatBox und wechselEbene) ...
     wechselEbene('ebene2', id);
-}
+}      
 
         const adminSelect = document.getElementById('admin-sektor-auswahl'); if (adminSelect) { themen.forEach((t, i) => { adminSelect.innerHTML += `<option value="${i}">Sektor ${i+1}: ${t}</option>`; }); }
       
