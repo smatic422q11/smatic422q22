@@ -132,9 +132,9 @@
 </div>
         <div class="grid" id="main-grid"></div>
         <div class="fundament-container">
-            <div class="fundament-box" onclick="wechselEbene('ebene21')"><div class="text">21 | Kapital und Verwaltung</div></div>
-            <div class="fundament-box" onclick="wechselEbene('ebene22')"><div class="text">DAS KOLLEKTIV | 22</div></div>
-        </div>
+        <div class="fundament-box" id="sektor21-box" onclick="waehleSektor(20)"><div class="text">21 | Kapital und Verwaltung</div></div>
+       <div class="fundament-box" id="sektor22-box" onclick="waehleSektor(21)"><div class="text">DAS KOLLEKTIV | 22</div></div>
+</div>
         <div class="mm-fundament-final">
             <div style="color: #003d8f; font-weight: 900; letter-spacing: 12px; text-transform: uppercase; font-size: 1.1rem;">M&M Community Fundament</div>
         </div>
@@ -397,7 +397,8 @@
         </div>`;
 });
      
- function rendernGrid() {
+function rendernGrid() {
+    // Oberes Grid rendern (wie gehabt)
     const grid = document.getElementById('main-grid');
     grid.innerHTML = "";
     themen.forEach((t, i) => {
@@ -407,9 +408,11 @@
                 <div class="text">${t}</div>
             </div>`;
     });
+
+    // UNTEN: Fundament-Boxen dynamisch färben
+    document.getElementById('sektor21-box').className = 'fundament-box ' + sektorZustand[20];
+    document.getElementById('sektor22-box').className = 'fundament-box ' + sektorZustand[21];
 }
-// Einmal beim Start ausführen
-rendernGrid();
      
 function waehleSektor(id) {
     // 1. Authentifizierung prüfen (Der Anker)
