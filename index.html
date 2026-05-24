@@ -62,12 +62,27 @@
         
       @keyframes wolkenZug { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
         
- /* Zustands-Farben für die Boxen */
+/* Globale Basis für alle Boxen */
+.box {
+    background-color: black;
+    color: white;
+    border: 2px solid transparent; /* Standard: kein Rand */
+    transition: all 0.3s ease;
+}
+
+/* 21 und 22: Feste schwarze Basis */
+.footer-box {
+    background-color: black;
+    color: white;
+    border: 2px solid transparent;
+}
+
+/* Zustands-Farben */
 .status-blau { border: 2px solid blue !important; }
 .status-rot { border: 2px solid red !important; }
 .status-gruen { border: 2px solid green !important; }
 
-/* Gelb mit Blink-Effekt */
+/* Gelb mit Blink-Effekt: Hier wechselt der Rand zwischen Gelb und Grau */
 .status-gelb {
     border: 2px solid yellow !important;
     animation: blink-soft-grey 2s infinite !important;
@@ -76,7 +91,7 @@
 @keyframes blink-soft-grey {
     0%, 100% { border-color: yellow; }
     50% { border-color: gray; }
-}       
+}
     </style>
 </head>
 <body>
