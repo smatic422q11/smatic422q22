@@ -639,60 +639,58 @@ function starteChatHintergrund() {
 }
 
 // Die Steuerung beim Wechseln der Ebenen
-function wechselEbene(zielEbene, id = null) {
-    // 1. ADMIN-CHECK
-    const adminMail = document.getElementById('db-mail') ? document.getElementById('db-mail').value.trim() : "";
-    const isAdmin = (adminMail === "mmcommunity22@gmail.com");
-
-    // 2. SICHERHEITS-CHECK: Ist der User verifiziert?
-    // Erlaubt für Dashboard, für Admin, oder wenn userEmail gesetzt ist.
-    if (zielEbene !== 'ebene1' && zielEbene !== 'admin_ebene' && !isAdmin && !userEmail) {
-        alert("Zugriff verweigert! Bitte zuerst Anker setzen und Schlüsselcode verifizieren.");
-        return; 
+// Die Steuerung beim Wechseln der Ebenen
+function wechselEbene(id, index = null) {
+    if (typeof chatSlideshow !== 'undefined') {
+        clearInterval(chatSlideshow);
     }
 
-    // 3. TIMERS & OPTIK ZURÜCKSETZEN
-    if (typeof chatSlideshow !== 'undefined') clearInterval(chatSlideshow);
-    if (typeof scanSlideshow !== 'undefined') clearInterval(scanSlideshow);
+    document.querySelectorAll('.ebene').forEach(e => e.classList.remove('aktiv'));
+    document.getElementById(id).classList.add('aktiv');
+    if (id === 'admin_ebene') { ladeNeueAdminStats(); }
 
-    // 4. ALLE EBENEN AUSBLENDEN
-    document.querySelectorAll('.ebene').forEach(el => el.classList.remove('aktiv'));
-    
-    // 5. SPEZIAL-WEICHE (21/22) ODER NORMALER WECHSEL
-    if (id == 20) {
-        document.getElementById('ebene21').classList.add('aktiv');
-    } else if (id == 21) {
-        document.getElementById('ebene22').classList.add('aktiv');
-    } else if (zielEbene) {
-        document.getElementById(zielEbene).classList.add('aktiv');
-    }
-    
-    // 6. FUNKTIONALE LOGIK FÜR BESTIMMTE EBENEN
-    if (zielEbene === 'admin_ebene') { 
-        ladeNeueAdminStats(); 
-    } else if (zielEbene === 'ebene2' && id !== null) {
-        starteScanOptik(id); 
-    } else if (zielEbene === 'ebene3') {
+    if (id === 'ebene2' && index !== null) {
+        starteScanOptik(index); 
+    } else if (id === 'ebene3') {
         starteChatHintergrund(); 
-    }
-    
-    // 7. NAVIGATION & LEGAL-LINKS
-    const legalLinks = document.getElementById('legal-links');
-    if (legalLinks) {
-        legalLinks.style.visibility = (zielEbene === 'ebene1') ? 'visible' : 'hidden';
+    } else {
+        if (typeof scanSlideshow !== 'undefined') clearInterval(scanSlideshow);
     }
 
-    // Navigations-Code für weiter-nav
-    if (zielEbene === 'ebene1') {
+    document.getElementById('legal-links').style.visibility = (id === 'ebene1') ? 'visible' : 'hidden';
+
+    // Navigations-Code für weiter-nav etc.
+    if(id === 'ebene1') {
         aktuelleEbeneIdx = 1;
         document.getElementById('weiter-nav').style.display = 'none';
-    } else if (zielEbene.startsWith('ebene') && !['ebene21', 'ebene22', 'admin_ebene'].includes(zielEbene)) {
-        aktuelleEbeneIdx = parseInt(zielEbene.replace('ebene', ''));
+    } else if(id.startsWith('ebene') && !['ebene21', 'ebene22', 'admin_ebene'].includes(id)) {
+        aktuelleEbeneIdx = parseInt(id.replace('ebene', ''));
         document.getElementById('weiter-nav').style.display = (aktuelleEbeneIdx === 4) ? 'none' : 'inline-block';
     } else {
         document.getElementById('weiter-nav').style.display = 'none';
     }
 }
+        function naechste() {
+            if(aktuelleEbeneIdx < 4) wechselEbene('ebene' + (aktuelleEbeneIdx + 1));
+        }
+
+     document.addEventListener('keypress', function (e) {
+    if (e.key === 'Enter') {
+        const activeEl = document.activeElement;
+        
+        // Wenn du im Chat tippst -> Senden!
+        if (activeEl.id === 'chat-in') {
+            sendeChat();
+        } 
+        // Falls du gerade im Login-Bereich bist
+        else if (activeEl.id === 'db-mail') {
+            handleAnkerSetzen();
+        }
+        else if (activeEl.id === 'db-code') {
+            handleVerifyAccess();
+        }
+    }
+}); 
 
      
 async function ladeNeueAdminStats() {
