@@ -627,11 +627,11 @@ async def get_live_ermittlung(sector_id: str, request: Request):
         prompt = (
             f"Antworte AUSSCHLIESSLICH mit dem nackten JSON-Objekt ohne Einleitung.\n"
             f"{{\n"
-            f'"themen_resonanz": "Wie reagiert der User auf die sektor-spezifische These?",\n'
-            f'"charakter_entwicklung": "Welche persönliche Entwicklung zeigt der User in diesem Sektor?",\n'
-            f'"biografie_fortschritt": "Welche Erkenntnisse wurden für das eBook gewonnen?",\n'
-            f'"community_kontrast": "Wie fügt sich der User in das kollektive Gedächtnis ein?",\n'
-            f'"fazit_chronik": "Zusammenfassender biografischer Lagebericht."\n'
+            f"themen_resonanz": "Wie reagiert der User auf die sektor-spezifische These?",\n'
+            f"charakter_entwicklung": "Welche persönliche Entwicklung zeigt der User in diesem Sektor?",\n'
+            f"biografie_fortschritt": "Welche Erkenntnisse wurden für das eBook gewonnen?",\n'
+            f"community_kontrast": "Wie fügt sich der User in das kollektive Gedächtnis ein?",\n'
+            f"fazit_chronik": "Zusammenfassender biografischer Lagebericht."\n'
             f"}}"
             '{"widersprueche": ["...", "..."], "lagebericht": "...", "akteure": "...", "kontrast": "...", "fazit": "..."}'   
         )
