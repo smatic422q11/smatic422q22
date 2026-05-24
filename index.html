@@ -440,30 +440,33 @@ function aktualisiereDashboardFarben(statusListe) {
 
 function waehleSektor(id) {
     // 1. ADMIN-CHECK
-    const adminMail = document.getElementById('db-mail').value.trim();
+    const adminMail = document.getElementById('db-mail') ? document.getElementById('db-mail').value.trim() : "";
     const isAdmin = (adminMail === "mmcommunity22@gmail.com");
 
-    // 2. SPERR-LOGIK (Nur für normale User aktiv)
-    // Wir prüfen die ID dynamisch: Grid-Boxen haben 'box-id', Spezial-Boxen 'sektor-box-id'
+    // 2. GEISTER-USER SPERRE (Verifizierung zwingend erforderlich)
+    if (!isAdmin && userEmail === "") {
+        alert("Zugriff verweigert! Bitte erst Anker setzen und verifizieren.");
+        return; 
+    }
+
+    // 3. SPERR-LOGIK (Status-Prüfung: Ist der Sektor blau/geschlossen?)
     const boxId = (id < 20) ? `box-${id}` : `sektor-box-${id}`;
     const box = document.getElementById(boxId);
     
-    // Wenn NICHT Admin UND die Box hat den Status 'status-blau' -> Sperren
+    // Wenn nicht Admin und der Sektor ist 'status-blau' -> Sperren
     if (!isAdmin && box && box.classList.contains('status-blau')) {
         alert("Dieser Sektor ist noch verschlossen. Vollende erst deine aktuelle Mission.");
         return; 
     }
 
-    // 3. BESTEHENDE LOGIK: Chat-Verlauf laden (Original-Struktur)
+    // 4. BESTEHENDE LOGIK: Chat-Verlauf laden
     aktuelleSektorId = id.toString();
     const chatBox = document.getElementById('chat-box');
 
-    // Falls Sektor-Speicher leer ist, neu anlegen
     if (!alleSektorenVerlaeufe[aktuelleSektorId]) {
         alleSektorenVerlaeufe[aktuelleSektorId] = [];
         chatBox.innerHTML = `<i>Verbindung zu Sektor ${themen[id]} (${seelenNamen[id]}) bereit...</i>`;
     } else {
-        // Chat-Fenster leeren und alte Nachrichten dieses Sektors laden
         chatBox.innerHTML = "";
         alleSektorenVerlaeufe[aktuelleSektorId].forEach(msg => {
             const istUser = msg.role === "user";
@@ -473,7 +476,7 @@ function waehleSektor(id) {
         });
     }
 
-    // 4. BESTEHENDER EBENEN-WECHSEL (Spezial-Logik für 21 & 22)
+    // 5. EBENEN-WECHSEL
     if (id == 20) {
         wechselEbene('ebene21', id);
     } else if (id == 21) {
@@ -639,16 +642,29 @@ function starteChatHintergrund() {
 }
 
 // Die Steuerung beim Wechseln der Ebenen
-// Die Steuerung beim Wechseln der Ebenen
 function wechselEbene(id, index = null) {
+    // 1. NEUER SICHERHEITS-CHECK: Geister-User sperren
+    // Erlaubt für Dashboard (ebene1), für den Admin, oder wenn userEmail gesetzt ist.
+    const adminMail = document.getElementById('db-mail') ? document.getElementById('db-mail').value.trim() : "";
+    const isAdmin = (adminMail === "mmcommunity22@gmail.com");
+
+    if (id !== 'ebene1' && id !== 'admin_ebene' && !isAdmin && userEmail === "") {
+        alert("Zugriff verweigert! Bitte zuerst Anker setzen und Schlüsselcode verifizieren.");
+        return; // Bricht den Ebenen-Wechsel sofort ab
+    }
+
+    // 2. BESTAND: Timer-Reset
     if (typeof chatSlideshow !== 'undefined') {
         clearInterval(chatSlideshow);
     }
 
+    // 3. BESTAND: Alle ausblenden und Ziel einblenden
     document.querySelectorAll('.ebene').forEach(e => e.classList.remove('aktiv'));
     document.getElementById(id).classList.add('aktiv');
+    
     if (id === 'admin_ebene') { ladeNeueAdminStats(); }
 
+    // 4. BESTAND: Spezial-Logik für Ebenen
     if (id === 'ebene2' && index !== null) {
         starteScanOptik(index); 
     } else if (id === 'ebene3') {
@@ -657,9 +673,10 @@ function wechselEbene(id, index = null) {
         if (typeof scanSlideshow !== 'undefined') clearInterval(scanSlideshow);
     }
 
+    // 5. BESTAND: Legal-Links
     document.getElementById('legal-links').style.visibility = (id === 'ebene1') ? 'visible' : 'hidden';
 
-    // Navigations-Code für weiter-nav etc.
+    // 6. BESTAND: Navigations-Logik für weiter-nav
     if(id === 'ebene1') {
         aktuelleEbeneIdx = 1;
         document.getElementById('weiter-nav').style.display = 'none';
@@ -670,28 +687,6 @@ function wechselEbene(id, index = null) {
         document.getElementById('weiter-nav').style.display = 'none';
     }
 }
-        function naechste() {
-            if(aktuelleEbeneIdx < 4) wechselEbene('ebene' + (aktuelleEbeneIdx + 1));
-        }
-
-     document.addEventListener('keypress', function (e) {
-    if (e.key === 'Enter') {
-        const activeEl = document.activeElement;
-        
-        // Wenn du im Chat tippst -> Senden!
-        if (activeEl.id === 'chat-in') {
-            sendeChat();
-        } 
-        // Falls du gerade im Login-Bereich bist
-        else if (activeEl.id === 'db-mail') {
-            handleAnkerSetzen();
-        }
-        else if (activeEl.id === 'db-code') {
-            handleVerifyAccess();
-        }
-    }
-}); 
-
      
 async function ladeNeueAdminStats() {
     const zaehler = document.getElementById('admin-schluessel-zaehler');
