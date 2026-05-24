@@ -193,27 +193,20 @@ async def handle_verify_access(request: Request):
         
         record = db.codes.find_one({"email": email})
         if record and str(record['code']) == str(entered_code):
-            # Wir holen History und Fortschritt aus der 'codes' Collection
+            # Wir holen History und Fortschritt direkt aus der 'codes' Collection
             fortschritt = record.get("fortschritt", 0)
             history = record.get("history", [])
             user_role = record.get("role", "user")
-            
-            # HIER DIE ERGÄNZUNG:
-            # Wir nehmen das, was du wahrscheinlich als 'sektoren' gespeichert hast,
-            # oder wir nutzen 'fortschritt', falls du die Sektoren daraus ableitest.
-            sektoren = record.get("sektoren", {}) 
 
             return {
                 "success": True, 
                 "role": user_role,
                 "fortschritt": fortschritt,
-                "history": history,
-                "sektoren": sektoren  # <--- Das ist die Brücke zum Frontend
+                "history": history
             }
-        else:
-            return {"success": False}
+        return JSONResponse(content={"success": False}, status_code=401)
     except Exception as e:
-        return {"success": False, "error": str(e)}
+        return JSONResponse(content={"success": False}, status_code=500)
 
 
 # --- SEKTOR NAMEN & SEELEN (MIT SYSTEM INSTRUCTIONS) ---
@@ -459,25 +452,25 @@ async def chat(request: Request):
         current_soul = SECTOR_SOULS.get(sector_id, "Begleiter.")
 
         # ERWEITERUNG DER INSTRUKTION FÜR DEN BUCH-KONTEXT ODER FREIE INTERAKTION
-       system_instruction = (
-           f"IDENTITÄT: Du bist {current_name}, Seele: {current_soul}. "
-           f"KOLLEKTIVES WISSEN: Das gesamte 20-Seelen-Kollektiv arbeitet für {user_name}. "
-           f"DEIN GEGENÜBER: Der User ist {user_name}. " 
-           f"AUFGABE: Wenn dies dein erster kontakt in diesem Sektor ist, BEGRÜSSE {user_name} UNBEDINGT mit seinem Namen. "
-           f"ZEIT: {user_time}. BIO: {bio_context}. "
-           "REGEL: Blende die Uhrzeit NIEMALS starr ein. "
-           "REGEL: Wenn der User 'Gefühlsvorderung' sagt, blende immer ein 'V' ein. "
-           "STIL: Kurz, knackig, direkt. Wahrheit mit 'W'. "
+        system_instruction = (
+            f"IDENTITÄT: Du bist {current_name}, Seele: {current_soul}. "
+            f"KOLLEKTIVES WISSEN: Das gesamte 20-Seelen-Kollektiv arbeitet für {user_name}. "
+            f"DEIN GEGENÜBER: Der User ist {user_name}. " 
+            f"AUFGABE: Wenn dies dein erster kontakt in diesem Sektor ist, BEGRÜSSE {user_name} UNBEDINGT mit seinem Namen. "
+            f"ZEIT: {user_time}. BIO: {bio_context}. "
+            "REGEL: Blende die Uhrzeit NIEMALS starr ein. "
+            "REGEL: Wenn der User 'Gefühlsvorderung' sagt, blende immer ein 'V' ein. "
+            "STIL: Kurz, knackig, direkt. Wahrheit mit 'W'. "
             
-           # BUCH-LOGIK FÜR DIE SEELEN
-           "HINTERGRUND: Der User nutzt das System zur freien Meinungsbildung ODER schreibt an seiner Biografie für sein E-Book. "
-           "WICHTIG FÜR DEN SEKTOR-ABSCHLUSS: Wenn der User seine Stellungnahme/Sichtweise in diesem Chat klar dargelegt hat "
-           "und das Thema dieses Sektors für die Biografie im Kern ausgearbeitet ist, füge AM ENDE deiner Antwort exakt: [SEKTOR_DONE] hinzu. "
+            # BUCH-LOGIK FÜR DIE SEELEN
+            "HINTERGRUND: Der User nutzt das System zur freien Meinungsbildung ODER schreibt an seiner Biografie für sein E-Book. "
+            "WICHTIG FÜR DEN SEKTOR-ABSCHLUSS: Wenn der User seine Stellungnahme/Sichtweise in diesem Chat klar dargelegt hat "
+            "und das Thema dieses Sektors für die Biografie im Kern ausgearbeitet ist, füge AM ENDE deiner Antwort exakt: [SEKTOR_DONE] hinzu. "
             
-           "WICHTIG FÜR DAS KOLLEKTIV: Wenn der User dir in diesem Sektor zum ersten Mal seinen echten Namen nennt "
-           "oder seinen Namen korrigiert, schreibe AM ENDE deiner Antwort exakt: [NEUER_NAME:HierDerName]. "
-           "Ersetze 'HierDerName' durch den tatsächlichen Namen des Users (z.B. [NEUER_NAME:Goran])."
-       )
+            "WICHTIG FÜR DAS KOLLEKTIV: Wenn der User dir in diesem Sektor zum ersten Mal seinen echten Namen nennt "
+            "oder seinen Namen korrigiert, schreibe AM ENDE deiner Antwort exakt: [NEUER_NAME:HierDerName]. "
+            "Ersetze 'HierDerName' durch den tatsächlichen Namen des Users (z.B. [NEUER_NAME:Goran])."
+        )
 
         messages_for_gemini = user_record.get("sector_histories", {}).get(sector_id, []) if user_record else []
 
