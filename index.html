@@ -62,22 +62,21 @@
         
       @keyframes wolkenZug { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
         
-  /* Das pulsierende Licht für aktive Sektoren */
+ /* Zustands-Farben für die Boxen */
+.status-blau { border: 2px solid blue !important; }
+.status-rot { border: 2px solid red !important; }
+.status-gruen { border: 2px solid green !important; }
+
+/* Gelb mit Blink-Effekt */
 .status-gelb {
+    border: 2px solid yellow !important;
     animation: blink-soft-grey 2s infinite !important;
-    border: 2px solid #ffd700 !important;
 }
 
 @keyframes blink-soft-grey {
-    0%, 100% { 
-        background-color: #000 !important; 
-        box-shadow: 0 0 10px #ffd700; 
-    }
-    50% { 
-        background-color: #333 !important; /* Das ist das helle Grau-Blinken */
-        box-shadow: 0 0 20px #ffd700; 
-    }
-}
+    0%, 100% { border-color: yellow; }
+    50% { border-color: gray; }
+}       
     </style>
 </head>
 <body>
@@ -402,9 +401,9 @@
        let alleSektorenVerlaeufe = {};
        let globaleBiografieDaten = "";
      
-     themen.forEach((t, i) => {
+    themen.forEach((t, i) => {
     grid.innerHTML += `
-        <div class="box status-blau" id="box-${i}">
+        <div class="box status-blau" id="box-${i}" style="pointer-events: none; opacity: 0.5;">
             <div class="text" onclick="waehleSektor(${i})">${t}</div>
         </div>`;
 });
