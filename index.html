@@ -407,27 +407,29 @@ function synchronisiereSektoren(statusArray) {
     
     // Nach dem Sync zeichnen wir die Boxen neu
     updateBoxFarben();
-}
+} 
 function waehleSektor(id) {
-    // 1. Wächter: Authentifizierung
-    if (userEmail === "") {
-        alert("Zugriff verweigert! Bitte zuerst Anker setzen und verifizieren.");
-        return;
-    }
-
-    // 2. LINEARER PROZESS: Darf er hier rein?
-    // Wir prüfen, ob der Sektor gelb blinkt. Nur dann darf er geöffnet werden.
-    if (sektorZustand[id] !== 'aktiv_gelb') {
-        alert("Sektor gesperrt. Du musst den vorangegangenen Sektor erst vollenden.");
-        return;
-    }
-
-    // Wenn beide Hürden genommen sind, geht es weiter
     aktuelleSektorId = id.toString();
-    // ... (dein restlicher Code für chatBox und wechselEbene) ...
-    wechselEbene('ebene2', id);
-}      
+    const chatBox = document.getElementById('chat-box');
 
+    // Falls Sektor-Speicher leer ist, neu anlegen
+    if (!alleSektorenVerlaeufe[aktuelleSektorId]) {
+        alleSektorenVerlaeufe[aktuelleSektorId] = [];
+        chatBox.innerHTML = `<i>Verbindung zu Sektor ${themen[id]} (${seelenNamen[id]}) bereit...</i>`;
+    } else {
+        // Chat-Fenster leeren und alte Nachrichten dieses Sektors laden
+        chatBox.innerHTML = "";
+        alleSektorenVerlaeufe[aktuelleSektorId].forEach(msg => {
+            const istUser = msg.role === "user";
+            const farbe = istUser ? "#fff" : "#ffd700";
+            const sender = istUser ? "Du" : seelenNamen[aktuelleSektorId];
+            chatBox.innerHTML += `<div style="color: ${farbe}; margin-bottom: 10px;"><b>${sender}:</b> ${msg.parts[0].text}</div>`;
+        });
+    }
+
+    // Deine bestehende Ebenen-Logik aufrufen
+    wechselEbene('ebene2', id);
+}
         const adminSelect = document.getElementById('admin-sektor-auswahl'); if (adminSelect) { themen.forEach((t, i) => { adminSelect.innerHTML += `<option value="${i}">Sektor ${i+1}: ${t}</option>`; }); }
       
         // 2. Funktion für die Rechtliche Texte
