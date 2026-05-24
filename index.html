@@ -417,37 +417,30 @@ function updateBoxFarben() {
 }
      
 async function waehleSektor(id) {
-    const isAdmin = (userEmail === "mmcommunity22@gmail.com");
-    
-    // 1. Datenbank-Abfrage: Ist der Sektor für diesen User freigeschaltet?
-    const zugriffErlaubt = await checkZugriff(id);
+    // 1. Identifikation: Wer fragt an?
+    const user = await getAktuellenUser(); // Deine Funktion, die User-Daten aus DB lädt
 
-    // 2. Sicherheits-Filter
-    if (!isAdmin && !zugriffErlaubt) {
-        alert("Zugriff verweigert. Bitte erst verifizieren oder Reise fortsetzen.");
+    // 2. Admin-Check: Wenn Admin, dann sofort alles offen
+    if (user.email === "mmcommunity22@gmail.com") {
+        ausfuehren(id);
         return;
     }
 
-    aktuelleSektorId = id.toString();
-    const chatBox = document.getElementById('chat-box');
-
-    // Falls Sektor-Speicher leer ist, neu anlegen
-    if (!alleSektorenVerlaeufe[aktuelleSektorId]) {
-        alleSektorenVerlaeufe[aktuelleSektorId] = [];
-        chatBox.innerHTML = `<i>Verbindung zu Sektor ${themen[id]} (${seelenNamen[id]}) bereit...</i>`;
-    } else {
-        // Chat-Fenster leeren und alte Nachrichten dieses Sektors laden
-        chatBox.innerHTML = "";
-        alleSektorenVerlaeufe[aktuelleSektorId].forEach(msg => {
-            const istUser = msg.role === "user";
-            const farbe = istUser ? "#fff" : "#ffd700";
-            const sender = istUser ? "Du" : seelenNamen[aktuelleSektorId];
-            chatBox.innerHTML += `<div style="color: ${farbe}; margin-bottom: 10px;"><b>${sender}:</b> ${msg.parts[0].text}</div>`;
-        });
+    // 3. Verifizierungs-Check: Ohne Verifizierung geht gar nichts
+    if (!user.istVerifiziert) {
+        alert("Bitte erst verifizieren.");
+        return;
     }
 
-    // Deine bestehende Ebenen-Logik aufrufen
-    wechselEbene('ebene2', id);
+    // 4. Datenbank-Abfrage: Dynamische Prüfung
+    // Hier fragst du die DB: "Darf User mit dieser ID rein?"
+    const darfRein = await checkDatenbankBerechtigung(user.email, id);
+
+    if (darfRein) {
+        ausfuehren(id);
+    } else {
+        alert("Zugriff verweigert.");
+    }
 }
         const adminSelect = document.getElementById('admin-sektor-auswahl'); if (adminSelect) { themen.forEach((t, i) => { adminSelect.innerHTML += `<option value="${i}">Sektor ${i+1}: ${t}</option>`; }); }
       
