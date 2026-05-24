@@ -389,19 +389,23 @@
        let globaleBiografieDaten = "";
        let sektorZustand = new Array(20).fill('gesperrt');
             sektorZustand[0] = 'aktiv_gelb'; // Startet immer bei Sektor 1
+
      
-     function rendernGrid() {
+    function rendernGrid() {
     const grid = document.getElementById('main-grid');
-    grid.innerHTML = ""; // Alles leeren
+    console.log("Rendern gestartet..."); // Prüfzeile für die Konsole
     
-    // Oberes Grid (0-19)
+    if (!grid) {
+        console.error("Fehler: main-grid wurde nicht gefunden!");
+        return;
+    }
+
+    grid.innerHTML = ""; 
     themen.forEach((t, i) => {
-        let blinken = sektorZustand[i] === 'aktiv_gelb' ? 'blink-animation' : '';
-        grid.innerHTML += `
-            <div class="box ${sektorZustand[i]} ${blinken}" onclick="waehleSektor(${i})">
-                <div class="text">${t}</div>
-            </div>`;
+        grid.innerHTML += `<div class="box">BOX ${i}</div>`; // Einfacher Test
     });
+    console.log("Rendern abgeschlossen.");
+}
 
     // Unteres Fundament (20-21, was Sektoren 21 & 22 entspricht)
     const box21 = document.getElementById('sektor21-box');
