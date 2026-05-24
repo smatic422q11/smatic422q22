@@ -417,29 +417,30 @@ function updateBoxFarben() {
 }
      
 async function waehleSektor(id) {
-    // 1. Authentifizierungs-Check
+    // 1. Authentifizierungs-Check: Ohne E-Mail geht gar nichts
     if (userEmail === "") {
         alert("Zugriff verweigert! Bitte zuerst Anker setzen und verifizieren.");
         return;
     }
 
-    // 2. Rollen-Check: Admin darf immer rein (sofern verifiziert)
+    // 2. Rollen-Check: Admin darf immer rein
     const isAdmin = (userEmail === "mmcommunity22@gmail.com");
 
-    // 3. Logik-Check: Nur wenn kein Admin, prüfen wir, ob die Box wirklich "aktiv" ist
+    // 3. Logik-Check für User:
+    // Nur Admin hat freien Durchgang. User müssen 'aktiv_gelb' oder 'erledigt_gruen' haben.
     if (!isAdmin) {
-        // Prüfen, ob der User den Sektor überhaupt schon erreichen darf
         if (sektorZustand[id] !== 'aktiv_gelb' && sektorZustand[id] !== 'erledigt_gruen') {
             alert("Dieser Sektor ist noch gesperrt. Arbeite dich der Reihe nach vor.");
             return;
         }
     }
 
-    // Wenn Admin ODER die Logik passt, wird der Sektor geöffnet
+    // --- PROZESS FREIGABE ---
+    // Hier wird der Sektor für alle (Admin + verifizierte User im Flow) geöffnet
     aktuelleSektorId = id.toString();
     const chatBox = document.getElementById('chat-box');
 
-    // Chat-Verlauf laden
+    // Chat-Verlauf initialisieren oder laden
     if (!alleSektorenVerlaeufe[aktuelleSektorId]) {
         alleSektorenVerlaeufe[aktuelleSektorId] = [];
         chatBox.innerHTML = `<i>Verbindung zu Sektor ${themen[id]} (${seelenNamen[id]}) bereit...</i>`;
@@ -453,6 +454,7 @@ async function waehleSektor(id) {
         });
     }
 
+    // Wechsel zur Analyse-Ebene
     wechselEbene('ebene2', id);
 }
         const adminSelect = document.getElementById('admin-sektor-auswahl'); if (adminSelect) { themen.forEach((t, i) => { adminSelect.innerHTML += `<option value="${i}">Sektor ${i+1}: ${t}</option>`; }); }
