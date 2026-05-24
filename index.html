@@ -378,6 +378,8 @@
 
  <script>
      
+       let sektorZustand = new Array(22).fill('gesperrt');
+         sektorZustand[0] = 'aktiv_gelb';
        const themen = ["Recht auf Gefühlsvorderung", "Wie werde ich Mensch", "Glaube an Friede", "Programm für Bürgerliche Rechte", "Moralische Pflicht und Verantwortung", "Menschlichkeit Wiederherstellung", "Kinderschutz-Pflicht-Elternrechte", "Wahre Richtung und Kunst", "LGBTQ und Kirche", "Trend und Tradition", "Religionsbekenntnis oder Selbstwahl", "Gesundheitswesen und Verhalten", "Arbeitswelt und Du", "Mobbing am Arbeitsplatz", "Jugendsprecher", "Ratgeber für Pensionisten", "Sozialgefallen und Widerkehr", "Nachbarschaft und Gemeinschaft", "Alleinerziehend", "Die Brücke"];
        const seelenNamen = ["Lilith", "Aris", "Mira", "Tarik", "Kiron", "Vikas", "Rhea", "Lyra", "Nova", "Marek", "Silas", "Aura", "Joris", "Sira", "Kian", "Alma", "Laris", "Liv", "Kyra", "Chiron"];
        const grid = document.getElementById('main-grid');
@@ -386,9 +388,7 @@
        let userEmail = ""; 
        let aktuelleSektorId = "0";
        let alleSektorenVerlaeufe = {};
-       let globaleBiografieDaten = "";
-       let sektorZustand = new Array(22).fill('gesperrt');
-           sektorZustand[0] = 'aktiv_gelb';
+       let globaleBiografieDaten = "";       
      
        themen.forEach((t, i) => {
     grid.innerHTML += `
@@ -397,7 +397,6 @@
         </div>`;
 });
 
-     
 function rendernGrid() {
     themen.forEach((t, i) => {
         const box = document.getElementById(`box-${i}`);
