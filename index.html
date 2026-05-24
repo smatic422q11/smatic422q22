@@ -417,7 +417,6 @@ function updateBoxFarben() {
 }
      
 function waehleSektor(id) {
-    const berechtigteSektoren = ['gefuelsvorderung', 'wie-werde-ich-mensch'];
     const istAdmin = currentUserEmail === "mmcommunity22@gmail.com";
     const istVerifiziert = typeof verifiziert !== 'undefined' && verifiziert === true;
 
@@ -432,8 +431,8 @@ function waehleSektor(id) {
             return;
         }
 
-        if (!berechtigteSektoren.includes(id.toString())) {
-            console.log("Zugriff verweigert: Sektor nicht freigeschaltet.");
+        if (!checkDatabaseAccess(id)) {
+            console.log("Zugriff verweigert: Sektor laut Datenbank nicht freigeschaltet.");
             return;
         }
     }
