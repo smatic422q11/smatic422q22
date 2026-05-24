@@ -384,17 +384,21 @@
             <div class="text" onclick="waehleSektor(${i})">${t}</div>
         </div>`;
 });
-
 function waehleSektor(id) {
+    // DER WÄCHTER: Wenn keine E-Mail gesetzt ist, wird der Klick ignoriert
+    if (userEmail === "") {
+        alert("Zugriff verweigert! Bitte zuerst Anker setzen und verifizieren.");
+        return; // Hier stoppt die Funktion, der Sektor öffnet sich nicht
+    }
+
+    // Wenn verifiziert, läuft dein Code wie bisher weiter
     aktuelleSektorId = id.toString();
     const chatBox = document.getElementById('chat-box');
 
-    // Falls Sektor-Speicher leer ist, neu anlegen
     if (!alleSektorenVerlaeufe[aktuelleSektorId]) {
         alleSektorenVerlaeufe[aktuelleSektorId] = [];
         chatBox.innerHTML = `<i>Verbindung zu Sektor ${themen[id]} (${seelenNamen[id]}) bereit...</i>`;
     } else {
-        // Chat-Fenster leeren und alte Nachrichten dieses Sektors laden
         chatBox.innerHTML = "";
         alleSektorenVerlaeufe[aktuelleSektorId].forEach(msg => {
             const istUser = msg.role === "user";
@@ -404,9 +408,9 @@ function waehleSektor(id) {
         });
     }
 
-    // Deine bestehende Ebenen-Logik aufrufen
     wechselEbene('ebene2', id);
 }
+
         const adminSelect = document.getElementById('admin-sektor-auswahl'); if (adminSelect) { themen.forEach((t, i) => { adminSelect.innerHTML += `<option value="${i}">Sektor ${i+1}: ${t}</option>`; }); }
       
         // 2. Funktion für die Rechtliche Texte
