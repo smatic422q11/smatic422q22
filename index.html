@@ -386,6 +386,12 @@
 });
 
 function waehleSektor(id) {
+    // SICHERHEITSPRÜFUNG: Wenn userEmail leer ist, blockieren wir den Klick
+    if (userEmail === "") {
+        alert("Du musst dich erst verifizieren (Anker setzen & Code eingeben), bevor du Sektoren betreten kannst.");
+        return; // Bricht die Funktion hier ab, die Box öffnet sich nicht
+    }
+
     aktuelleSektorId = id.toString();
     const chatBox = document.getElementById('chat-box');
 
@@ -394,7 +400,6 @@ function waehleSektor(id) {
         alleSektorenVerlaeufe[aktuelleSektorId] = [];
         chatBox.innerHTML = `<i>Verbindung zu Sektor ${themen[id]} (${seelenNamen[id]}) bereit...</i>`;
     } else {
-        // Chat-Fenster leeren und alte Nachrichten dieses Sektors laden
         chatBox.innerHTML = "";
         alleSektorenVerlaeufe[aktuelleSektorId].forEach(msg => {
             const istUser = msg.role === "user";
@@ -404,7 +409,6 @@ function waehleSektor(id) {
         });
     }
 
-    // Deine bestehende Ebenen-Logik aufrufen
     wechselEbene('ebene2', id);
 }
         const adminSelect = document.getElementById('admin-sektor-auswahl'); if (adminSelect) { themen.forEach((t, i) => { adminSelect.innerHTML += `<option value="${i}">Sektor ${i+1}: ${t}</option>`; }); }
