@@ -625,15 +625,12 @@ async def get_live_ermittlung(sector_id: str, request: Request):
         seelen_name = SECTOR_NAMES.get(sector_id, "KI")
 
         prompt = (
+            f"Du bist der unbestechliche KI-Scanner für Sektor: {seelen_name}.\n"
+            f"Aufgabe: Eine tiefe, ausführliche Live-Ermittlung für den User ({user_name}) in der M&M Community.\n"
+            f"Nutze den Platz maximal aus. Schreibe lange Analysen.\n\n"
+            f"DATEN:\n{google_ergebnisse}\n\n"
             f"Antworte AUSSCHLIESSLICH mit dem nackten JSON-Objekt ohne Einleitung.\n"
-            f"{{\n"
-            f"themen_resonanz": "Wie reagiert der User auf die sektor-spezifische These?",\n'
-            f"charakter_entwicklung": "Welche persönliche Entwicklung zeigt der User in diesem Sektor?",\n'
-            f"biografie_fortschritt": "Welche Erkenntnisse wurden für das eBook gewonnen?",\n'
-            f"community_kontrast": "Wie fügt sich der User in das kollektive Gedächtnis ein?",\n'
-            f"fazit_chronik": "Zusammenfassender biografischer Lagebericht."\n'
-            f"}}"
-            '{"widersprueche": ["...", "..."], "lagebericht": "...", "akteure": "...", "kontrast": "...", "fazit": "..."}'   
+            '{"widersprueche": ["...", "..."], "lagebericht": "...", "akteure": "...", "kontrast": "...", "fazit": "..."}'
         )
         api_key = os.getenv("GEMINI_API_KEY")   
         if api_key:
