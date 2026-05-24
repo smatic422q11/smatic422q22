@@ -572,25 +572,26 @@ def aktualisiere_sektor_fortschritt(email, sector_id, daten_typ, inhalt):
         
 def get_fortschritts_status(user_record):
     status_liste = []
-    # Hole das Dictionary mit den Status-Werten aus der Datenbank
     gespeicherte_status = user_record.get("sector_statuses", {})
     
-    # Finde den ersten Sektor, der NICHT 'secure' ist
+    # 1. Finde den ersten Sektor, der NICHT 'secure' (erledigt) ist
     erster_offener = -1
     for i in range(22):
         if gespeicherte_status.get(str(i)) != "secure":
             erster_offener = i
             break
             
-    # Liste für das Frontend aufbauen
+    # 2. Status-Liste generieren
     for i in range(22):
         s_id = str(i)
         if gespeicherte_status.get(s_id) == "secure":
-            status_liste.append("erledigt") # Grün
+            status_liste.append("erledigt")      # Grün
         elif i == erster_offener:
-            status_liste.append("aktiv")    # Gelb (Blinkend)
+            status_liste.append("aktiv")         # Gelb (Blinkend)
+        elif i == erster_offener + 1:
+            status_liste.append("wartend")       # Rot (Der Nächste)
         else:
-            status_liste.append("geschlossen") # Blau (Alles andere)
+            status_liste.append("geschlossen")   # Blau (Alle weiteren)
             
     return status_liste
         
