@@ -574,14 +574,14 @@ def get_fortschritts_status(user_record):
     status_liste = []
     gespeicherte_status = user_record.get("sector_statuses", {})
     
-    # 1. Finde den ersten Sektor, der NICHT 'secure' (erledigt) ist
+    # Finde den ersten Sektor, der NICHT 'secure' ist
     erster_offener = -1
     for i in range(22):
         if gespeicherte_status.get(str(i)) != "secure":
             erster_offener = i
             break
             
-    # 2. Status-Liste generieren
+    # Jetzt generieren wir das Array für alle 22 Sektoren
     for i in range(22):
         s_id = str(i)
         if gespeicherte_status.get(s_id) == "secure":
