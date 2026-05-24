@@ -62,23 +62,22 @@
         
       @keyframes wolkenZug { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
         
-   /* Design-Fix: Rahmen für alle Boxen erzwingen */
-.box, .fundament-box {
-    border: 2px solid #003d8f !important;
-    background: #000 !important;
+  /* Das pulsierende Licht für aktive Sektoren */
+.status-gelb {
+    animation: blink-soft-grey 2s infinite !important;
+    border: 2px solid #ffd700 !important;
 }
 
-/* Leuchten für den Status 'aktiv' (gelb) */
-@keyframes blink-yellow {
-    0%, 100% { border-color: #ffd700; box-shadow: 0 0 15px #ffd700; }
-    50% { border-color: #aa9900; box-shadow: 0 0 5px #aa9900; }
+@keyframes blink-soft-grey {
+    0%, 100% { 
+        background-color: #000 !important; 
+        box-shadow: 0 0 10px #ffd700; 
+    }
+    50% { 
+        background-color: #333 !important; /* Das ist das helle Grau-Blinken */
+        box-shadow: 0 0 20px #ffd700; 
+    }
 }
-.status-gelb { animation: blink-yellow 1.5s infinite !important; border: 2px solid #ffd700 !important; }
-
-/* Andere Stati */
-.status-blau { border: 2px solid #003d8f !important; }
-.status-rot { border: 2px solid #ff4d4d !important; }
-.status-gruen { border: 2px solid #00ff00 !important; }
     </style>
 </head>
 <body>
@@ -644,7 +643,7 @@ function starteChatHintergrund() {
 // Die Steuerung beim Wechseln der Ebenen
 function wechselEbene(id, index = null) {
     // 1. NEUER SICHERHEITS-CHECK: Geister-User sperren
-    // Erlaubt für Dashboard (ebene1), für den Admin, oder wenn userEmail gesetzt ist.
+    // Erlaubt für Dashboard (ebene1), für Admin, oder wenn userEmail gesetzt ist.
     const adminMail = document.getElementById('db-mail') ? document.getElementById('db-mail').value.trim() : "";
     const isAdmin = (adminMail === "mmcommunity22@gmail.com");
 
