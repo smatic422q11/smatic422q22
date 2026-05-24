@@ -61,6 +61,15 @@
         .exit-btn { background: #ff4d4d; color: #fff; margin-left: auto; }
         
       @keyframes wolkenZug { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+        
+.box.gesperrt { border-color: #003d8f; opacity: 0.5; }
+.box.aktiv_gelb { border-color: #ffd700; border-width: 3px; }
+.box.wartet_rot { border-color: #ff4d4d; }
+.box.erledigt_gruen { border-color: #00ff00; }
+
+@keyframes blinken { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
+.blink-animation { animation: blinken 1.5s infinite; }
+        
     </style>
 </head>
 <body>
