@@ -192,22 +192,19 @@ async def handle_verify_access(request: Request):
         entered_code = data.get('code')
         
         record = db.codes.find_one({"email": email})
-        if record and str(record['code']) == str(entered_code):
-            # Wir holen History und Fortschritt direkt aus der 'codes' Collection
-            fortschritt = record.get("fortschritt", 0)
-            history = record.get("history", [])
-            user_role = record.get("role", "user")
-
+        if record and str(record.get('code')) == str(entered_code):
+            # Wir berechnen jetzt die Liste der Status für alle 20 Sektoren
+            fortschritt_liste = get_fortschritts_status(record)
+            
             return {
                 "success": True, 
-                "role": user_role,
-                "fortschritt": fortschritt,
-                "history": history
+                "role": record.get("role", "user"),
+                "fortschritt": fortschritt_liste, # Das ist jetzt das Array für das Frontend
+                "history": record.get("history", [])
             }
         return JSONResponse(content={"success": False}, status_code=401)
     except Exception as e:
-        return JSONResponse(content={"success": False}, status_code=500)
-
+        return JSONResponse(content={"success": False, "error": str(e)}, status_code=500)
 
 # --- SEKTOR NAMEN & SEELEN (MIT SYSTEM INSTRUCTIONS) ---
 SECTOR_NAMES = {
@@ -572,6 +569,31 @@ def aktualisiere_sektor_fortschritt(email, sector_id, daten_typ, inhalt):
         )
     except Exception as e:
         print(f"Fehler beim Speichern des Fortschritts: {e}")
+        
+def get_fortschritts_status(user_record):
+    """
+    Erstellt das Array für das Frontend (20 Sektoren).
+    Status: 'geschlossen', 'wartend', 'aktiv', 'erledigt'
+    """
+    status_liste = []
+    # Angenommen, 'sector_statuses' ist ein Dict in MongoDB, z.B. {"0": "secure", "1": "secure"}
+    gespeicherte_status = user_record.get("sector_statuses", {})
+    
+    # Wir iterieren durch alle 20 Sektoren (0 bis 19)
+    for i in range(20):
+        s_id = str(i)
+        backend_status = gespeicherte_status.get(s_id, "")
+        
+        if backend_status == "secure":
+            status_liste.append("erledigt")
+        elif backend_status == "open":
+            status_liste.append("aktiv")
+        elif backend_status == "waiting":
+            status_liste.append("wartend")
+        else:
+            status_liste.append("geschlossen")
+            
+    return status_liste        
         
 # 2. Anpassung in der Live-Ermittlung, damit Gemini den Kontext versteht
 @app.post("/get-live-ermittlung/{sector_id}")
