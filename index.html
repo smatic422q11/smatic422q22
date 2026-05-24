@@ -811,13 +811,18 @@ async function handleVerifyAccess() {
         const data = await response.json();
 
         if (data.success) {
-            userEmail = emailInput;         // E-Mail für später merken
+            userEmail = emailInput;          // E-Mail für später merken
             chatVerlauf = data.history || []; // Bestehenden Chat laden
+            
+            // HIER DIE ENTSPERRUNG FÜR ALLES:
+            // Entfernt die Klasse 'locked-mode' von allen Sektoren, um sie klickbar zu machen
+            document.querySelectorAll('.locked-mode').forEach(el => {
+                el.classList.remove('locked-mode');
+            });
             
             alert("Zugang gewährt! Willkommen zurück.");
             
-            // HIER DIE AKTUALISIERUNG:
-            // Wir übergeben das 'fortschritt'-Array vom Server direkt an deine Farb-Logik
+            // Bestehende Farb-Logik
             if (data.fortschritt) {
                 aktualisiereDashboardFarben(data.fortschritt);
             }
