@@ -61,6 +61,16 @@
         .exit-btn { background: #ff4d4d; color: #fff; margin-left: auto; }
         
       @keyframes wolkenZug { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+        
+        .box.status-blau { border-color: #003d8f; background: #000; box-shadow: inset 0 0 10px rgba(0, 100, 255, 0.2); }
+        .box.status-rot  { border-color: #ff4d4d; background: #550000; }
+       .box.status-gelb { border-color: #ffd700; background: #555500; animation: blink-yellow 1.5s infinite; }
+       .box.status-gruen{ border-color: #00ff00; background: #004400; }
+
+@keyframes blink-yellow {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.6; }
+}
     </style>
 </head>
 <body>
@@ -378,9 +388,10 @@
        let alleSektorenVerlaeufe = {};
        let globaleBiografieDaten = "";
      
-       themen.forEach((t, i) => {
+     themen.forEach((t, i) => {
+    // Wir geben jeder Box eine eindeutige ID "sektor-box-0", "sektor-box-1" etc.
     grid.innerHTML += `
-        <div class="box">
+        <div class="box" id="sektor-box-${i}">
             <div class="text" onclick="waehleSektor(${i})">${t}</div>
         </div>`;
 });
