@@ -417,21 +417,29 @@ function updateBoxFarben() {
 }
      
 async function waehleSektor(id) {
-    const isAdmin = (userEmail === "mmcommunity22@gmail.com");
-    
-    // Datenbank-Abfrage zur Prüfung der Berechtigung
-    const zugriffErlaubt = await checkZugriff(id);
-
-    // Sicherheits-Filter: Blockiert alles, was kein Admin ist und keine DB-Freigabe hat
-    if (!isAdmin && !zugriffErlaubt) {
-        alert("Zugriff verweigert. Bitte erst verifizieren oder Reise fortsetzen.");
+    // 1. Authentifizierungs-Check
+    if (userEmail === "") {
+        alert("Zugriff verweigert! Bitte zuerst Anker setzen und verifizieren.");
         return;
     }
 
+    // 2. Rollen-Check: Admin darf immer rein (sofern verifiziert)
+    const isAdmin = (userEmail === "mmcommunity22@gmail.com");
+
+    // 3. Logik-Check: Nur wenn kein Admin, prüfen wir, ob die Box wirklich "aktiv" ist
+    if (!isAdmin) {
+        // Prüfen, ob der User den Sektor überhaupt schon erreichen darf
+        if (sektorZustand[id] !== 'aktiv_gelb' && sektorZustand[id] !== 'erledigt_gruen') {
+            alert("Dieser Sektor ist noch gesperrt. Arbeite dich der Reihe nach vor.");
+            return;
+        }
+    }
+
+    // Wenn Admin ODER die Logik passt, wird der Sektor geöffnet
     aktuelleSektorId = id.toString();
     const chatBox = document.getElementById('chat-box');
 
-    // Chat-Logik initialisieren oder laden
+    // Chat-Verlauf laden
     if (!alleSektorenVerlaeufe[aktuelleSektorId]) {
         alleSektorenVerlaeufe[aktuelleSektorId] = [];
         chatBox.innerHTML = `<i>Verbindung zu Sektor ${themen[id]} (${seelenNamen[id]}) bereit...</i>`;
