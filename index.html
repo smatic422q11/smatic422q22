@@ -405,8 +405,6 @@
         </div>`;
 });
 function synchronisiereSektoren(statusArray) {
-    // statusArray kommt vom Server (z.B. ["erledigt", "erledigt", "aktiv", ...])
-    // Wir mappen das auf deine CSS-Klassen
     statusArray.forEach((s, i) => {
         if (s === "erledigt") sektorZustand[i] = 'erledigt_gruen';
         else if (s === "aktiv") sektorZustand[i] = 'aktiv_gelb';
@@ -414,8 +412,10 @@ function synchronisiereSektoren(statusArray) {
         else sektorZustand[i] = 'gesperrt';
     });
     
-    // Nach dem Sync zeichnen wir die Boxen neu
     updateBoxFarben();
+    
+    // HIER NEU EINFÜGEN:
+    updateSpezialSektorenStatus(); 
 }
 
 function updateBoxFarben() {
@@ -920,6 +920,20 @@ function erstelleUeberlaufSektor() {
     }
     container.appendChild(neuerSektor);
 }
+function updateSpezialSektorenStatus() {
+    const alleGruen = sektorZustand.slice(0, 20).every(s => s === 'erledigt_gruen');
+    const spezialBoxen = document.querySelectorAll('.sektor-special');
+
+    spezialBoxen.forEach(box => {
+        if (alleGruen) {
+            box.classList.remove('gesperrt');
+            box.style.opacity = '1';
+        } else {
+            box.classList.add('gesperrt');
+            box.style.opacity = '0.5';
+        }
+    });
+}     
  </script>
 </body>
 </html>  
