@@ -768,11 +768,11 @@ async function generiereBiografiePDF() {
     btn.innerText = "KOMPILIERE MANIFEST...";
 
     try {
-        const response = await fetch('/generate-and-send-pdf', { 
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ email: email })
-});
+        const response = await fetch('/generate-pdf', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: email })
+        });
 
         if (response.ok) {
             const blob = await response.blob();
@@ -795,6 +795,7 @@ async function generiereBiografiePDF() {
     }
 }
 async function requestManifestPerEmail() {
+    // Optional: Hier kannst du den Button kurz deaktivieren, um Mehrfachklicks zu verhindern
     const btn = event.target;
     const originalText = btn.innerText;
     btn.innerText = "Versende Manifest...";
@@ -802,34 +803,40 @@ async function requestManifestPerEmail() {
 
     try {
         const response = await fetch('/generate-and-send-pdf', {
-    method: 'POST',
-    headers: {
-        'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({ email: email })
-});
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: userEmail })
+        });
         
-        
-        const responseText = await response.text();
-        console.log("Roh-Antwort vom Server:", responseText);
-
-        let data;
-        try {
-            data = JSON.parse(responseText);
-        } catch(e) {
-            throw new Error("Server antwortete nicht mit JSON: " + responseText);
-        }
+        const result = await response.json();
         
         if (response.ok) {
-            alert(data.message || "Erfolg!");
+            alert("Erfolg: Das Manifest wurde an deine E-Mail-Adresse versendet.");
         } else {
-            alert("Fehler vom Server: " + (data.message || data.error || "Unbekannter Fehler"));
+            alert("Fehler: " + result.message);
         }
     } catch (e) {
-        alert("System-Fehler: " + e.message);
+        alert("Verbindungsfehler. Bitte versuche es erneut.");
     } finally {
         btn.innerText = originalText;
         btn.disabled = false;
+    }
+}
+          
+async function handleAnkerSetzen() {
+    const emailInput = document.getElementById('db-mail').value.trim();
+    if (!emailInput) return alert("Bitte eine E-Mail eingeben.");
+
+    try {
+        const response = await fetch('/send-code', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: emailInput })
+        });
+        const data = await response.json();
+        alert(data.message); 
+    } catch (e) {
+        alert("Server-Verbindung fehlgeschlagen.");
     }
 }
           
