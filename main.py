@@ -10,6 +10,7 @@ from fastapi.responses import JSONResponse, StreamingResponse, FileResponse # <-
 from fastapi.middleware.cors import CORSMiddleware # <--- HIER ERGÄNZT
 from pymongo import MongoClient
 from pymongo.server_api import ServerApi # <--- HIER ERGÄNZT
+from fastapi.responses import StreamingResponse
 
 # ==========================================
 # APP-INITIALISIERUNG (NUR EINMAL HIER OBEN!)
@@ -699,6 +700,7 @@ async def generate_pdf(request: Request):
         user_record = db.codes.find_one({"email": email})
         
         if not user_record:
+            # Ändere das, damit das Frontend weiß, dass es kein PDF ist
             return {"success": False, "message": "User nicht gefunden"}
 
         from fpdf import FPDF
@@ -720,7 +722,7 @@ async def generate_pdf(request: Request):
         return StreamingResponse(output, media_type="application/pdf", headers={"Content-Disposition": "attachment; filename=Biografie.pdf"})
         
     except Exception as e:
-        return {"success": False, "error": str(e)}      
+        return {"success": False, "error": str(e)}  
 
 if __name__ == "__main__":
     import uvicorn
