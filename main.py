@@ -676,23 +676,6 @@ async def get_live_ermittlung(sector_id: str, request: Request):
     except Exception as e:
         return {"success": True, "data": {"widersprueche": [f"Fehler: {str(e)}"]}}
         
-@app.post("/admin/update-sector")
-async def handle_update_sector(request: Request):
-    try:
-        data = await request.json()
-        email = data.get("email", "").lower().strip()
-        sector_id = str(data.get("sector_id", "0"))
-        status = data.get("status", "")
-        header_text = data.get("header_text", "")
-        if email != "mmcommunity22@gmail.com":
-            return JSONResponse(content={"success": False, "message": "Nicht autorisiert"}, status_code=403)
-        if status == "update-text":
-            db.codes.update_one({"email": email}, {"$set": {f"sector_headers.{sector_id}": header_text}}, upsert=True)
-            return {"success": True, "message": "Gespeichert."}
-        db.codes.update_one({"email": email}, {"$set": {f"sector_status.{sector_id}": status}}, upsert=True)
-        return {"success": True, "message": "Status gesetzt."}
-    except Exception as e:
-        return JSONResponse(content={"success": False, "error": str(e)}, status_code=500)
 @app.post("/generate-pdf")
 async def generate_pdf(request: Request):
     try:
@@ -703,7 +686,9 @@ async def generate_pdf(request: Request):
         if not user_record:
             return JSONResponse(content={"message": "User nicht gefunden"}, status_code=404)
 
-        # PDF Generierung im Speicher
+        from fpdf import FPDF
+        from io import BytesIO
+
         pdf = FPDF()
         pdf.add_page()
         pdf.set_font("Arial", 'B', 16)
@@ -712,22 +697,21 @@ async def generate_pdf(request: Request):
         
         pdf.set_font("Arial", size=12)
         bio_text = user_record.get("biografie", "Keine Biografie hinterlegt.")
-        # WICHTIG: UTF-8 Unterstützung bei FPDF ist oft schwierig, 
-        # daher ggf. Sonderzeichen vorher filtern
+        # Sicherstellen, dass der Text kodierbar ist
         pdf.multi_cell(0, 10, txt=str(bio_text).encode('latin-1', 'replace').decode('latin-1'))
         
-        output = BytesIO()
-        pdf.output(output)
-        output.seek(0)
+        # DER WICHTIGE TEIL: FPDF erwartet hier 'S' für String (im Speicher)
+        # und gibt das PDF als Byte-String zurück
+        pdf_bytes = pdf.output(dest='S').encode('latin-1')
         
         return StreamingResponse(
-            output, 
+            BytesIO(pdf_bytes), 
             media_type="application/pdf", 
             headers={"Content-Disposition": "attachment; filename=Biografie.pdf"}
         )
     except Exception as e:
         print(f"PDF-Fehler: {e}")
-        return JSONResponse(content={"message": str(e)}, status_code=500)        
+        return JSONResponse(content={"message": str(e)}, status_code=500)
 
 if __name__ == "__main__":
     import uvicorn
