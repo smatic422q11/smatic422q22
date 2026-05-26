@@ -966,6 +966,18 @@ function updateSpezialSektorenStatus() {
         }
     });
 }
+ function versucheEbene4Oeffnen() {
+    // 1. Prüfen, ob Abo in der Datenbank aktiv ist
+    if (userAboStatus === true || isAdmin) {
+        wechselEbene('ebene4');
+    } else {
+        alert("Ebene 4 ist exklusiv für Mitglieder. Bitte schließe erst das Abo im Kollektiv ab.");
+    }
+}   
+ function aboProzessAbschliessen() {
+    document.getElementById('btn-ebene4-zugang').style.display = 'inline-block';
+    alert("Willkommen im Kollektiv! Ebene 4 wurde soeben freigeschaltet.");
+}    
  </script>
 </body>
 </html>  
