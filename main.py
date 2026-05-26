@@ -11,6 +11,8 @@ from fastapi.middleware.cors import CORSMiddleware # <--- HIER ERGÄNZT
 from pymongo import MongoClient
 from pymongo.server_api import ServerApi # <--- HIER ERGÄNZT
 from fastapi.responses import StreamingResponse
+from io import BytesIO
+from fpdf import FPDF
 
 # ==========================================
 # APP-INITIALISIERUNG (NUR EINMAL HIER OBEN!)
@@ -691,7 +693,6 @@ async def handle_update_sector(request: Request):
         return {"success": True, "message": "Status gesetzt."}
     except Exception as e:
         return JSONResponse(content={"success": False, "error": str(e)}, status_code=500)
-        
 @app.post("/generate-pdf")
 async def generate_pdf(request: Request):
     try:
@@ -700,29 +701,33 @@ async def generate_pdf(request: Request):
         user_record = db.codes.find_one({"email": email})
         
         if not user_record:
-            # Ändere das, damit das Frontend weiß, dass es kein PDF ist
-            return {"success": False, "message": "User nicht gefunden"}
+            return JSONResponse(content={"message": "User nicht gefunden"}, status_code=404)
 
-        from fpdf import FPDF
+        # PDF Generierung im Speicher
         pdf = FPDF()
         pdf.add_page()
-        pdf.set_font("Arial", size=12)
-        
-        pdf.cell(200, 10, txt=f"Biografie fuer: {email}", ln=True, align='C')
+        pdf.set_font("Arial", 'B', 16)
+        pdf.cell(200, 10, txt="DEIN PERSOENLICHES MANIFEST", ln=True, align='C')
         pdf.ln(10)
         
+        pdf.set_font("Arial", size=12)
         bio_text = user_record.get("biografie", "Keine Biografie hinterlegt.")
-        pdf.multi_cell(0, 10, txt=str(bio_text))
+        # WICHTIG: UTF-8 Unterstützung bei FPDF ist oft schwierig, 
+        # daher ggf. Sonderzeichen vorher filtern
+        pdf.multi_cell(0, 10, txt=str(bio_text).encode('latin-1', 'replace').decode('latin-1'))
         
-        from io import BytesIO
         output = BytesIO()
         pdf.output(output)
         output.seek(0)
         
-        return StreamingResponse(output, media_type="application/pdf", headers={"Content-Disposition": "attachment; filename=Biografie.pdf"})
-        
+        return StreamingResponse(
+            output, 
+            media_type="application/pdf", 
+            headers={"Content-Disposition": "attachment; filename=Biografie.pdf"}
+        )
     except Exception as e:
-        return {"success": False, "error": str(e)}  
+        print(f"PDF-Fehler: {e}")
+        return JSONResponse(content={"message": str(e)}, status_code=500)        
 
 if __name__ == "__main__":
     import uvicorn
