@@ -761,11 +761,11 @@ async function adminSetzeSektorStatus() {
     alert("M&M System-Hinweis:\nSektor 21 (Manifest) und Sektor 22 (Kollektiv) laufen über feste Protokolle für den E-Book-Export und die Abo-Struktur. Die Ebene 4 Freischaltungs-Parameter sind aktiv hinterlegt!");
 }    
 async function generiereBiografiePDF() {
-    const email = document.getElementById('db-mail').value;
-    if(!email) return alert("Bitte erst E-Mail auf dem Dashboard eingeben!");
+    const email = userEmail; // Nutze die globale Variable, die beim Login gesetzt wird
+    if(!email) return alert("Bitte erst verifizieren!");
 
     const btn = event.currentTarget;
-    btn.innerText = "WIRD ERSTELLT...";
+    btn.innerText = "KOMPILIERE MANIFEST...";
 
     try {
         const response = await fetch('/generate-pdf', {
@@ -774,27 +774,24 @@ async function generiereBiografiePDF() {
             body: JSON.stringify({ email: email })
         });
 
-        // Prüfe, ob die Antwort ein PDF ist
-        const contentType = response.headers.get("content-type");
-        
-        if (contentType && contentType.includes("application/pdf")) {
+        if (response.ok) {
             const blob = await response.blob();
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `Biografie.pdf`;
+            a.download = "Dein_Manifest.pdf";
             document.body.appendChild(a);
             a.click();
+            a.remove();
             window.URL.revokeObjectURL(url);
         } else {
-            // Wenn es JSON ist, lesen wir die Fehlermeldung
-            const errorData = await response.json();
-            alert("Fehler: " + (errorData.message || "PDF konnte nicht geladen werden"));
+            const error = await response.json();
+            alert("System-Fehler: " + error.message);
         }
     } catch (e) {
-        alert("Netzwerkfehler!");
+        alert("Netzwerkfehler beim Anfordern des Manifests.");
     } finally {
-        btn.innerText = "Biografie als PDF anfordern";
+        btn.innerText = "Mein digitales Manifest versiegeln & Biografie als PDF anfordern";
     }
 }
      
