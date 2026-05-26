@@ -469,7 +469,28 @@ async function waehleSektor(id) {
     wechselEbene('ebene2', id);
 }
         const adminSelect = document.getElementById('admin-sektor-auswahl'); if (adminSelect) { themen.forEach((t, i) => { adminSelect.innerHTML += `<option value="${i}">Sektor ${i+1}: ${t}</option>`; }); }
-      
+
+function waehleSpezialSektor(id) {
+    // 1. Authentifizierungs-Check
+    if (userEmail === "") {
+        alert("Zugriff verweigert! Bitte zuerst Anker setzen und verifizieren.");
+        return;
+    }
+
+    // 2. Rollen-Check (Admin darf immer)
+    const isAdmin = (userEmail === "mmcommunity22@gmail.com");
+
+    // 3. Status-Prüfung: Sind alle 20 Basissektoren grün?
+    const alleGruen = sektorZustand.slice(0, 20).every(s => s === 'erledigt_gruen');
+
+    if (!isAdmin && !alleGruen) {
+        alert("Dieser Sektor ist noch gesperrt. Arbeite dich der Reihe nach vor und schließe die 20 Sektoren ab.");
+        return;
+    }
+
+    // 4. Prozess-Freigabe
+    wechselEbene(id);
+}     
         // 2. Funktion für die Rechtliche Texte
 function openLegal(fileName) {
     const area = document.getElementById('legal-content-area'); 
@@ -928,12 +949,15 @@ function updateSpezialSektorenStatus() {
         if (alleGruen) {
             box.classList.remove('gesperrt');
             box.style.opacity = '1';
+            // Optional: Füge hier eine gelbe Umrandung hinzu, wenn alles bereit ist
+            box.classList.add('aktiv_gelb'); 
         } else {
             box.classList.add('gesperrt');
             box.style.opacity = '0.5';
+            box.classList.remove('aktiv_gelb');
         }
     });
-}     
+}
  </script>
 </body>
 </html>  
