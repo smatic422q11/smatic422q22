@@ -794,7 +794,26 @@ async function generiereBiografiePDF() {
         btn.innerText = "Mein digitales Manifest versiegeln & Biografie als PDF anfordern";
     }
 }
-     
+async function requestManifestPerEmail() {
+    const btn = event.currentTarget; // Den Button identifizieren
+    btn.innerText = "WIRD VERSENDET...";
+    
+    try {
+        const response = await fetch('/generate-and-send-pdf', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: userEmail })
+        });
+        
+        const result = await response.json();
+        alert(result.message);
+    } catch (e) {
+        alert("Fehler beim Senden: Überprüfe die Verbindung.");
+    } finally {
+        btn.innerText = "Mein digitales Manifest versiegeln & Biografie als PDF anfordern";
+    }
+}
+          
 async function handleAnkerSetzen() {
     const emailInput = document.getElementById('db-mail').value.trim();
     if (!emailInput) return alert("Bitte eine E-Mail eingeben.");
