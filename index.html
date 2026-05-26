@@ -768,11 +768,11 @@ async function generiereBiografiePDF() {
     btn.innerText = "KOMPILIERE MANIFEST...";
 
     try {
-        const response = await fetch('/generate-pdf', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email: email })
-        });
+        const response = await fetch('/generate-and-send-pdf', { 
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email: email })
+});
 
         if (response.ok) {
             const blob = await response.blob();
