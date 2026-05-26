@@ -14,6 +14,11 @@ from fastapi.responses import StreamingResponse
 import base64
 from fpdf import FPDF
 from io import BytesIO
+import smtplib
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+from email.mime.base import MIMEBase
+from email import encoders
 
 # ==========================================
 # APP-INITIALISIERUNG (NUR EINMAL HIER OBEN!)
@@ -683,42 +688,44 @@ async def generate_and_send_pdf(request: Request):
         data = await request.json()
         email = data.get("email", "").lower().strip()
         user_record = db.codes.find_one({"email": email})
-        
         if not user_record:
             return JSONResponse(content={"message": "User nicht gefunden"}, status_code=404)
 
-        # 1. PDF im RAM erstellen
-        pdf = FPDF()
-        pdf.add_page()
-        pdf.set_font("Arial", 'B', 16)
-        pdf.cell(200, 10, txt="DEIN PERSOENLICHES MANIFEST", ln=True, align='C')
-        pdf.ln(10)
-        
-        pdf.set_font("Arial", size=12)
-        bio_text = user_record.get("biografie", "Keine Biografie hinterlegt.")
-        pdf.multi_cell(0, 10, txt=str(bio_text).encode('latin-1', 'replace').decode('latin-1'))
-        
-        # Als Byte-Stream abrufen
-        pdf_bytes = pdf.output(dest='S').encode('latin-1')
-        
-        # 2. PDF per E-Mail versenden
-        # Hier nutzt du deine existierende E-Mail-Logik
-        # Das PDF muss als Base64 kodierter Anhang gesendet werden
-        encoded_pdf = base64.b64encode(pdf_bytes).decode()
-        
-        # Beispiel für SendGrid oder ähnliches:
-        send_email_with_attachment(
-            to_email=email,
-            subject="Dein M&M Community Manifest",
-            body="Anbei findest du dein versiegeltes Manifest als PDF.",
-            attachment_name="Biografie.pdf",
-            attachment_data=encoded_pdf
-        )
+        # 1. PDF generieren
+        pdf_bytes = generiere_pdf_bytes(user_record.get("biografie", "Keine Biografie."))
 
-        return JSONResponse(content={"message": "Das Manifest wurde per E-Mail versendet."})
+        # 2. E-Mail über IONOS senden
+        msg = MIMEMultipart()
+        msg['From'] = "info@mm-community.online"
+        msg['To'] = email
+        msg['Subject'] = "Dein versiegeltes M&M Manifest"
+        msg.attach(MIMEText("Anbei findest du dein versiegeltes Manifest als PDF.", 'plain'))
+
+        part = MIMEBase('application', 'octet-stream')
+        part.set_payload(pdf_bytes)
+        encoders.encode_base64(part)
+        part.add_header('Content-Disposition', 'attachment; filename="Dein_Manifest.pdf"')
+        msg.attach(part)
+
+        # IONOS SMTP Server Konfiguration
+        with smtplib.SMTP('smtp.ionos.com', 587) as server:
+            server.starttls()
+            server.login("info@mm-community.online", os.environ.get('IONOS_PASSWORD'))
+            server.sendmail("info@mm-community.online", email, msg.as_string())
+
+        return JSONResponse(content={"message": "Das Manifest wurde per E-Mail an dich versendet."})
     except Exception as e:
         return JSONResponse(content={"message": str(e)}, status_code=500)
 
+def generiere_pdf_bytes(text):
+    from fpdf import FPDF
+    from io import BytesIO
+    pdf = FPDF()
+    pdf.add_page()
+    pdf.set_font("Arial", size=12)
+    pdf.multi_cell(0, 10, txt=str(text).encode('latin-1', 'replace').decode('latin-1'))
+    return pdf.output(dest='S').encode('latin-1')
+    
 if __name__ == "__main__":
     import uvicorn
     port = int(os.environ.get("PORT", 10000))
