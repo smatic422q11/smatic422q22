@@ -11,8 +11,9 @@ from fastapi.middleware.cors import CORSMiddleware # <--- HIER ERGÄNZT
 from pymongo import MongoClient
 from pymongo.server_api import ServerApi # <--- HIER ERGÄNZT
 from fastapi.responses import StreamingResponse
-from io import BytesIO
+import base64
 from fpdf import FPDF
+from io import BytesIO
 
 # ==========================================
 # APP-INITIALISIERUNG (NUR EINMAL HIER OBEN!)
@@ -676,8 +677,8 @@ async def get_live_ermittlung(sector_id: str, request: Request):
     except Exception as e:
         return {"success": True, "data": {"widersprueche": [f"Fehler: {str(e)}"]}}
         
-@app.post("/generate-pdf")
-async def generate_pdf(request: Request):
+@app.post("/generate-and-send-pdf")
+async def generate_and_send_pdf(request: Request):
     try:
         data = await request.json()
         email = data.get("email", "").lower().strip()
@@ -686,9 +687,7 @@ async def generate_pdf(request: Request):
         if not user_record:
             return JSONResponse(content={"message": "User nicht gefunden"}, status_code=404)
 
-        from fpdf import FPDF
-        from io import BytesIO
-
+        # 1. PDF im RAM erstellen
         pdf = FPDF()
         pdf.add_page()
         pdf.set_font("Arial", 'B', 16)
@@ -697,20 +696,27 @@ async def generate_pdf(request: Request):
         
         pdf.set_font("Arial", size=12)
         bio_text = user_record.get("biografie", "Keine Biografie hinterlegt.")
-        # Sicherstellen, dass der Text kodierbar ist
         pdf.multi_cell(0, 10, txt=str(bio_text).encode('latin-1', 'replace').decode('latin-1'))
         
-        # DER WICHTIGE TEIL: FPDF erwartet hier 'S' für String (im Speicher)
-        # und gibt das PDF als Byte-String zurück
+        # Als Byte-Stream abrufen
         pdf_bytes = pdf.output(dest='S').encode('latin-1')
         
-        return StreamingResponse(
-            BytesIO(pdf_bytes), 
-            media_type="application/pdf", 
-            headers={"Content-Disposition": "attachment; filename=Biografie.pdf"}
+        # 2. PDF per E-Mail versenden
+        # Hier nutzt du deine existierende E-Mail-Logik
+        # Das PDF muss als Base64 kodierter Anhang gesendet werden
+        encoded_pdf = base64.b64encode(pdf_bytes).decode()
+        
+        # Beispiel für SendGrid oder ähnliches:
+        send_email_with_attachment(
+            to_email=email,
+            subject="Dein M&M Community Manifest",
+            body="Anbei findest du dein versiegeltes Manifest als PDF.",
+            attachment_name="Biografie.pdf",
+            attachment_data=encoded_pdf
         )
+
+        return JSONResponse(content={"message": "Das Manifest wurde per E-Mail versendet."})
     except Exception as e:
-        print(f"PDF-Fehler: {e}")
         return JSONResponse(content={"message": str(e)}, status_code=500)
 
 if __name__ == "__main__":
