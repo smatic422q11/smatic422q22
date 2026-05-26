@@ -801,7 +801,7 @@ async function requestManifestPerEmail() {
     btn.disabled = true;
 
     try {
-        const response = await fetch('/generate-and-send-pdf', {
+        const response = await fetch(window.location.origin + '/generate-and-send-pdf', { ... });
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email: userEmail })
