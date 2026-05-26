@@ -682,16 +682,18 @@ async def get_live_ermittlung(sector_id: str, request: Request):
     except Exception as e:
         return {"success": True, "data": {"widersprueche": [f"Fehler: {str(e)}"]}}
         
+@app.post("/generate-pdf")
 @app.post("/generate-and-send-pdf")
 async def generate_and_send_pdf(request: Request):
     try:
         data = await request.json()
         email = data.get("email", "").lower().strip()
         user_record = db.codes.find_one({"email": email})
+        
         if not user_record:
             return JSONResponse(content={"message": "User nicht gefunden"}, status_code=404)
 
-        # 1. Manifest Inhalt zusammenstellen (hier wird alles aus dem Record gezogen)
+        # 1. Manifest Inhalt zusammenstellen
         manifest_text = f"Manifest für: {user_record.get('name', email)}\n"
         manifest_text += "------------------------------------------\n"
         manifest_text += f"Biografie-Kern: {user_record.get('biografie', 'Noch nicht erfasst.')}\n"
@@ -727,7 +729,7 @@ async def generate_and_send_pdf(request: Request):
 
         response = requests.post(url, json=payload, headers=headers)
         
-        if response.status_code == 200 or response.status_code == 202:
+        if response.status_code in [200, 201, 202]:
             return JSONResponse(content={"message": "Das Manifest wurde versiegelt und versendet."})
         else:
             return JSONResponse(content={"message": f"SendGrid Fehler: {response.text}"}, status_code=response.status_code)
