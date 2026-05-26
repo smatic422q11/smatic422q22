@@ -693,50 +693,36 @@ async def generate_and_send_pdf(request: Request):
         if not user_record:
             return JSONResponse(content={"message": "User nicht gefunden"}, status_code=404)
 
-        # 1. Manifest Inhalt zusammenstellen
+        # 1. Manifest Text
         manifest_text = f"Manifest für: {user_record.get('name', email)}\n"
         manifest_text += "------------------------------------------\n"
-        manifest_text += f"Biografie-Kern: {user_record.get('biografie', 'Noch nicht erfasst.')}\n"
-        manifest_text += "\nSektoren-Status:\n"
-        manifest_text += str(user_record.get('sector_statuses', 'Keine Daten'))
-
-        # 2. PDF generieren
-        pdf_bytes = generiere_pdf_bytes(manifest_text)
+        manifest_text += f"Biografie: {user_record.get('biografie', 'Keine')}\n"
         
-        # 3. PDF in Base64 umwandeln
+        # 2. PDF erstellen (ohne Download, nur für den E-Mail-Versand)
+        pdf_bytes = generiere_pdf_bytes(manifest_text)
         pdf_base64 = base64.b64encode(pdf_bytes).decode('utf-8')
 
-        # 4. Senden über SendGrid
+        # 3. Versand NUR per E-Mail
         SENDGRID_API_KEY = os.environ.get('SENDGRID_API_KEY')
         url = "https://api.sendgrid.com/v3/mail/send"
-        headers = {
-            "Authorization": f"Bearer {SENDGRID_API_KEY}",
-            "Content-Type": "application/json"
-        }
-        
         payload = {
             "personalizations": [{"to": [{"email": email}]}],
             "from": {"email": "info@mm-community.online", "name": "M&M Community"},
-            "subject": "Dein versiegeltes M&M Manifest",
-            "content": [{"type": "text/plain", "value": "Dein Manifest ist versiegelt und anbei."}],
+            "subject": "Dein M&M Manifest",
+            "content": [{"type": "text/plain", "value": "Dein Manifest ist anbei."}],
             "attachments": [{
                 "content": pdf_base64,
-                "filename": "M_und_M_Manifest.pdf",
+                "filename": "Manifest.pdf",
                 "type": "application/pdf",
                 "disposition": "attachment"
             }]
         }
-
-        response = requests.post(url, json=payload, headers=headers)
+        requests.post(url, json=payload, headers={"Authorization": f"Bearer {SENDGRID_API_KEY}", "Content-Type": "application/json"})
         
-        if response.status_code in [200, 201, 202]:
-            return JSONResponse(content={"message": "Das Manifest wurde versiegelt und versendet."})
-        else:
-            return JSONResponse(content={"message": f"SendGrid Fehler: {response.text}"}, status_code=response.status_code)
-
+        return JSONResponse(content={"message": "E-Mail mit Manifest ist unterwegs."})
     except Exception as e:
-        return JSONResponse(content={"message": str(e)}, status_code=500)
-        
+        return JSONResponse(content={"message": str(e)}, status_code=500)        
+
 def generiere_pdf_bytes(text):
     from fpdf import FPDF
     from io import BytesIO
