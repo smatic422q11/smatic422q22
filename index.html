@@ -801,12 +801,14 @@ async function requestManifestPerEmail() {
     btn.disabled = true;
 
     try {
-        // HIER WAR DER FEHLER: Die Klammer nach fetch(...) war falsch geschlossen
-        const response = await fetch(window.location.origin + '/generate-and-send-pdf', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email: userEmail })
-        });
+        const response = await fetch('/generate-and-send-pdf', {
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ email: email })
+});
+        
         
         const responseText = await response.text();
         console.log("Roh-Antwort vom Server:", responseText);
