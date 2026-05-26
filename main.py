@@ -682,7 +682,6 @@ async def get_live_ermittlung(sector_id: str, request: Request):
     except Exception as e:
         return {"success": True, "data": {"widersprueche": [f"Fehler: {str(e)}"]}}
         
-@app.post("/generate-pdf")
 @app.post("/generate-and-send-pdf")
 async def generate_and_send_pdf(request: Request):
     try:
@@ -693,35 +692,37 @@ async def generate_and_send_pdf(request: Request):
         if not user_record:
             return JSONResponse(content={"message": "User nicht gefunden"}, status_code=404)
 
-        # 1. Manifest Text
-        manifest_text = f"Manifest für: {user_record.get('name', email)}\n"
-        manifest_text += "------------------------------------------\n"
-        manifest_text += f"Biografie: {user_record.get('biografie', 'Keine')}\n"
+        # 1. PDF im RAM erstellen
+        pdf = FPDF()
+        pdf.add_page()
+        pdf.set_font("Arial", 'B', 16)
+        pdf.cell(200, 10, txt="DEIN PERSOENLICHES MANIFEST", ln=True, align='C')
+        pdf.ln(10)
         
-        # 2. PDF erstellen (ohne Download, nur für den E-Mail-Versand)
-        pdf_bytes = generiere_pdf_bytes(manifest_text)
-        pdf_base64 = base64.b64encode(pdf_bytes).decode('utf-8')
+        pdf.set_font("Arial", size=12)
+        bio_text = user_record.get("biografie", "Keine Biografie hinterlegt.")
+        pdf.multi_cell(0, 10, txt=str(bio_text).encode('latin-1', 'replace').decode('latin-1'))
+        
+        # Als Byte-Stream abrufen
+        pdf_bytes = pdf.output(dest='S').encode('latin-1')
+        
+        # 2. PDF per E-Mail versenden
+        # Hier nutzt du deine existierende E-Mail-Logik
+        # Das PDF muss als Base64 kodierter Anhang gesendet werden
+        encoded_pdf = base64.b64encode(pdf_bytes).decode()
+        
+        # Beispiel für SendGrid oder ähnliches:
+        send_email_with_attachment(
+            to_email=email,
+            subject="Dein M&M Community Manifest",
+            body="Anbei findest du dein versiegeltes Manifest als PDF.",
+            attachment_name="Biografie.pdf",
+            attachment_data=encoded_pdf
+        )
 
-        # 3. Versand NUR per E-Mail
-        SENDGRID_API_KEY = os.environ.get('SENDGRID_API_KEY')
-        url = "https://api.sendgrid.com/v3/mail/send"
-        payload = {
-            "personalizations": [{"to": [{"email": email}]}],
-            "from": {"email": "info@mm-community.online", "name": "M&M Community"},
-            "subject": "Dein M&M Manifest",
-            "content": [{"type": "text/plain", "value": "Dein Manifest ist anbei."}],
-            "attachments": [{
-                "content": pdf_base64,
-                "filename": "Manifest.pdf",
-                "type": "application/pdf",
-                "disposition": "attachment"
-            }]
-        }
-        requests.post(url, json=payload, headers={"Authorization": f"Bearer {SENDGRID_API_KEY}", "Content-Type": "application/json"})
-        
-        return JSONResponse(content={"message": "E-Mail mit Manifest ist unterwegs."})
+        return JSONResponse(content={"message": "Das Manifest wurde per E-Mail versendet."})
     except Exception as e:
-        return JSONResponse(content={"message": str(e)}, status_code=500)        
+        return JSONResponse(content={"message": str(e)}, status_code=500)
 
 def generiere_pdf_bytes(text):
     from fpdf import FPDF
