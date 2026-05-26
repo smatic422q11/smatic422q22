@@ -766,13 +766,16 @@ async function generiereBiografiePDF() {
     btn.innerText = "WIRD ERSTELLT...";
 
     try {
-       const response = await fetch('/generate-pdf', {
+        const response = await fetch('/generate-pdf', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email: email })
         });
+
+        // Prüfe, ob die Antwort ein PDF ist
+        const contentType = response.headers.get("content-type");
         
-        if (response.ok) {
+        if (contentType && contentType.includes("application/pdf")) {
             const blob = await response.blob();
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
@@ -780,13 +783,19 @@ async function generiereBiografiePDF() {
             a.download = `Biografie.pdf`;
             document.body.appendChild(a);
             a.click();
+            window.URL.revokeObjectURL(url);
+        } else {
+            // Wenn es JSON ist, lesen wir die Fehlermeldung
+            const errorData = await response.json();
+            alert("Fehler: " + (errorData.message || "PDF konnte nicht geladen werden"));
         }
     } catch (e) {
-        alert("Fehler!");
+        alert("Netzwerkfehler!");
     } finally {
         btn.innerText = "Biografie als PDF anfordern";
     }
 }
+     
 async function handleAnkerSetzen() {
     const emailInput = document.getElementById('db-mail').value.trim();
     if (!emailInput) return alert("Bitte eine E-Mail eingeben.");
