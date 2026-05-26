@@ -693,30 +693,37 @@ async def generate_and_send_pdf(request: Request):
 
         # 1. PDF generieren
         pdf_bytes = generiere_pdf_bytes(user_record.get("biografie", "Keine Biografie."))
+        
+        # 2. PDF in Base64 umwandeln (erforderlich für SendGrid)
+        pdf_base64 = base64.b64encode(pdf_bytes).decode('utf-8')
 
-        # 2. E-Mail über IONOS senden
-        msg = MIMEMultipart()
-        msg['From'] = "info@mm-community.online"
-        msg['To'] = email
-        msg['Subject'] = "Dein versiegeltes M&M Manifest"
-        msg.attach(MIMEText("Anbei findest du dein versiegeltes Manifest als PDF.", 'plain'))
+        # 3. E-Mail über SendGrid senden (wie bei der Verifizierung!)
+        SENDGRID_API_KEY = os.environ.get('SENDGRID_API_KEY')
+        url = "https://api.sendgrid.com/v3/mail/send"
+        headers = {
+            "Authorization": f"Bearer {SENDGRID_API_KEY}",
+            "Content-Type": "application/json"
+        }
+        
+        payload = {
+            "personalizations": [{"to": [{"email": email}]}],
+            "from": {"email": "info@mm-community.online"},
+            "subject": "Dein versiegeltes M&M Manifest",
+            "content": [{"type": "text/plain", "value": "Anbei dein versiegeltes Manifest."}],
+            "attachments": [{
+                "content": pdf_base64,
+                "filename": "Dein_Manifest.pdf",
+                "type": "application/pdf",
+                "disposition": "attachment"
+            }]
+        }
 
-        part = MIMEBase('application', 'octet-stream')
-        part.set_payload(pdf_bytes)
-        encoders.encode_base64(part)
-        part.add_header('Content-Disposition', 'attachment; filename="Dein_Manifest.pdf"')
-        msg.attach(part)
-
-        # IONOS SMTP Server Konfiguration
-        with smtplib.SMTP('smtp.ionos.com', 587) as server:
-            server.starttls()
-            server.login("info@mm-community.online", os.environ.get('IONOS_PASSWORD'))
-            server.sendmail("info@mm-community.online", email, msg.as_string())
+        requests.post(url, json=payload, headers=headers)
 
         return JSONResponse(content={"message": "Das Manifest wurde per E-Mail an dich versendet."})
     except Exception as e:
         return JSONResponse(content={"message": str(e)}, status_code=500)
-
+        
 def generiere_pdf_bytes(text):
     from fpdf import FPDF
     from io import BytesIO
