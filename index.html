@@ -174,7 +174,7 @@
         </div>
     </div>
 
-   <div id="ebene4" class="ebene">
+  <div id="ebene4" class="ebene">
     <div style="margin-top: 130px; font-weight: 900; letter-spacing: 10px; font-size: 1.5rem; text-align: center; width: 100%;">
         DER VIDEO-BEWEIS
     </div>
@@ -188,6 +188,8 @@
     </div>
 
     <div class="video-controls" style="position: relative; z-index: 500;">
+        <button onclick="versucheEbene4Oeffnen()" class="nav-btn">Ebene 4 betreten</button>
+        
         <button onclick="starteVideoKonferenz()" style="background:#00ff00; border:none; padding:15px 40px; font-weight:bold; cursor:pointer;">START</button>
         <button onclick="stoppeVideoKonferenz()" style="background:#ff0000; border:none; padding:15px 40px; color:#fff; font-weight:bold; cursor:pointer;">STOP</button>
     </div>
@@ -700,6 +702,15 @@ function wechselEbene(id, index = null) {
         }
     }
 }); 
+     
+function versucheEbene4Oeffnen() {
+    // 1. Prüfen, ob Abo in der Datenbank aktiv ist (dieser Status kommt beim Login via data.fortschritt)
+    if (userAboStatus === true || isAdmin) {
+        wechselEbene('ebene4');
+    } else {
+        alert("Ebene 4 ist exklusiv für Mitglieder. Bitte schließe erst das Abo im Kollektiv ab.");
+    }
+}     
      
 async function ladeNeueAdminStats() {
     const zaehler = document.getElementById('admin-schluessel-zaehler');
