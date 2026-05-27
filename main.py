@@ -478,7 +478,6 @@ SECTOR_SOULS = {
     "20": "Dieser Sektor ist aktuell noch geschlossen. Bitte hab etwas Geduld.",
     "21": "Das Kollektiv bereitet sich vor. Aktuell noch geschlossen."
 }
-
 @app.post("/chat")
 async def chat(request: Request):
     try:
@@ -499,7 +498,6 @@ async def chat(request: Request):
         current_name = SECTOR_NAMES.get(sector_id, "KI")
         current_soul = SECTOR_SOULS.get(sector_id, "Begleiter.")
 
-        # ERWEITERUNG DER INSTRUKTION FÜR DEN BUCH-KONTEXT ODER FREIE INTERAKTION
         system_instruction = (
             f"IDENTITÄT: Du bist {current_name}, Seele: {current_soul}. "
             f"KOLLEKTIVES WISSEN: Das gesamte 20-Seelen-Kollektiv arbeitet für {user_name}. "
@@ -509,19 +507,15 @@ async def chat(request: Request):
             "REGEL: Blende die Uhrzeit NIEMALS starr ein. "
             "REGEL: Wenn der User 'Gefühlsvorderung' sagt, blende immer ein 'V' ein. "
             "STIL: Kurz, knackig, direkt. "
-            
-            # BUCH-LOGIK FÜR DIE SEELEN
             "HINTERGRUND: Der User nutzt das System zur freien Meinungsbildung ODER schreibt an seiner Biografie für sein E-Book. "
             "WICHTIG FÜR DEN SEKTOR-ABSCHLUSS: Wenn der User seine Stellungnahme/Sichtweise in diesem Chat klar dargelegt hat "
             "und das Thema dieses Sektors für die Biografie im Kern ausgearbeitet ist, füge AM ENDE deiner Antwort exakt: [SEKTOR_DONE] hinzu. "
-            
             "WICHTIG FÜR DAS KOLLEKTIV: Wenn der User dir in diesem Sektor zum ersten Mal seinen echten Namen nennt "
             "oder seinen Namen korrigiert, schreibe AM ENDE deiner Antwort exakt: [NEUER_NAME:HierDerName]. "
             "Ersetze 'HierDerName' durch den tatsächlichen Namen des Users (z.B. [NEUER_NAME:Goran])."
         )
 
         messages_for_gemini = user_record.get("sector_histories", {}).get(sector_id, []) if user_record else []
-
         if not messages_for_gemini:
             system_instruction += f" HINWEIS: Das ist dein ERSTER Kontakt mit {user_name} in diesem Sektor. Nenne seinen Namen!"
 
@@ -543,38 +537,29 @@ async def chat(request: Request):
 
         if response.status_code == 200 and 'candidates' in res_data:
             raw_reply_text = res_data['candidates'][0]['content']['parts'][0]['text']
-            
             cleaned_reply_text = raw_reply_text
             extrahierter_name = None
             sektor_abgeschlossen = False
             
-            # 1. PRÜFUNG: Namens-Extraktion (Dein Original-Code)
             if "[NEUER_NAME:" in raw_reply_text and "]" in raw_reply_text:
                 start_idx = raw_reply_text.find("[NEUER_NAME:") + 12
                 end_idx = raw_reply_text.find("]", start_idx)
                 extrahierter_name = raw_reply_text[start_idx:end_idx].strip()
                 cleaned_reply_text = cleaned_reply_text.replace(f"[NEUER_NAME:{extrahierter_name}]", "").strip()
 
-            # 2. PRÜFUNG: Sektor-Abschluss durch die KI erkennen
             if "[SEKTOR_DONE]" in raw_reply_text:
                 sektor_abgeschlossen = True
                 cleaned_reply_text = cleaned_reply_text.replace("[SEKTOR_DONE]", "").strip()
 
             messages_for_gemini.append({"role": "model", "parts": [{"text": cleaned_reply_text}]})
             
-            # Payload für MongoDB vorbereiten
             update_payload = {
                 f"sector_histories.{sector_id}": messages_for_gemini,
                 "last_active_sector": sector_id,
                 "updated_at": datetime.now()
             }
-            
-            if extrahierter_name:
-                update_payload["name"] = extrahierter_name
-                
-            # Wenn der Sektor fertig ist, setzen wir den Status auf 'secure' (Grün für das Dashboard)
-            if sektor_abgeschlossen:
-                update_payload[f"sector_statuses.{sector_id}"] = "secure"
+            if extrahierter_name: update_payload["name"] = extrahierter_name
+            if sektor_abgeschlossen: update_payload[f"sector_statuses.{sector_id}"] = "secure"
 
             db.codes.update_one({"email": email}, {"$set": update_payload}, upsert=True)
             db.kollektiv_pool.insert_one({"sector_id": sector_id, "zeitstempel": datetime.now(), "input_snippet": user_message})
