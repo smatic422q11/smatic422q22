@@ -385,7 +385,13 @@
     <button id="weiter-nav" class="nav-btn" style="display:none; margin-left:15px;" onclick="naechste()">WEITER →</button>
     <button class="nav-btn exit-btn" onclick="window.location.reload()">EXIT / ABMELDEN</button>
 </div>
-
+<div id="schublade" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; z-index:1000; background:rgba(0,0,0,0.9); align-items:center; justify-content:center; flex-direction:column;">
+    <h2 style="color:#ffd700;">WÄHLE DEINEN PFAD</h2>
+    <div style="display:flex; gap:20px;">
+        <button onclick="wähleModus('truth')" style="padding:15px 30px; cursor:pointer;">WAHRHAFTIGKEIT</button>
+        <button onclick="wähleModus('ebook')" style="padding:15px 30px; cursor:pointer;">BIOGRAFIE (EBOOK)</button>
+    </div>
+</div>
 
  <script>
        const themen = ["Recht auf Gefühlsvorderung", "Wie werde ich Mensch", "Glaube an Friede", "Programm für Bürgerliche Rechte", "Moralische Pflicht und Verantwortung", "Menschlichkeit Wiederherstellung", "Kinderschutz-Pflicht-Elternrechte", "Wahre Richtung und Kunst", "LGBTQ und Kirche", "Trend und Tradition", "Religionsbekenntnis oder Selbstwahl", "Gesundheitswesen und Verhalten", "Arbeitswelt und Du", "Mobbing am Arbeitsplatz", "Jugendsprecher", "Ratgeber für Pensionisten", "Sozialgefallen und Widerkehr", "Nachbarschaft und Gemeinschaft", "Alleinerziehend", "Die Brücke"];
