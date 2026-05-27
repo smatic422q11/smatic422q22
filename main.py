@@ -6,7 +6,7 @@ import random
 import certifi 
 from datetime import datetime
 from fastapi import FastAPI, Request
-from fastapi.responses import JSONResponse, StreamingResponse, FileResponse
+from fastapi.responses import JSONResponse, FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pymongo import MongoClient
 from pymongo.server_api import ServerApi
@@ -19,14 +19,14 @@ from email.mime.text import MIMEText
 from email.mime.base import MIMEBase
 from email import encoders
 
-# --- HIER NUR NOCH EINMAL DEFINIERT ---
+# --- EINDEUTIGE FUNKTIONSDEFINITION ---
 def perform_google_search(query):
     api_key = os.getenv('GOOGLE_API_KEY')
     cx_id = os.getenv('GOOGLE_SEARCH_CX')
     url = f"https://www.googleapis.com/customsearch/v1?key={api_key}&cx={cx_id}&q={query}"
     
     try:
-        response = requests.get(url)
+        response = requests.get(url, timeout=10)
         if response.status_code == 200:
             results = response.json().get("items", [])
             if not results:
@@ -44,52 +44,13 @@ def perform_google_search(query):
     except Exception as e:
         return f"Fehler bei der Suche: {str(e)}"
 
-# ==========================================
-# APP-INITIALISIERUNG
-# ==========================================
+# --- APP-INITIALISIERUNG ---
 app = FastAPI()
 
-def perform_google_search(query):
-    api_key = os.getenv('GOOGLE_API_KEY')
-    cx_id = os.getenv('GOOGLE_SEARCH_CX')  # Exakt wie auf Render hinterlegt
-    url = f"https://www.googleapis.com/customsearch/v1?key={api_key}&cx={cx_id}&q={query}"
-    
-    try:
-        response = requests.get(url)
-        if response.status_code == 200:
-            results = response.json().get("items", [])
-            if not results:
-                return "HINWEIS: Keine aktuellen Medienberichte zu diesem Brennpunkt im Index auffindbar."
-            
-            # Holt Titel, Link und Snippet, damit das System echte Beweise hat
-            such_berichte = []
-            for item in results[:4]:  # Erhöht auf die Top 4 echten Brennpunkte
-                titel = item.get("title", "Kein Titel")
-                link = item.get("link", "Kein Link")
-                beschreibung = item.get("snippet", "")
-                such_berichte.append(f"QUELLE: {titel}\nLINK: {link}\nFAKTEN: {beschreibung}\n---")
-                
-            return "\n".join(such_berichte)
-        return "HINWEIS: Schnittstelle liefert aktuell keine Rohdaten."
-    except Exception as e:
-        return f"Fehler bei der Suche: {str(e)}"
-        
 # 1. DATENBANK-VERBINDUNG
 MONGO_URI = os.environ.get('MONGO_URI')
 ca = certifi.where()
-
-client = MongoClient(
-    MONGO_URI,
-    server_api=ServerApi('1'),
-    tlsCAFile=ca
-)
-
-try:
-    client.admin.command('ping')
-    print("MongoDB-Verbindung steht!")
-except Exception as e:
-    print(f"Verbindungsfehler: {e}")
-
+client = MongoClient(MONGO_URI, server_api=ServerApi('1'), tlsCAFile=ca)
 db = client['mm-community']
 
 # 2. MIDDLEWARE-EINSTELLUNGEN
