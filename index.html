@@ -871,17 +871,24 @@ async function handleVerifyAccess() {
         if (data.success) {
             userEmail = emailInput; 
             
-            // 1. Chat laden (dein bestehender Code)
+            // 1. Chat laden
             chatVerlauf = data.history || []; 
             
             // 2. DAS BETRIEBSSYSTEM AKTIVIEREN
-            // Wir übergeben das 'fortschritt'-Array (die Liste der Zustände), 
-            // das vom Server kommt, direkt an dein Farbsystem.
             if (data.fortschritt) {
                 synchronisiereSektoren(data.fortschritt);
             }
             
             alert("Zugang gewährt! Willkommen zurück. Sektoren-Status synchronisiert.");
+
+            // 3. NEU: SCHUBLADEN-CHECK (Hier wird er eingebaut)
+            const statusRes = await fetch(`/get-user-status?email=${userEmail}`);
+            const statusData = await statusRes.json();
+            
+            if (statusData.drawer_opened === false) {
+                document.getElementById('schublade').style.display = 'flex';
+            }
+
         } else {
             alert("Schlüsselcode ungültig.");
         }
@@ -889,7 +896,6 @@ async function handleVerifyAccess() {
         alert("Fehler bei der Kommunikation.");
     }
 }
-
 async function sendeChat() {
     const inputField = document.getElementById('chat-in');
     const userMessage = inputField.value.trim();
@@ -1030,7 +1036,23 @@ function updateSpezialSektorenStatus() {
  function aboProzessAbschliessen() {
     document.getElementById('btn-ebene4-zugang').style.display = 'inline-block';
     alert("Willkommen im Kollektiv! Ebene 4 wurde soeben freigeschaltet.");
-}    
+}  
+async function wähleModus(gewaehlterModus) {
+    try {
+        const response = await fetch('/update-modus', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: userEmail, modus: gewaehlterModus })
+        });
+        
+        if (response.ok) {
+            // Schublade ausblenden
+            document.getElementById('schublade').style.display = 'none';
+        }
+    } catch (e) {
+        console.error("Fehler bei Modus-Wahl:", e);
+    }
+}     
  </script>
 </body>
 </html>  
