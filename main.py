@@ -103,7 +103,6 @@ def send_verification_email(user_email, code):
     try:
         response = requests.post(url, json=payload, headers=headers)
         
-        # HIER WIRD DER FEHLER AN RENDER WEITERGEGEBEN:
         if response.status_code not in [200, 201, 202]:
             print(f"!!! SENDGRID BLOCKIERT: Status {response.status_code} - Antwort: {response.text} !!!")
             return False
@@ -114,6 +113,38 @@ def send_verification_email(user_email, code):
         print(f"Systemfehler beim Mail-Versand: {e}")
         return False
 
+# --- NEU EINGEFÜGT: Versand mit Anhang ---
+def send_email_with_attachment(to_email, subject, body, attachment_name, attachment_data):
+    SENDGRID_API_KEY = os.environ.get('SENDGRID_API_KEY')
+    url = "https://api.sendgrid.com/v3/mail/send"
+    
+    payload = {
+        "personalizations": [{"to": [{"email": to_email}]}],
+        "from": {"email": "info@mm-community.online"},
+        "subject": subject,
+        "content": [{"type": "text/plain", "value": body}],
+        "attachments": [{
+            "content": attachment_data,
+            "filename": attachment_name,
+            "type": "application/pdf",
+            "disposition": "attachment"
+        }]
+    }
+    
+    headers = {"Authorization": f"Bearer {SENDGRID_API_KEY}", "Content-Type": "application/json"}
+    
+    try:
+        response = requests.post(url, json=payload, headers=headers)
+        if response.status_code in [200, 201, 202]:
+            print(f"!!! PDF ERFOLG: Anhang an {to_email} übergeben !!!")
+            return True
+        else:
+            print(f"!!! PDF FEHLER: Status {response.status_code} - Antwort: {response.text} !!!")
+            return False
+    except Exception as e:
+        print(f"Systemfehler beim Anhang-Versand: {e}")
+        return False
+        
 @app.get("/")
 def read_root():
     if os.path.exists("index.html"):
