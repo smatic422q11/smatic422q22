@@ -713,7 +713,7 @@ async def get_live_ermittlung(sector_id: str, request: Request):
     except Exception as e:
         return {"success": True, "data": {"widersprueche": [f"Fehler: {str(e)}"]}}
         
-@app.post("/generate-and-send-pdf")
+@app.post("/generate-pdf")
 async def generate_and_send_pdf(request: Request):
     try:
         data = await request.json()
