@@ -149,6 +149,16 @@ def read_root():
     if os.path.exists("index.html"):
         return FileResponse("index.html")
     return {"message": "Server läuft, aber index.html wurde im Hauptordner nicht gefunden!"}
+    @app.get("/get-user-status")
+    
+async def get_user_status(email: str):
+    user = db.codes.find_one({"email": email.lower().strip()})
+    if not user:
+        return {"drawer_opened": False, "manifest_mode": None}
+    return {
+        "drawer_opened": user.get("drawer_opened", False),
+        "manifest_mode": user.get("manifest_mode")
+    }
 
 @app.post("/send-code")
 async def handle_send_code(request: Request):
@@ -490,12 +500,19 @@ async def chat(request: Request):
         current_name = SECTOR_NAMES.get(sector_id, "KI")
         current_soul = SECTOR_SOULS.get(sector_id, "Begleiter.")
 
+        fokus_instruktion = (
+             " FOKUS: Tiefenreflexion. Antworte in längeren, resonanten Einheiten. Status 'secure' erst bei inhaltlicher Tiefe." 
+        if modus == "ebook" 
+        else " FOKUS: Dynamik und klare Analyse. Bestätige Fakten schnell."
+        )
+
         # ERWEITERUNG DER INSTRUKTION FÜR DEN BUCH-KONTEXT ODER FREIE INTERAKTION
         system_instruction = (
             f"IDENTITÄT: Du bist {current_name}, Seele: {current_soul}. "
             f"KOLLEKTIVES WISSEN: Das gesamte 20-Seelen-Kollektiv arbeitet für {user_name}. "
             f"DEIN GEGENÜBER: Der User ist {user_name}. " 
             f"AUFGABE: Wenn dies dein erster kontakt in diesem Sektor ist, BEGRÜSSE {user_name} UNBEDINGT mit seinem Namen. "
+            f"{fokus_instruktion} "
             f"ZEIT: {user_time}. BIO: {bio_context}. "
             "REGEL: Blende die Uhrzeit NIEMALS starr ein. "
             "REGEL: Wenn der User 'Gefühlsvorderung' sagt, blende immer ein 'V' ein. "
