@@ -477,9 +477,10 @@ async def chat(request: Request):
         sector_id = str(data.get("sector_id", "0"))
         email = data.get("email", "").lower().strip() 
         user_time = data.get("echtzeit", "Unbekannt")
-        bio_context = data.get("biografie_context", "")
+        bio_context = data.get("biografie_context", "")   
 
         user_record = db.codes.find_one({"email": email})
+        modus = user_record.get("manifest_mode", "truth") if user_record else "truth"
         
         if user_record:
             user_name = user_record.get("name") or email.split('@')[0].capitalize()
@@ -761,6 +762,26 @@ def generiere_pdf_bytes(text):
     pdf.set_font("Arial", size=12)
     pdf.multi_cell(0, 10, txt=str(text).encode('latin-1', 'replace').decode('latin-1'))
     return pdf.output(dest='S').encode('latin-1')
+
+@app.post("/update-modus")
+async def update_modus(request: Request):
+    try:
+        data = await request.json()
+        email = data.get("email").lower().strip()
+        modus = data.get("modus")
+        
+        # Datenbank-Update: Modus setzen und Flag für die einmalige Schublade auf true
+        db.codes.update_one(
+            {"email": email},
+            {"$set": {
+                "manifest_mode": modus, 
+                "drawer_opened": True
+            }}
+        )
+        return {"success": True}
+    except Exception as e:
+        print(f"Fehler bei Modus-Speicherung: {e}")
+        return JSONResponse(content={"message": "Systemfehler"}, status_code=500)
     
 if __name__ == "__main__":
     import uvicorn
