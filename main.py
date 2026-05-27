@@ -490,7 +490,6 @@ async def chat(request: Request):
         bio_context = data.get("biografie_context", "")   
 
         user_record = db.codes.find_one({"email": email})
-        modus = user_record.get("manifest_mode", "truth") if user_record else "truth"
         
         if user_record:
             user_name = user_record.get("name") or email.split('@')[0].capitalize()
