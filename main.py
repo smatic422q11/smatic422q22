@@ -680,12 +680,11 @@ async def get_live_ermittlung(sector_id: str, request: Request):
 
         prompt = (
             f"Du bist ein reines Daten-Werkzeug für {user_name}. "
-            "REGEL: Der Inhalt der Antwort darf keine mythologischen Begriffe, keine Lilith-Rolle und keine Interpretation enthalten. "
-            "Fülle die unten stehende Struktur NUR mit sachlichen, technischen Informationen. "
-            "Wenn du keine Daten hast, schreibe 'Keine Daten'. "
-            "Strukturvorgabe für dein Backend: "
+            f"REGEL: Der Inhalt der Antwort darf keine mythologischen Begriffe, keine Lilith-Rolle und keine Interpretation enthalten. "
+            f"Fülle die unten stehende Struktur NUR mit sachlichen, technischen Informationen. "
+            f"Wenn du keine Daten hast, schreibe 'Keine Daten'. "
+            f"Strukturvorgabe für dein Backend: "
             '{"widersprueche": ["...", "..."], "google_ergebnisse": "...", "lagebericht": "...", "akteure": "...", "kontrast": "...", "fazit": "..."}'
-)
         )
         api_key = os.getenv("GEMINI_API_KEY")   
         if api_key:
