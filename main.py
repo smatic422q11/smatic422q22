@@ -715,29 +715,66 @@ async def get_live_ermittlung(sector_id: str, request: Request):
         
   @app.post("/generate-pdf") 
   async def generate_and_send_pdf(request: Request):
+   def send_email_with_attachment(to_email, subject, body, attachment_name, attachment_data):
+    SENDGRID_API_KEY = os.environ.get('SENDGRID_API_KEY')
+    url = "https://api.sendgrid.com/v3/mail/send"
+    
+    payload = {
+        "personalizations": [{"to": [{"email": to_email}]}],
+        "from": {"email": "info@mm-community.online"},
+        "subject": subject,
+        "content": [{"type": "text/plain", "value": body}],
+        "attachments": [{
+            "content": attachment_data,
+            "filename": attachment_name,
+            "type": "application/pdf",
+            "disposition": "attachment"
+        }]
+    }
+    
+    headers = {"Authorization": f"Bearer {SENDGRID_API_KEY}", "Content-Type": "application/json"}
+    response = requests.post(url, json=payload, headers=headers)
+    return response.status_code in [200, 201, 202]
+
+
+@app.post("/generate-and-send-pdf")
+async def generate_and_send_pdf(request: Request):
     try:
         data = await request.json()
-        email = data.get("email")
-        
-        # DEBUG-AUSGABE: Damit sehen wir im Render-Log, was fehlt
-        print(f"DEBUG: Empfangene E-Mail: {email}")
-        
-        if not email:
-            return JSONResponse(content={"message": "E-Mail fehlt im Request"}, status_code=400)
-
+        email = data.get("email", "").lower().strip()
         user_record = db.codes.find_one({"email": email})
         
         if not user_record:
-            print(f"DEBUG: User {email} nicht in DB gefunden")
             return JSONResponse(content={"message": "User nicht gefunden"}, status_code=404)
 
-        # 1. PDF im RAM erstellen
-        # ... (dein restlicher PDF-Code)
+        # PDF im RAM generieren
+        pdf = FPDF()
+        pdf.add_page()
+        pdf.set_font("Arial", 'B', 16)
+        pdf.cell(200, 10, txt="DEIN PERSOENLICHES MANIFEST", ln=True, align='C')
+        pdf.ln(10)
+        pdf.set_font("Arial", size=12)
+        bio_text = user_record.get("biografie", "Keine Biografie hinterlegt.")
+        pdf.multi_cell(0, 10, txt=str(bio_text).encode('latin-1', 'replace').decode('latin-1'))
         
+        pdf_bytes = pdf.output(dest='S').encode('latin-1')
+        encoded_pdf = base64.b64encode(pdf_bytes).decode()
+        
+        # Versand auslösen
+        success = send_email_with_attachment(
+            to_email=email,
+            subject="Dein M&M Community Manifest",
+            body="Anbei findest du dein versiegeltes Manifest als PDF.",
+            attachment_name="Biografie.pdf",
+            attachment_data=encoded_pdf
+        )
+
+        if success:
+            return JSONResponse(content={"message": "Das Manifest wurde per E-Mail versendet."})
+        else:
+            return JSONResponse(content={"message": "Versand fehlgeschlagen"}, status_code=500)
     except Exception as e:
-        # Hier zeigt dir das Log nun den echten Fehler statt nur "undefined"
-        print(f"KRITISCHER FEHLER IM PDF-ENDPUNKT: {str(e)}")
-        return JSONResponse(content={"message": f"Fehler: {str(e)}"}, status_code=500)
+        return JSONResponse(content={"message": str(e)}, status_code=500)
         
 def generiere_pdf_bytes(text):
     from fpdf import FPDF
