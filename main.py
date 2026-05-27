@@ -511,7 +511,6 @@ async def chat(request: Request):
             f"KOLLEKTIVES WISSEN: Das gesamte 20-Seelen-Kollektiv arbeitet für {user_name}. "
             f"DEIN GEGENÜBER: Der User ist {user_name}. " 
             f"AUFGABE: Wenn dies dein erster kontakt in diesem Sektor ist, BEGRÜSSE {user_name} UNBEDINGT mit seinem Namen. "
-            f"{fokus_instruktion} "
             f"ZEIT: {user_time}. BIO: {bio_context}. "
             "REGEL: Blende die Uhrzeit NIEMALS starr ein. "
             "REGEL: Wenn der User 'Gefühlsvorderung' sagt, blende immer ein 'V' ein. "
