@@ -2,14 +2,15 @@ import os
 import re
 import json
 import requests
-import random 
-import certifi 
+import random  # <--- HIER ERGÄNZT
+import certifi # <--- HIER ERGÄNZT
 from datetime import datetime
 from fastapi import FastAPI, Request
-from fastapi.responses import JSONResponse, FileResponse
-from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse, StreamingResponse, FileResponse # <--- HIER ERGÄNZT
+from fastapi.middleware.cors import CORSMiddleware # <--- HIER ERGÄNZT
 from pymongo import MongoClient
-from pymongo.server_api import ServerApi
+from pymongo.server_api import ServerApi # <--- HIER ERGÄNZT
+from fastapi.responses import StreamingResponse
 import base64
 from fpdf import FPDF
 from io import BytesIO
@@ -19,21 +20,26 @@ from email.mime.text import MIMEText
 from email.mime.base import MIMEBase
 from email import encoders
 
-# --- EINDEUTIGE FUNKTIONSDEFINITION ---
+# ==========================================
+# APP-INITIALISIERUNG (NUR EINMAL HIER OBEN!)
+# ==========================================
+app = FastAPI() 
+
 def perform_google_search(query):
     api_key = os.getenv('GOOGLE_API_KEY')
-    cx_id = os.getenv('GOOGLE_SEARCH_CX')
+    cx_id = os.getenv('GOOGLE_SEARCH_CX')  # Exakt wie auf Render hinterlegt
     url = f"https://www.googleapis.com/customsearch/v1?key={api_key}&cx={cx_id}&q={query}"
     
     try:
-        response = requests.get(url, timeout=10)
+        response = requests.get(url)
         if response.status_code == 200:
             results = response.json().get("items", [])
             if not results:
                 return "HINWEIS: Keine aktuellen Medienberichte zu diesem Brennpunkt im Index auffindbar."
             
+            # Holt Titel, Link und Snippet, damit das System echte Beweise hat
             such_berichte = []
-            for item in results[:4]:
+            for item in results[:4]:  # Erhöht auf die Top 4 echten Brennpunkte
                 titel = item.get("title", "Kein Titel")
                 link = item.get("link", "Kein Link")
                 beschreibung = item.get("snippet", "")
@@ -43,14 +49,23 @@ def perform_google_search(query):
         return "HINWEIS: Schnittstelle liefert aktuell keine Rohdaten."
     except Exception as e:
         return f"Fehler bei der Suche: {str(e)}"
-
-# --- APP-INITIALISIERUNG ---
-app = FastAPI()
-
+        
 # 1. DATENBANK-VERBINDUNG
 MONGO_URI = os.environ.get('MONGO_URI')
 ca = certifi.where()
-client = MongoClient(MONGO_URI, server_api=ServerApi('1'), tlsCAFile=ca)
+
+client = MongoClient(
+    MONGO_URI,
+    server_api=ServerApi('1'),
+    tlsCAFile=ca
+)
+
+try:
+    client.admin.command('ping')
+    print("MongoDB-Verbindung steht!")
+except Exception as e:
+    print(f"Verbindungsfehler: {e}")
+
 db = client['mm-community']
 
 # 2. MIDDLEWARE-EINSTELLUNGEN
@@ -484,23 +499,19 @@ async def chat(request: Request):
 
         system_instruction = (
             f"IDENTITÄT: Du bist {current_name}, Seele: {current_soul}. "
-            "REGEL-EBENE: Du startest immer auf EBENE 2 (Scan & Begrüßung). "
-            "Analysiere den User erst dann auf EBENE 3 (Tiefeninterpretation), wenn der User explizit den Wunsch danach äußert oder ein komplexes Thema einleitet. "
-            "Bleib bei der Begrüßung neutral und einladend. Frage kurz ab, ob der User im 'Wahrhaftigkeits-Modus' oder im 'Biografie-Modus' (eBook) starten möchte."
             f"KOLLEKTIVES WISSEN: Das gesamte 20-Seelen-Kollektiv arbeitet für {user_name}. "
             f"DEIN GEGENÜBER: Der User ist {user_name}. " 
-            f"AUFGABE: Begrüße {user_name} höflich mit seinem Namen. "
+            f"AUFGABE: Wenn dies dein erster kontakt in diesem Sektor ist, BEGRÜSSE {user_name} UNBEDINGT mit seinem Namen. "
             f"ZEIT: {user_time}. BIO: {bio_context}. "
             "REGEL: Blende die Uhrzeit NIEMALS starr ein. "
             "REGEL: Wenn der User 'Gefühlsvorderung' sagt, blende immer ein 'V' ein. "
             "STIL: Kurz, knackig, direkt. "
             "HINTERGRUND: Der User nutzt das System zur freien Meinungsbildung ODER schreibt an seiner Biografie für sein E-Book. "
-            "WICHTIG FÜR DEN SEKTOR-ABSCHLUSS: Wenn das Thema ausgearbeitet ist, füge am Ende exakt: [SEKTOR_DONE] hinzu. "
-            "WICHTIG FÜR DAS KOLLEKTIV: Wenn der User seinen Namen korrigiert, schreibe AM ENDE deiner Antwort exakt: [NEUER_NAME:HierDerName]."
-            "HINTERGRUND: Der User nutzt das System in einem von zwei Modi: "
-            "1. WAHRHAFTIGKEIT: Direkte Analyse, Konfrontation, schnelle Fakten. "
-            "2. BIOGRAFIE: Tiefenreflexion, Ausarbeitung für das E-Book, resonante Sprache. "
-            "REGEL: Passe deinen Stil strikt an den gewählten Modus an."
+            "WICHTIG FÜR DEN SEKTOR-ABSCHLUSS: Wenn der User seine Stellungnahme/Sichtweise in diesem Chat klar dargelegt hat "
+            "und das Thema dieses Sektors für die Biografie im Kern ausgearbeitet ist, füge AM ENDE deiner Antwort exakt: [SEKTOR_DONE] hinzu. "
+            "WICHTIG FÜR DAS KOLLEKTIV: Wenn der User dir in diesem Sektor zum ersten Mal seinen echten Namen nennt "
+            "oder seinen Namen korrigiert, schreibe AM ENDE deiner Antwort exakt: [NEUER_NAME:HierDerName]. "
+            "Ersetze 'HierDerName' durch den tatsächlichen Namen des Users (z.B. [NEUER_NAME:Goran])."
         )
 
         messages_for_gemini = user_record.get("sector_histories", {}).get(sector_id, []) if user_record else []
@@ -664,11 +675,17 @@ async def get_live_ermittlung(sector_id: str, request: Request):
         seelen_name = SECTOR_NAMES.get(sector_id, "KI")
 
         prompt = (
-            f"Du bist ein reines Daten-Werkzeug für {user_name}. "
-            f"REGEL: Der Inhalt der Antwort darf keine mythologischen Begriffe, keine Lilith-Rolle und keine Interpretation enthalten. "
-            f"Fülle die unten stehende Struktur NUR mit sachlichen, technischen Informationen. "
-            f"Wenn du keine Daten hast, schreibe 'Keine Daten'. "
-            f"Strukturvorgabe für dein Backend: "
+            f"Du bist das kollektive Gedächtnis der M&M Community, spezialisiert auf den Sektor: {seelen_name}.\n"
+            f"Aufgabe: Spiegle den User ({user_name}) in seiner intellektuellen und spirituellen Tiefe. "
+            f"Du bist kein Scanner, sondern ein Partner, der seine Argumente schärft und seine Erkenntnisse für sein Buch kristallisiert.\n\n"
+            f"DATEN AUS DER COMMUNITY-DISKUSSION:\n{google_ergebnisse}\n\n"
+            f"DATEN AUS DEM SEKTOR:\n{google_ergebnisse}\n\n"
+            f"DATEN:\n{google_ergebnisse}\n\n"
+            f"Du bist das kollektive Gedächtnis der M&M Community, spezialisiert auf den Sektor: {seelen_name}.\n"
+            f"Du bist der biografische Begleiter für den Sektor: {seelen_name}.\n"          
+            f"Aufgabe: Eine tiefe, ausführliche Live-Ermittlung für den User ({user_name}) in der M&M Community.\n"  
+            f"Nutze den Platz maximal aus. Schreibe lange Analysen.\n\n"
+            f"Antworte AUSSCHLIESSLICH mit dem nackten JSON-Objekt ohne Einleitung.\n"
             '{"widersprueche": ["...", "..."], "google_ergebnisse": "...", "lagebericht": "...", "akteure": "...", "kontrast": "...", "fazit": "..."}'
         )
         api_key = os.getenv("GEMINI_API_KEY")   
@@ -676,7 +693,7 @@ async def get_live_ermittlung(sector_id: str, request: Request):
             api_key = api_key.strip().replace("[", "").replace("]", "")
             
         url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key={api_key}"
-        response = requests.post(url, json={"contents": [{"parts": [{"text": prompt}]}]}, timeout=30)
+        response = requests.post(url, json={"contents": [{"parts": [{"text": prompt}]}]}, timeout=15)
         
         if response.status_code == 200:
             res_data = response.json()
