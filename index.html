@@ -435,17 +435,28 @@ function updateBoxFarben() {
 }
      
 async function waehleSektor(id) {
-    // 1. Authentifizierungs-Check: Ohne E-Mail geht gar nichts
+    // 1. Authentifizierungs-Check
     if (userEmail === "") {
         alert("Zugriff verweigert! Bitte zuerst Anker setzen und verifizieren.");
         return;
     }
 
-    // 2. Rollen-Check: Admin darf immer rein
+    // 2. NEU: Schubladen-Türsteher für die "Gefühlsvorderung" (ID 0)
+    if (id === 0) {
+        const statusRes = await fetch(`/get-user-status?email=${userEmail}`);
+        const statusData = await statusRes.json();
+        
+        // Wenn noch nie geöffnet (drawer_opened === false), zeige Schublade und stoppe hier
+        if (statusData.drawer_opened === false) {
+            document.getElementById('schublade').style.display = 'flex';
+            return; 
+        }
+    }
+
+    // 3. Rollen-Check: Admin darf immer rein
     const isAdmin = (userEmail === "mmcommunity22@gmail.com");
 
-    // 3. Logik-Check für User:
-    // Nur Admin hat freien Durchgang. User müssen 'aktiv_gelb' oder 'erledigt_gruen' haben.
+    // 4. Logik-Check für User
     if (!isAdmin) {
         if (sektorZustand[id] !== 'aktiv_gelb' && sektorZustand[id] !== 'erledigt_gruen') {
             alert("Dieser Sektor ist noch gesperrt. Arbeite dich der Reihe nach vor.");
@@ -454,7 +465,6 @@ async function waehleSektor(id) {
     }
 
     // --- PROZESS FREIGABE ---
-    // Hier wird der Sektor für alle (Admin + verifizierte User im Flow) geöffnet
     aktuelleSektorId = id.toString();
     const chatBox = document.getElementById('chat-box');
 
