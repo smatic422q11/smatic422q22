@@ -500,11 +500,10 @@ async def chat(request: Request):
         current_name = SECTOR_NAMES.get(sector_id, "KI")
         current_soul = SECTOR_SOULS.get(sector_id, "Begleiter.")
 
-        fokus_instruktion = (
-            f"FOKUS: Tiefenreflexion. Antworte in längeren, resonanten Einheiten. Status 'secure' erst bei inhaltlicher Tiefe." 
-        if modus == "ebook" 
-        else " FOKUS: Dynamik und klare Analyse. Bestätige Fakten schnell."
-        )
+        if modus == "ebook":
+            fokus_instruktion = "FOKUS: Tiefenreflexion. Antworte in längeren, resonanten Einheiten. Status 'secure' erst bei inhaltlicher Tiefe."
+        else:
+            fokus_instruktion = "FOKUS: Dynamik und klare Analyse. Bestätige Fakten schnell."
 
         # ERWEITERUNG DER INSTRUKTION FÜR DEN BUCH-KONTEXT ODER FREIE INTERAKTION
         system_instruction = (
