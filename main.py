@@ -113,14 +113,13 @@ def send_verification_email(user_email, code):
         print(f"Systemfehler beim Mail-Versand: {e}")
         return False
 
-# --- NEU EINGEFÜGT: Versand mit Anhang ---
 def send_email_with_attachment(to_email, subject, body, attachment_name, attachment_data):
-    SENDGRID_API_KEY = os.environ.get('SENDGRID_API_KEY')
+    SENDGRID_API_KEY = os.getenv('SENDGRID_API_KEY')
     url = "https://api.sendgrid.com/v3/mail/send"
     
     payload = {
         "personalizations": [{"to": [{"email": to_email}]}],
-        "from": {"email": "info@mm-community.online"},
+        "from": {"email": "info@mm-community.online", "name": "M&M Community"},
         "subject": subject,
         "content": [{"type": "text/plain", "value": body}],
         "attachments": [{
@@ -713,30 +712,6 @@ async def get_live_ermittlung(sector_id: str, request: Request):
     except Exception as e:
         return {"success": True, "data": {"widersprueche": [f"Fehler: {str(e)}"]}}
         
-  @app.post("/generate-pdf") 
-  async def generate_and_send_pdf(request: Request):
-   def send_email_with_attachment(to_email, subject, body, attachment_name, attachment_data):
-    SENDGRID_API_KEY = os.environ.get('SENDGRID_API_KEY')
-    url = "https://api.sendgrid.com/v3/mail/send"
-    
-    payload = {
-        "personalizations": [{"to": [{"email": to_email}]}],
-        "from": {"email": "info@mm-community.online"},
-        "subject": subject,
-        "content": [{"type": "text/plain", "value": body}],
-        "attachments": [{
-            "content": attachment_data,
-            "filename": attachment_name,
-            "type": "application/pdf",
-            "disposition": "attachment"
-        }]
-    }
-    
-    headers = {"Authorization": f"Bearer {SENDGRID_API_KEY}", "Content-Type": "application/json"}
-    response = requests.post(url, json=payload, headers=headers)
-    return response.status_code in [200, 201, 202]
-
-
 @app.post("/generate-and-send-pdf")
 async def generate_and_send_pdf(request: Request):
     try:
