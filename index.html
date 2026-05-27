@@ -286,11 +286,11 @@
         </div>
 
         <!-- Der mächtige Erfolgs-Button (Exakte Spiegelung in der Breite zu S22) -->
-       <button class="action-btn" 
-        style="width: 100%; ... " 
-        onclick="requestManifestPerEmail()">
-         Mein digitales Manifest versiegeln & Biografie als PDF anfordern
-       </button>
+        <button class="action-btn" 
+        style="width: 100%; background: linear-gradient(90deg, #00ffcc 0%, #008b8b 100%); color: #000; font-weight: 900; font-size: 1.25rem; padding: 16px; border: 1px solid #00ffcc; letter-spacing: 2px; text-transform: uppercase; cursor: pointer; box-shadow: 0 5px 20px rgba(0, 255, 210, 0.4); border-radius: 4px;" 
+        onclick="generiereBiografiePDF()">
+    Mein digitales Manifest versiegeln & Biografie als PDF anfordern
+</button>
     </div>
 </div>
 
@@ -761,37 +761,31 @@ async function adminSetzeSektorStatus() {
     alert("M&M System-Hinweis:\nSektor 21 (Manifest) und Sektor 22 (Kollektiv) laufen über feste Protokolle für den E-Book-Export und die Abo-Struktur. Die Ebene 4 Freischaltungs-Parameter sind aktiv hinterlegt!");
 }    
 async function generiereBiografiePDF() {
-    const email = userEmail; // Nutze die globale Variable, die beim Login gesetzt wird
-    if(!email) return alert("Bitte erst verifizieren!");
+    if(!userEmail) return alert("Bitte erst verifizieren!");
 
     const btn = event.currentTarget;
-    btn.innerText = "KOMPILIERE MANIFEST...";
+    const originalText = btn.innerText;
+    btn.innerText = "VERSENDE MANIFEST...";
+    btn.disabled = true;
 
     try {
-        const response = await fetch('/generate-pdf', {
+        const response = await fetch('/generate-and-send-pdf', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email: email })
+            body: JSON.stringify({ email: userEmail })
         });
 
+        const data = await response.json();
         if (response.ok) {
-            const blob = await response.blob();
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = "Dein_Manifest.pdf";
-            document.body.appendChild(a);
-            a.click();
-            a.remove();
-            window.URL.revokeObjectURL(url);
+            alert("Erfolg: Das Manifest wurde an deine E-Mail-Adresse versendet.");
         } else {
-            const error = await response.json();
-            alert("System-Fehler: " + error.message);
+            alert("System-Fehler: " + data.message);
         }
     } catch (e) {
-        alert("Netzwerkfehler beim Anfordern des Manifests.");
+        alert("Netzwerkfehler: Verbindung zum Server unterbrochen.");
     } finally {
-        btn.innerText = "Mein digitales Manifest versiegeln & Biografie als PDF anfordern";
+        btn.innerText = originalText;
+        btn.disabled = false;
     }
 }
 async function requestManifestPerEmail() {
