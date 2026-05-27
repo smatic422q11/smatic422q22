@@ -149,8 +149,8 @@ def read_root():
     if os.path.exists("index.html"):
         return FileResponse("index.html")
     return {"message": "Server läuft, aber index.html wurde im Hauptordner nicht gefunden!"}
-    @app.get("/get-user-status")
-    
+
+@app.get("/get-user-status")
 async def get_user_status(email: str):
     user = db.codes.find_one({"email": email.lower().strip()})
     if not user:
@@ -159,7 +159,6 @@ async def get_user_status(email: str):
         "drawer_opened": user.get("drawer_opened", False),
         "manifest_mode": user.get("manifest_mode")
     }
-
 @app.post("/send-code")
 async def handle_send_code(request: Request):
     try:
