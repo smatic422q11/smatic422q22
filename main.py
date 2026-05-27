@@ -183,6 +183,8 @@ async def handle_send_code(request: Request):
         db.codes.insert_one({
             "email": email, 
             "code": verification_code,
+            "manifest_mode": None,    # Feld für "truth" oder "ebook"
+            "drawer_opened": False,   # Flag für die einmalige Animation
             "role": "admin" if email in ["mmcommunity22@gmail.com"] else "user",
             "created_at": datetime.now(),
             "history": [],
