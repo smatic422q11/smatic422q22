@@ -690,6 +690,7 @@ async def get_live_ermittlung(sector_id: str, request: Request):
             f"Aufgabe: Eine tiefe, ausführliche Live-Ermittlung für den User ({user_name}) in der M&M Community.\n"  
             f"Nutze den Platz maximal aus. Schreibe lange Analysen.\n\n"
             f"Antworte AUSSCHLIESSLICH mit dem nackten JSON-Objekt ohne Einleitung.\n"
+            '{"tagesereignisse": "Was ist heute faktisch in diesem Sektor passiert?", "datenquelle": "Welche konkreten Quellen/Links bestätigen das?", "biografie_impuls": "Ein konkreter Schreib-Anstoß für das E-Book oder die Wahrheitsfindung", "handlungsbedarf": "Was ist der nächste logische Schritt für den User in diesem Sektor?", "klartext": "Eine direkte Antwort ohne psychologische Analyse", "status": "Was muss heute noch erledigt werden?"}'
         )
         api_key = os.getenv("GEMINI_API_KEY")   
         if api_key:
