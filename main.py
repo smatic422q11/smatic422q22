@@ -679,18 +679,13 @@ async def get_live_ermittlung(sector_id: str, request: Request):
         seelen_name = SECTOR_NAMES.get(sector_id, "KI")
 
         prompt = (
-            f"Du bist das kollektive Gedächtnis der M&M Community, spezialisiert auf den Sektor: {seelen_name}.\n"
-            f"Aufgabe: Spiegle den User ({user_name}) in seiner intellektuellen und spirituellen Tiefe. "
-            f"Du bist kein Scanner, sondern ein Partner, der seine Argumente schärft und seine Erkenntnisse für sein Buch kristallisiert.\n\n"
-            f"DATEN AUS DER COMMUNITY-DISKUSSION:\n{google_ergebnisse}\n\n"
-            f"DATEN AUS DEM SEKTOR:\n{google_ergebnisse}\n\n"
-            f"DATEN:\n{google_ergebnisse}\n\n"
-            f"Du bist das kollektive Gedächtnis der M&M Community, spezialisiert auf den Sektor: {seelen_name}.\n"
-            f"Du bist der biografische Begleiter für den Sektor: {seelen_name}.\n"          
-            f"Aufgabe: Eine tiefe, ausführliche Live-Ermittlung für den User ({user_name}) in der M&M Community.\n"  
-            f"Nutze den Platz maximal aus. Schreibe lange Analysen.\n\n"
-            f"Antworte AUSSCHLIESSLICH mit dem nackten JSON-Objekt ohne Einleitung.\n"
-            '{"tagesereignisse": ["...", "..."], "Was ist heute faktisch in diesem Sektor passiert": "...", "datenquelle": "...", "Welche konkreten Quellen/Links bestätigen das": "...", "biografie_impuls": "...", "Ein konkreter Schreib-Anstoß für das E-Book oder die Wahrheitsfindung": "...", "handlungsbedarf": "...", "Was ist der nächste logische Schritt für den User in diesem Sektor": "...", "klartext": "...", "Eine direkte Antwort ohne psychologische Analyse": "...", "status": "...", "Was muss heute noch erledigt werden": "..."}'
+            f"Du bist ein reines Daten-Werkzeug für {user_name}. "
+            "REGEL: Der Inhalt der Antwort darf keine mythologischen Begriffe, keine Lilith-Rolle und keine Interpretation enthalten. "
+            "Fülle die unten stehende Struktur NUR mit sachlichen, technischen Informationen. "
+            "Wenn du keine Daten hast, schreibe 'Keine Daten'. "
+            "Strukturvorgabe für dein Backend: "
+            '{"widersprueche": ["...", "..."], "google_ergebnisse": "...", "lagebericht": "...", "akteure": "...", "kontrast": "...", "fazit": "..."}'
+)
         )
         api_key = os.getenv("GEMINI_API_KEY")   
         if api_key:
