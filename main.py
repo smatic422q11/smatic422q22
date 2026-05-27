@@ -478,6 +478,7 @@ SECTOR_SOULS = {
     "20": "Dieser Sektor ist aktuell noch geschlossen. Bitte hab etwas Geduld.",
     "21": "Das Kollektiv bereitet sich vor. Aktuell noch geschlossen."
 }
+
 @app.post("/chat")
 async def chat(request: Request):
     try:
@@ -583,7 +584,6 @@ async def chat(request: Request):
         return {"reply": "Fehler bei der Seele.", "info_fuer_ki": "Fehler"}
     except Exception as e:
         return {"reply": "System-Fehler.", "info_fuer_ki": str(e)}
-
 
 @app.get("/get-sector-text/{sector_id}")
 async def get_sector_text(sector_id: str):
