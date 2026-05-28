@@ -775,7 +775,42 @@ async def update_modus(request: Request):
     except Exception as e:
         print(f"Fehler bei Modus-Speicherung: {e}")
         return JSONResponse(content={"message": "Systemfehler"}, status_code=500)
-    
+        
+@app.post("/admin/update-sector")
+async def update_sector(request: Request):
+    try:
+        data = await request.json()
+        email = data.get("email")
+        sector_id = str(data.get("sector_id"))
+        status = data.get("status")
+        
+        # Sicherstellen, dass nur der Admin schreibt
+        if email != "mmcommunity22@gmail.com":
+            return JSONResponse(content={"message": "Zugriff verweigert"}, status_code=403)
+            
+        # Wenn es um den Text geht (der "Header")
+        if status == 'update-text':
+            header_text = data.get("header_text")
+            db.codes.update_one(
+                {"email": "mmcommunity22@gmail.com"},
+                {"$set": {f"sector_headers.{sector_id}": header_text}},
+                upsert=True
+            )
+            return {"success": True, "message": "Text gespeichert"}
+        
+        # Wenn es um den Status (Blau/Gelb/Rot/Grün) geht
+        else:
+            db.codes.update_one(
+                {"email": "mmcommunity22@gmail.com"},
+                {"$set": {f"sector_statuses.{sector_id}": status}},
+                upsert=True
+            )
+            return {"success": True, "message": "Status gespeichert"}
+            
+    except Exception as e:
+        print(f"Fehler bei update-sector: {e}")
+        return JSONResponse(content={"message": "Systemfehler"}, status_code=500)
+        
 if __name__ == "__main__":
     import uvicorn
     port = int(os.environ.get("PORT", 10000))
