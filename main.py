@@ -703,10 +703,12 @@ async def get_live_ermittlung(sector_id: str, request: Request):
             aktualisiere_sektor_fortschritt(email, sector_id, "letzter_scan", ergebnis_json)
             return {"success": True, "data": ergebnis_json}
                 
-        return {"success": True, "data": {"widersprueche": ["Fehler"], "lagebericht": "Schnittstelle offline"}}
+            # KEIN JSON-KORSETT MEHR IM FEHLERFALL
+            return {"success": False, "message": "Schnittstelle offline"}
         
-    except Exception as e:
-        return {"success": True, "data": {"widersprueche": [f"Fehler: {str(e)}"]}}
+            except Exception as e:
+            # KEIN JSON-KORSETT MEHR IM FEHLERFALL
+            return {"success": False, "message": str(e)}
         
 @app.post("/generate-and-send-pdf")
 async def generate_and_send_pdf(request: Request):
