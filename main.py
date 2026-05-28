@@ -689,12 +689,11 @@ async def get_live_ermittlung(sector_id: str, request: Request):
 
         manifest_mode = user_record.get("manifest_mode", "Nicht gewählt")
 
-        if manifest_mode == "truth":
-            anweisung = "AUFGABE: Radikale Wahrheits-Ermittlung. Entlarve Fassaden. KEINE Biografie, kein 'roter Faden', nur nackte Wahrheit."
+        if manifest_mode == "Wahrhaftigkeit":
+            prompt = f"Du bist das kollektive Gedächtnis... Fokus: RADIKALE WAHRHAFTIGKEIT. Begrüße den User als jemanden, der diesen Pfad bewusst gewählt hat. KEINE Biografie-Angebote."
         else:
-            anweisung = "AUFGABE: Biografische Begleitung. Webe den roten Faden, ordne das Leben des Users."
-
-        prompt = (
+            prompt = f"Du bist das kollektive Gedächtnis... Fokus: BIOGRAFIE. Begrüße den User als jemanden, der seine Biografie schreiben will."
+            prompt = (
             f"Du bist das kollektive Gedächtnis der M&M Community, Sektor: {seelen_name}.\n"
             f"USER: {user_name} | MODUS: {manifest_mode}\n\n"
             f"{anweisung}\n"
