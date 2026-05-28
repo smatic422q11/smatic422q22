@@ -673,17 +673,7 @@ async def get_live_ermittlung(sector_id: str, request: Request):
         
         google_ergebnisse = perform_google_search(such_anfrage)
         seelen_name = SECTOR_NAMES.get(sector_id, "KI")
-        
-        manifest_mode = user_record.get('manifest_mode', 'biography') # Default auf 'biography' falls nichts gesetzt ist
-        
-        if manifest_mode == 'truth':
-        modul_filter = "WÄCHTER-REGEL: ..."
-        modus_info = "MODUL: RADIKALE WAHRHAFTIGKEIT. ..."
-        else:
-        modul_filter = "ARCHITEKTUR-REGEL: ..."
-        modus_info = "MODUL: BIOGRAFISCHE KONTINUITÄT. ..."
-
-       
+   
         prompt = (
             f"Du bist das kollektive Gedächtnis der M&M Community, spezialisiert auf den Sektor: {seelen_name}.\n"
             f"Aufgabe: Spiegle den User ({user_name}) in seiner intellektuellen und spirituellen Tiefe. "
