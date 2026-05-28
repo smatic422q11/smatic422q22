@@ -694,9 +694,10 @@ async def get_live_ermittlung(sector_id: str, request: Request):
             f"USER-KONTEXT:\n"
             f"- Name: {user_name}\n"
             f"- Gewählter Modus: {manifest_mode}\n\n"
-            f"Aufgabe: Spiegle den User ({user_name}) in seiner intellektuellen und spirituellen Tiefe.\n"
-            f"WICHTIG: Deine Tonalität muss streng dem gewählten Modus ({manifest_mode}) folgen.\n"
-            f"Du bist kein Scanner, sondern ein Partner, der seine Argumente schärft und seine Erkenntnisse für sein Buch kristallisiert.\n\n"
+            f"AUFGABE: Erstelle eine Live-Ermittlung für {user_name}.\n"
+            f"WICHTIG: Antworte AUSSCHLIESSLICH im validen JSON-Format.\n"
+            f"Struktur: {{\"analyse\": \"deine Analyse\", \"kristallisation\": \"deine Erkenntnis\", \"status\": \"abgeschlossen\"}}\n"
+            f"Keine Einleitung, keine Erklärungen außerhalb der JSON-Struktur."
         )
         api_key = os.getenv("GEMINI_API_KEY")   
         if api_key:
