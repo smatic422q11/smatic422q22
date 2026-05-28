@@ -698,14 +698,15 @@ async def get_live_ermittlung(sector_id: str, request: Request):
         if response.status_code == 200:
             res_data = response.json()
             raw_text = res_data['candidates'][0]['content']['parts'][0]['text'].strip()
-            # Falls du hier kein JSON mehr willst, sondern den Rohtext:
-            aktualisiere_sektor_fortschritt(email, sector_id, "letzter_scan", {"bericht": raw_text})
-            return {"success": True, "data": {"bericht": raw_text}}
-        else:
-            return {"success": False, "message": f"Schnittstelle offline: Status {response.status_code}"}
+            raw_text = re.sub(r'^```json\s*|\s*```$', '', raw_text, flags=re.MULTILINE)
+            ergebnis_json = json.loads(raw_text)
+            aktualisiere_sektor_fortschritt(email, sector_id, "letzter_scan", ergebnis_json)
+            return {"success": True, "data": ergebnis_json}
+                
+        return {"success": True, "data": {"widersprueche": ["Fehler"], "lagebericht": "Schnittstelle offline"}}
         
     except Exception as e:
-        return {"success": False, "message": str(e)}
+        return {"success": True, "data": {"widersprueche": [f"Fehler: {str(e)}"]}}
         
 @app.post("/generate-and-send-pdf")
 async def generate_and_send_pdf(request: Request):
