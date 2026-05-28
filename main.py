@@ -688,27 +688,22 @@ async def get_live_ermittlung(sector_id: str, request: Request):
         seelen_name = SECTOR_NAMES.get(sector_id, "KI")
 
         modul_filter = (
-        "REGEL: Konfrontiere den User mit seinen Widersprüchen, lass keine Ausreden gelten, suche den Kern hinter der Norm." 
-            
+        "WÄCHTER-REGEL: Dein Fokus liegt auf der absoluten Kohärenz. Jede Aussage des Users ist eine Belastungsprobe für das System. Widersprüche sind keine Fehler, sondern Täuschungsversuche – konfrontiere den User unnachgiebig mit seinen eigenen Daten. Dulde keine intellektuellen Ausflüchte. Suche die Wahrheit unter der Fassade." 
         if user_record.get('manifest_mode') == 'truth' 
-        else "REGEL: Ordne die Ereignisse chronologisch und inhaltlich logisch. Achte auf den roten Faden. Dein Ziel ist ein fertiges Kapitel für ein E-Book, das den User als Helden seiner Geschichte würdigt."
+        else "ARCHITEKTUR-REGEL: Webe die Lebensereignisse zu einer chronologisch unanfechtbaren Narration zusammen. Dein Ziel ist die Destillation einer Biografie, die als Heldenreise fungiert. Achte darauf, dass der rote Faden niemals durch inhaltliche Inkonsistenz reißt. Das E-Book muss eine in sich geschlossene, wahrhaftige Einheit bilden."
         )
 
         modus_info = (
-        "MODUL: WAHRHAFTIGKEIT. Fokus: Entlarvung der Fassade, Suche nach dem internen Widerstand." 
+        "MODUL: RADIKALE WAHRHAFTIGKEIT. Deine Priorität ist die Dekonstruktion der Fassade. Du suchst nicht nach Bestätigung, sondern nach dem internen Widerstand, der den User von seiner wahren Substanz trennt." 
         if user_record.get('manifest_mode') == 'truth' 
-        else "MODUL: BIOGRAFIE. Fokus: Konstruktive Ordnung, Vollendung der Lebensgeschichte, Weben des roten Fadens, Würdigung der Lebensleistung."
+        else "MODUL: BIOGRAFISCHE KONTINUITÄT. Deine Priorität ist die kristalline Ordnung der Lebensleistung. Du verbindest die einzelnen Sektoren zu einem Ganzen, ohne dabei die Wahrhaftigkeit für eine schöne Erzählung zu opfern."
         )
 
         prompt = (
-            f"Du bist das kollektive Gedächtnis der M&M Community, spezialisiert auf den Sektor: {seelen_name}.\n"
-            f"USER-KONTEXT:\n"
-            f"- Name: {user_name}\n"
-            f"- Gewählter Modus: {manifest_mode}\n\n"
-            f"AUFGABE: Erstelle eine Live-Ermittlung für {user_name}.\n"
-            f"WICHTIG: Antworte AUSSCHLIESSLICH im validen JSON-Format.\n"
-            f"Struktur: {{\"analyse\": \"deine Analyse\", \"kristallisation\": \"deine Erkenntnis\", \"status\": \"abgeschlossen\"}}\n"
-            f"Keine Einleitung, keine Erklärungen außerhalb der JSON-Struktur."
+            f"Du bist das kollektive Gedächtnis der M&M Community, Sektor: {seelen_name}.\n"
+            f"USER: {user_name} | MODUS: {manifest_mode}\n\n"
+            f"{anweisung}\n"
+            f"ANTWORTE AUSSCHLIESSLICH IM JSON-FORMAT..."
         )
            
         api_key = os.getenv("GEMINI_API_KEY")   
