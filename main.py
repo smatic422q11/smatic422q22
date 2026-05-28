@@ -496,8 +496,21 @@ async def chat(request: Request):
 
         current_name = SECTOR_NAMES.get(sector_id, "KI")
         current_soul = SECTOR_SOULS.get(sector_id, "Begleiter.")
+        
+        modul_filter = (
+             "REGEL: Konfrontiere den User mit seinen Widersprüchen, lass keine Ausreden gelten, suche den Kern hinter der Norm." 
+        if user_record.get('manifest_mode') == 'truth' 
+        else "REGEL: Ordne die Ereignisse chronologisch und inhaltlich logisch. Achte auf den roten Faden. Dein Ziel ist ein fertiges Kapitel für ein E-Book, das den User als Helden seiner Geschichte würdigt."
+
+        modus_info = (
+             "MODUL: WAHRHAFTIGKEIT. Fokus: Entlarvung der Fassade, Suche nach dem internen Widerstand." 
+        if user_record.get('manifest_mode') == 'truth' 
+        else "MODUL: BIOGRAFIE. Fokus: Konstruktive Ordnung, Vollendung der Lebensgeschichte, Weben des roten Fadens, Würdigung der Lebensleistung."
+        
 
         system_instruction = (
+            f"MODUL-FILTER: {modus_info} "
+            f"REGEL FÜR DAS MODUL: Wenn {user_record.get('manifest_mode')} == 'truth', dann konfrontiere den User mit seinen Widersprüchen, anstatt sie zu bestätigen."
             f"IDENTITÄT: Du bist {current_name}, Seele: {current_soul}. "
             f"KOLLEKTIVES WISSEN: Das gesamte 20-Seelen-Kollektiv arbeitet für {user_name}. "
             f"DEIN GEGENÜBER: Der User ist {user_name}. " 
