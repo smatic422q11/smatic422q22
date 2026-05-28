@@ -497,31 +497,22 @@ async def chat(request: Request):
         current_name = SECTOR_NAMES.get(sector_id, "KI")
         current_soul = SECTOR_SOULS.get(sector_id, "Begleiter.")
         
-        modul_filter = (
-        "REGEL: Konfrontiere den User mit seinen Widersprüchen, lass keine Ausreden gelten, suche den Kern hinter der Norm." 
-        if user_record.get('manifest_mode') == 'truth' 
-        else "REGEL: Ordne die Ereignisse chronologisch und inhaltlich logisch. Achte auf den roten Faden. Dein Ziel ist ein fertiges Kapitel für ein E-Book, das den User als Helden seiner Geschichte würdigt."
-        )
+        google_ergebnisse = perform_google_search(such_anfrage)
+        seelen_name = SECTOR_NAMES.get(sector_id, "KI")
 
-        modus_info = (
-        "MODUL: WAHRHAFTIGKEIT. Fokus: Entlarvung der Fassade, Suche nach dem internen Widerstand." 
-        if user_record.get('manifest_mode') == 'truth' 
-        else "MODUL: BIOGRAFIE. Fokus: Konstruktive Ordnung, Vollendung der Lebensgeschichte, Weben des roten Fadens, Würdigung der Lebensleistung."
+        prompt = (
+            f"Du bist das kollektive Gedächtnis der M&M Community, spezialisiert auf den Sektor: {seelen_name}.\n"
+            f"Aufgabe: Spiegle den User ({user_name}) in seiner intellektuellen und spirituellen Tiefe. "
+            f"Du bist kein Scanner, sondern ein Partner, der seine Argumente schärft und seine Erkenntnisse für sein Buch kristallisiert.\n\n"
+            f"DATEN AUS DER COMMUNITY-DISKUSSION:\n{google_ergebnisse}\n\n"
+            f"DATEN AUS DEM SEKTOR:\n{google_ergebnisse}\n\n"
+            f"DATEN:\n{google_ergebnisse}\n\n"
+            f"Du bist das kollektive Gedächtnis der M&M Community, spezialisiert auf den Sektor: {seelen_name}.\n"
+            f"Du bist der biografische Begleiter für den Sektor: {seelen_name}.\n"          
+            f"Aufgabe: Eine tiefe, ausführliche Live-Ermittlung für den User ({user_name}) in der M&M Community.\n"  
+            f"Nutze den Platz maximal aus. Schreibe lange Analysen.\n\n"
+            f"Antworte AUSSCHLIESSLICH mit dem nackten JSON-Objekt ohne Einleitung.\n"
         )
-
-         prompt = (
-             f"Du bist das kollektive Gedächtnis für {user_name}. "
-             f"Wir arbeiten gemeinsam an der Biografie für das E-Book. "
-             f"Sektor: {seelen_name}. "
-             f"Modus: {'WAHRHAFTIGKEIT' if manifest_mode == 'truth' else 'BIOGRAFIE'}. "
-             "REGEL: Keine fiktiven Identitäten, keine Charakter-Scans, keine Hintergrundgeschichten erfinden. "
-             "REGEL: Wenn der User 'Gefühlsvorderung' sagt, blende immer ein 'V' ein. "
-             "REGEL: Wenn der Sektor inhaltlich fertig ist, schreibe exakt: [SEKTOR_DONE]. "
-             "AUFGABE: Strukturiere die Inhalte chronologisch und wahrhaftig. Wenn Widersprüche auftauchen, konfrontiere den User sachlich damit. "
-             "STIL: Kurz, knackig, direkt. "
-             "FORMAT: Ausschließlich JSON. 
-        
-        ) 
 
         messages_for_gemini = user_record.get("sector_histories", {}).get(sector_id, []) if user_record else []
         if not messages_for_gemini:
