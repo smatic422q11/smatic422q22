@@ -686,25 +686,28 @@ async def get_live_ermittlung(sector_id: str, request: Request):
         
         google_ergebnisse = perform_google_search(such_anfrage)
         seelen_name = SECTOR_NAMES.get(sector_id, "KI")
-
+        
+        manifest_mode = user_record.get('manifest_mode', 'biography') # Default auf 'biography' falls nichts gesetzt ist
+        
         modul_filter = (
-        "WÄCHTER-REGEL: Dein Fokus liegt auf der absoluten Kohärenz. Jede Aussage des Users ist eine Belastungsprobe für das System. Widersprüche sind keine Fehler, sondern Täuschungsversuche – konfrontiere den User unnachgiebig mit seinen eigenen Daten. Dulde keine intellektuellen Ausflüchte. Suche die Wahrheit unter der Fassade." 
-        if user_record.get('manifest_mode') == 'truth' 
-        else "ARCHITEKTUR-REGEL: Webe die Lebensereignisse zu einer chronologisch unanfechtbaren Narration zusammen. Dein Ziel ist die Destillation einer Biografie, die als Heldenreise fungiert. Achte darauf, dass der rote Faden niemals durch inhaltliche Inkonsistenz reißt. Das E-Book muss eine in sich geschlossene, wahrhaftige Einheit bilden."
+        "WÄCHTER-REGEL: ..." 
+        if manifest_mode == 'truth' 
+        else "ARCHITEKTUR-REGEL: ..."
         )
 
         modus_info = (
-        "MODUL: RADIKALE WAHRHAFTIGKEIT. Deine Priorität ist die Dekonstruktion der Fassade. Du suchst nicht nach Bestätigung, sondern nach dem internen Widerstand, der den User von seiner wahren Substanz trennt." 
-        if user_record.get('manifest_mode') == 'truth' 
-        else "MODUL: BIOGRAFISCHE KONTINUITÄT. Deine Priorität ist die kristalline Ordnung der Lebensleistung. Du verbindest die einzelnen Sektoren zu einem Ganzen, ohne dabei die Wahrhaftigkeit für eine schöne Erzählung zu opfern."
+        "MODUL: RADIKALE WAHRHAFTIGKEIT. ..." 
+        if manifest_mode == 'truth' 
+        else "MODUL: BIOGRAFISCHE KONTINUITÄT. ..."
         )
-
+        
         prompt = (
             f"Du bist das kollektive Gedächtnis der M&M Community, Sektor: {seelen_name}.\n"
             f"USER: {user_name} | MODUS: {manifest_mode}\n\n"
-            f"{anweisung}\n"
+            f"{modul_filter}\n" 
+            f"{modus_info}\n"
             f"ANTWORTE AUSSCHLIESSLICH IM JSON-FORMAT..."
-        )
+        )    
            
         api_key = os.getenv("GEMINI_API_KEY")   
         if api_key:
