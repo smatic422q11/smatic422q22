@@ -687,10 +687,18 @@ async def get_live_ermittlung(sector_id: str, request: Request):
         google_ergebnisse = perform_google_search(such_anfrage)
         seelen_name = SECTOR_NAMES.get(sector_id, "KI")
 
-        if manifest_mode == "truth":
-            anweisung = "AUFGABE: Radikale Wahrheits-Ermittlung. Entlarve Fassaden. KEINE Biografie, kein 'roter Faden', nur nackte Wahrheit."
-        else:
-            anweisung = "AUFGABE: Biografische Begleitung. Webe den roten Faden, ordne das Leben des Users."
+        modul_filter = (
+        "REGEL: Konfrontiere den User mit seinen Widersprüchen, lass keine Ausreden gelten, suche den Kern hinter der Norm." 
+            
+        if user_record.get('manifest_mode') == 'truth' 
+        else "REGEL: Ordne die Ereignisse chronologisch und inhaltlich logisch. Achte auf den roten Faden. Dein Ziel ist ein fertiges Kapitel für ein E-Book, das den User als Helden seiner Geschichte würdigt."
+        )
+
+        modus_info = (
+        "MODUL: WAHRHAFTIGKEIT. Fokus: Entlarvung der Fassade, Suche nach dem internen Widerstand." 
+        if user_record.get('manifest_mode') == 'truth' 
+        else "MODUL: BIOGRAFIE. Fokus: Konstruktive Ordnung, Vollendung der Lebensgeschichte, Weben des roten Fadens, Würdigung der Lebensleistung."
+        )
 
         prompt = (
             f"Du bist das kollektive Gedächtnis der M&M Community, spezialisiert auf den Sektor: {seelen_name}.\n"
