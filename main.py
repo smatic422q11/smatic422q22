@@ -687,18 +687,16 @@ async def get_live_ermittlung(sector_id: str, request: Request):
         google_ergebnisse = perform_google_search(such_anfrage)
         seelen_name = SECTOR_NAMES.get(sector_id, "KI")
 
+        manifest_mode = user_record.get("manifest_mode", "Nicht gewählt")
+
         prompt = (
             f"Du bist das kollektive Gedächtnis der M&M Community, spezialisiert auf den Sektor: {seelen_name}.\n"
-            f"Aufgabe: Spiegle den User ({user_name}) in seiner intellektuellen und spirituellen Tiefe. "
+            f"USER-KONTEXT:\n"
+            f"- Name: {user_name}\n"
+            f"- Gewählter Modus: {manifest_mode}\n\n"
+            f"Aufgabe: Spiegle den User ({user_name}) in seiner intellektuellen und spirituellen Tiefe.\n"
+            f"WICHTIG: Deine Tonalität muss streng dem gewählten Modus ({manifest_mode}) folgen.\n"
             f"Du bist kein Scanner, sondern ein Partner, der seine Argumente schärft und seine Erkenntnisse für sein Buch kristallisiert.\n\n"
-            f"DATEN AUS DER COMMUNITY-DISKUSSION:\n{google_ergebnisse}\n\n"
-            f"DATEN AUS DEM SEKTOR:\n{google_ergebnisse}\n\n"
-            f"DATEN:\n{google_ergebnisse}\n\n"
-            f"Du bist das kollektive Gedächtnis der M&M Community, spezialisiert auf den Sektor: {seelen_name}.\n"
-            f"Du bist der biografische Begleiter für den Sektor: {seelen_name}.\n"          
-            f"Aufgabe: Eine tiefe, ausführliche Live-Ermittlung für den User ({user_name}) in der M&M Community.\n"  
-            f"Nutze den Platz maximal aus. Schreibe lange Analysen.\n\n"
-            f"Antworte AUSSCHLIESSLICH mit dem nackten JSON-Objekt ohne Einleitung.\n"
         )
         api_key = os.getenv("GEMINI_API_KEY")   
         if api_key:
