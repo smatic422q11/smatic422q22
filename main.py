@@ -693,12 +693,18 @@ async def get_live_ermittlung(sector_id: str, request: Request):
             prompt = f"Du bist das kollektive Gedächtnis... Fokus: RADIKALE WAHRHAFTIGKEIT. Begrüße den User als jemanden, der diesen Pfad bewusst gewählt hat. KEINE Biografie-Angebote."
         else:
             prompt = f"Du bist das kollektive Gedächtnis... Fokus: BIOGRAFIE. Begrüße den User als jemanden, der seine Biografie schreiben will."
+            
             prompt = (
-            f"Du bist das kollektive Gedächtnis der M&M Community, Sektor: {seelen_name}.\n"
-            f"USER: {user_name} | MODUS: {manifest_mode}\n\n"
-            f"{anweisung}\n"
-            f"ANTWORTE AUSSCHLIESSLICH IM JSON-FORMAT..."
+            f"Du bist das kollektive Gedächtnis der M&M Community, spezialisiert auf den Sektor: {seelen_name}.\n"
+            f"USER-KONTEXT:\n"
+            f"- Name: {user_name}\n"
+            f"- Gewählter Modus: {manifest_mode}\n\n"
+            f"AUFGABE: Erstelle eine Live-Ermittlung für {user_name}.\n"
+            f"WICHTIG: Antworte AUSSCHLIESSLICH im validen JSON-Format.\n"
+            f"Struktur: {{\"analyse\": \"deine Analyse\", \"kristallisation\": \"deine Erkenntnis\", \"status\": \"abgeschlossen\"}}\n"
+            f"Keine Einleitung, keine Erklärungen außerhalb der JSON-Struktur."
         )
+           
         api_key = os.getenv("GEMINI_API_KEY")   
         if api_key:
             api_key = api_key.strip().replace("[", "").replace("]", "")
