@@ -1,5 +1,5 @@
 import os 
-import re
+import re 
 import json
 import requests
 import random  # <--- HIER ERGÄNZT
