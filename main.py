@@ -580,6 +580,17 @@ async def get_sector_text(sector_id: str):
     except Exception as e:
         return {"success": False, "error": str(e)}
 
+@app.get("/get-sector-text/{sector_id}")
+async def get_sector_text(sector_id: str):
+    try:
+        admin_record = db.codes.find_one({"email": "mmcommunity22@gmail.com"})
+        text = "Gefühlsvorderung. \nKeine Admin-Sichtweise hinterlegt."
+        if admin_record:
+            text = admin_record.get("sector_headers", {}).get(sector_id, text)
+        return {"success": True, "text": text}
+    except Exception as e:
+        return {"success": False, "error": str(e)}
+
 @app.get("/test")
 async def test():
     return {"status": "ok"}
