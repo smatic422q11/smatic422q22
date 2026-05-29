@@ -533,7 +533,7 @@ async def chat(request: Request):
         response = requests.post(url, json=payload)
         res_data = response.json()
 
-        if response.status_code == 200 and 'candidates' in res_data:
+       if response.status_code == 200 and 'candidates' in res_data:
             raw_reply_text = res_data['candidates'][0]['content']['parts'][0]['text']
             cleaned_reply_text = raw_reply_text
             extrahierter_name = None
@@ -556,15 +556,18 @@ async def chat(request: Request):
                 "last_active_sector": sector_id,
                 "updated_at": datetime.now()
             }
-            if extrahierter_name: update_payload["name"] = extrahierter_name
-            if sektor_abgeschlossen: update_payload[f"sector_statuses.{sector_id}"] = "secure"
+            if extrahierter_name: 
+                update_payload["name"] = extrahierter_name
+            if sektor_abgeschlossen: 
+                update_payload[f"sector_statuses.{sector_id}"] = "secure"
 
             db.codes.update_one({"email": email}, {"$set": update_payload}, upsert=True)
             db.kollektiv_pool.insert_one({"sector_id": sector_id, "zeitstempel": datetime.now(), "input_snippet": user_message})
             
             return {"reply": cleaned_reply_text, "info_fuer_ki": f"Zeit: {user_time}", "sektor_status": "secure" if sektor_abgeschlossen else "aktuell"}
         
-        return {"reply": "Fehler bei der Seele.", "info_fuer_ki": "Fehler"}
+        # Falls Status nicht 200 oder keine Candidates
+        return {"reply": "Fehler bei der Seele.", "info_fuer_ki": f"API Status: {response.status_code}"}
     except Exception as e:
         return {"reply": "System-Fehler.", "info_fuer_ki": str(e)}
 
