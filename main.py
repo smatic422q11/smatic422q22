@@ -1,4 +1,5 @@
-import re 
+import os 
+import re
 import json
 import requests
 import random  # <--- HIER ERGÄNZT
@@ -533,7 +534,7 @@ async def chat(request: Request):
         response = requests.post(url, json=payload)
         res_data = response.json()
 
-       if response.status_code == 200 and 'candidates' in res_data:
+        if response.status_code == 200 and 'candidates' in res_data:
             raw_reply_text = res_data['candidates'][0]['content']['parts'][0]['text']
             cleaned_reply_text = raw_reply_text
             extrahierter_name = None
@@ -556,18 +557,15 @@ async def chat(request: Request):
                 "last_active_sector": sector_id,
                 "updated_at": datetime.now()
             }
-            if extrahierter_name: 
-                update_payload["name"] = extrahierter_name
-            if sektor_abgeschlossen: 
-                update_payload[f"sector_statuses.{sector_id}"] = "secure"
+            if extrahierter_name: update_payload["name"] = extrahierter_name
+            if sektor_abgeschlossen: update_payload[f"sector_statuses.{sector_id}"] = "secure"
 
             db.codes.update_one({"email": email}, {"$set": update_payload}, upsert=True)
             db.kollektiv_pool.insert_one({"sector_id": sector_id, "zeitstempel": datetime.now(), "input_snippet": user_message})
             
             return {"reply": cleaned_reply_text, "info_fuer_ki": f"Zeit: {user_time}", "sektor_status": "secure" if sektor_abgeschlossen else "aktuell"}
         
-        # Falls Status nicht 200 oder keine Candidates
-        return {"reply": "Fehler bei der Seele.", "info_fuer_ki": f"API Status: {response.status_code}"}
+        return {"reply": "Fehler bei der Seele.", "info_fuer_ki": "Fehler"}
     except Exception as e:
         return {"reply": "System-Fehler.", "info_fuer_ki": str(e)}
 
@@ -675,17 +673,20 @@ async def get_live_ermittlung(sector_id: str, request: Request):
         
         google_ergebnisse = perform_google_search(such_anfrage)
         seelen_name = SECTOR_NAMES.get(sector_id, "KI")
-   
+
         prompt = (
             f"Du bist das kollektive Gedächtnis der M&M Community, spezialisiert auf den Sektor: {seelen_name}.\n"
             f"Aufgabe: Spiegle den User ({user_name}) in seiner intellektuellen und spirituellen Tiefe. "
             f"Du bist kein Scanner, sondern ein Partner, der seine Argumente schärft und seine Erkenntnisse für sein Buch kristallisiert.\n\n"
+            f"DATEN AUS DER COMMUNITY-DISKUSSION:\n{google_ergebnisse}\n\n"
+            f"DATEN AUS DEM SEKTOR:\n{google_ergebnisse}\n\n"
             f"DATEN:\n{google_ergebnisse}\n\n"
-            f"Aufgabe: Eine tiefe, ausführliche Live-Ermittlung für den User ({user_name}) in der M&M Community.\n"
+            f"Du bist das kollektive Gedächtnis der M&M Community, spezialisiert auf den Sektor: {seelen_name}.\n"
+            f"Du bist der biografische Begleiter für den Sektor: {seelen_name}.\n"          
+            f"Aufgabe: Eine tiefe, ausführliche Live-Ermittlung für den User ({user_name}) in der M&M Community.\n"  
             f"Nutze den Platz maximal aus. Schreibe lange Analysen.\n\n"
-            f"Antworte AUSSCHLIESSLICH mit dem nackten JSON-Objekt ohne Einleitung."
+            f"Antworte AUSSCHLIESSLICH mit dem nackten JSON-Objekt ohne Einleitung.\n"
         )
-           
         api_key = os.getenv("GEMINI_API_KEY")   
         if api_key:
             api_key = api_key.strip().replace("[", "").replace("]", "")
@@ -813,17 +814,3 @@ if __name__ == "__main__":
     import uvicorn
     port = int(os.environ.get("PORT", 10000))
     uvicorn.run(app, host="0.0.0.0", port=port)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
