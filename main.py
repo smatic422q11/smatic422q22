@@ -566,9 +566,8 @@ async def chat(request: Request):
             return {"reply": cleaned_reply_text, "info_fuer_ki": f"Zeit: {user_time}", "sektor_status": "secure" if sektor_abgeschlossen else "aktuell"}
         
         return {"reply": "Fehler bei der Seele.", "info_fuer_ki": "Fehler"}
-except Exception as e:
-        print(f"RENDER_LOG_ERROR: {str(e)}") # Das landet im Render-Log
-        return {"reply": f"Technischer Fehler: {str(e)}", "info_fuer_ki": "Fehler"}
+    except Exception as e:
+        return {"reply": "System-Fehler.", "info_fuer_ki": str(e)}
 
 @app.get("/get-sector-text/{sector_id}")
 async def get_sector_text(sector_id: str):
@@ -815,3 +814,4 @@ if __name__ == "__main__":
     import uvicorn
     port = int(os.environ.get("PORT", 10000))
     uvicorn.run(app, host="0.0.0.0", port=port)
+
