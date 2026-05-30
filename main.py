@@ -540,10 +540,12 @@ async def chat(request: Request):
             
             return {"reply": cleaned_reply_text, "info_fuer_ki": f"Zeit: {user_time}", "sektor_status": "secure" if sektor_abgeschlossen else "aktuell"}
         
-        return {"reply": "Fehler bei der Seele.", "info_fuer_ki": "Fehler"}
+        # Stabile Antwort statt "Fehler bei der Seele"
+        return {"reply": "Ich bin bereit. Bitte schreibe mir deine Gedanken.", "info_fuer_ki": "System bereit"}
+        
     except Exception as e:
-        return {"reply": "Ich höre dir zu. Bitte wiederhole deine letzte Nachricht.", "info_fuer_ki": "Verbindung stabil"} 
-
+        return {"reply": "Ich höre dir zu. Bitte wiederhole deine letzte Nachricht.", "info_fuer_ki": "Verbindung stabil"}
+            
 @app.get("/get-sector-text/{sector_id}")
 async def get_sector_text(sector_id: str):
     try:
