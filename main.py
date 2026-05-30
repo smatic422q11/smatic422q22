@@ -24,6 +24,36 @@ from email import encoders
 # APP-INITIALISIERUNG (NUR EINMAL HIER OBEN!)
 # ==========================================
 app = FastAPI() 
+
+def perform_google_search(query):
+    api_key = os.getenv('GOOGLE_API_KEY')
+    cx_id = os.getenv('GOOGLE_SEARCH_CX')  # Exakt wie auf Render hinterlegt
+    url = f"https://www.googleapis.com/customsearch/v1?key={api_key}&cx={cx_id}&q={query}"
+    
+    try:
+        response = requests.get(url)
+        if response.status_code == 200:
+            results = response.json().get("items", [])
+            if not results:
+                return "HINWEIS: Keine aktuellen Medienberichte zu diesem Brennpunkt im Index auffindbar."
+            
+            # Holt Titel, Link und Snippet, damit das System echte Beweise hat
+            such_berichte = []
+            for item in results[:4]:  # Erhöht auf die Top 4 echten Brennpunkte
+                titel = item.get("title", "Kein Titel")
+                link = item.get("link", "Kein Link")
+                beschreibung = item.get("snippet", "")
+                such_berichte.append(f"QUELLE: {titel}\nLINK: {link}\nFAKTEN: {beschreibung}\n---")
+                
+            return "\n".join(such_berichte)
+        return "HINWEIS: Schnittstelle liefert aktuell keine Rohdaten."
+    except Exception as e:
+        return f"Fehler bei der Suche: {str(e)}"
+        
+# 1. DATENBANK-VERBINDUNG
+MONGO_URI = os.environ.get('MONGO_URI')
+ca = certifi.where()
+
         
 # 1. DATENBANK-VERBINDUNG
 MONGO_URI = os.environ.get('MONGO_URI')
