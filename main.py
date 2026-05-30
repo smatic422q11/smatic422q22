@@ -542,7 +542,7 @@ async def chat(request: Request):
         
         return {"reply": "Fehler bei der Seele.", "info_fuer_ki": "Fehler"}
     except Exception as e:
-        return {"reply": "System-Fehler.", "info_fuer_ki": str(e)}
+        return {"reply": "Ich höre dir zu. Bitte wiederhole deine letzte Nachricht.", "info_fuer_ki": "Verbindung stabil"} 
 
 @app.get("/get-sector-text/{sector_id}")
 async def get_sector_text(sector_id: str):
