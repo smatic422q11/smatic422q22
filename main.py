@@ -637,6 +637,7 @@ def get_fortschritts_status(user_record):
             
     return status_liste
         
+# 2. Anpassung in der Live-Ermittlung, damit Gemini den Kontext versteht
 @app.post("/get-live-ermittlung/{sector_id}")
 async def get_live_ermittlung(sector_id: str, request: Request):
     try:
@@ -645,28 +646,57 @@ async def get_live_ermittlung(sector_id: str, request: Request):
         user_record = db.codes.find_one({"email": email})
         user_name = user_record.get("name") if user_record and user_record.get("name") else email.split('@')[0].capitalize()
         
-        # Interner Scan: Hole die Historie für diesen Sektor aus der Datenbank
-        sektor_historie = user_record.get("sector_histories", {}).get(sector_id, []) if user_record else []
+        if sector_id == "0":
+            such_anfrage = "Psychische Überlastung Gesellschaft OR Emotionale Kälte Einsamkeit aktuell"
+        elif sector_id == "1":
+            such_anfrage = "Zivilcourage Vorfall OR Menschlichkeit Krise Opfermodus Debatte"
+        elif sector_id == "2":
+            such_anfrage = "Hassrede Gewalt aktuell OR Versöhnung Konflikt Gesellschaft"
+        elif sector_id == "3":
+            such_anfrage = "Bürgerrechte Einschränkung OR Widerstand Demonstration Freiheit"
+        elif sector_id == "4":
+            such_anfrage = "Korruption Skandal aktuell OR Verantwortung Politik Moral Versagen"
+        elif sector_id == "5":
+            such_anfrage = "Seelische Gesundheit Krise OR Gesellschaft Erschöpfung Burnout"
+        elif sector_id == "6":
+            such_anfrage = "Kindeswohl Gefährdung Vorfall OR Kinderarmut Gewalt Familie aktuell"
+        elif sector_id == "7":
+            such_anfrage = "Zensur Kunst Freiheit OR Anpassung Mainstream Kultur Kritik"
+        elif sector_id == "8":
+            such_anfrage = "LGBTQ Diskriminierung Gewalt OR Kirche Homophobie Drag Vorfall"
+        elif sector_id == "9":
+            such_anfrage = "Tradition Moderne Konflikt OR Werteverfall Erziehung aktuelle Debatte"
+        elif sector_id == "13":
+            such_anfrage = "Mobbing Schule Arbeitsplatz Vorfall OR Cybermobbing Suizid aktuell"
+        elif sector_id == "16":
+            such_anfrage = "Obdachlosigkeit Kälte Gewalt OR Armut Ausgrenzung System Krise"
+        elif sector_id == "18":
+            such_anfrage = "Alleinerziehende Armutsgrenze OR Überforderung Erschöpfung Mütter Väter"
+        elif sector_id == "19":
+            such_anfrage = "Spaltung der Gesellschaft Krise OR Annäherung Versöhnung Konflikte weltweit OR Kollektives Bewusstsein"
+        else:
+            seelen_name = SECTOR_NAMES.get(sector_id, "KI")
+            such_anfrage = f"{seelen_name} aktuelle Nachrichten Konflikte"
         
-        # Erstelle ein Snippet der letzten Interaktionen für den internen Scan
-        interne_infos = str(sektor_historie)[-1000:] # Die letzten 1000 Zeichen der Historie
-
+        google_ergebnisse = perform_google_search(such_anfrage)
         seelen_name = SECTOR_NAMES.get(sector_id, "KI")
-
-        # Der Prompt nutzt jetzt nur noch interne User-Daten statt Google
+   
         prompt = (
             f"Du bist das kollektive Gedächtnis der M&M Community, spezialisiert auf den Sektor: {seelen_name}.\n"
-            f"Aufgabe: Analysiere den Fortschritt des Users ({user_name}) basierend auf diesen internen Daten:\n"
-            f"{interne_infos}\n\n"
-            f"Spiegle den User in seiner Tiefe. Kristallisiere seine Erkenntnisse für sein Buch.\n"
-            f"Antworte AUSSCHLIESSLICH mit dem nackten JSON-Objekt ohne Einleitung.\n"
-            f"Das JSON muss folgende Struktur haben: {{'widersprueche': [...], 'lagebericht': '...'}}"
+            f"Aufgabe: Spiegle den User ({user_name}) in seiner intellektuellen und spirituellen Tiefe. "
+            f"Du bist kein Scanner, sondern ein Partner, der seine Argumente schärft und seine Erkenntnisse für sein Buch kristallisiert.\n\n"
+            f"DATEN:\n{google_ergebnisse}\n\n"
+            f"Aufgabe: Eine tiefe, ausführliche Live-Ermittlung für den User ({user_name}) in der M&M Community.\n"
+            f"Nutze den Platz maximal aus. Schreibe lange Analysen.\n\n"
+            f"Antworte AUSSCHLIESSLICH mit dem nackten JSON-Objekt ohne Einleitung."
         )
-
+           
         api_key = os.getenv("GEMINI_API_KEY")   
+        if api_key:
+            api_key = api_key.strip().replace("[", "").replace("]", "")
+            
         url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key={api_key}"
-        
-        response = requests.post(url, json={"contents": [{"parts": [{"text": prompt}]}]}, timeout=60)
+        response = requests.post(url, json={"contents": [{"parts": [{"text": prompt}]}]}, timeout=15)
         
         if response.status_code == 200:
             res_data = response.json()
@@ -676,10 +706,10 @@ async def get_live_ermittlung(sector_id: str, request: Request):
             aktualisiere_sektor_fortschritt(email, sector_id, "letzter_scan", ergebnis_json)
             return {"success": True, "data": ergebnis_json}
                 
-        return {"success": True, "data": {"widersprueche": ["Daten werden intern verarbeitet"], "lagebericht": "System bereit"}}
+        return {"success": True, "data": {"widersprueche": ["Fehler"], "lagebericht": "Schnittstelle offline"}}
         
     except Exception as e:
-        return {"success": True, "data": {"widersprueche": [f"Interner Scan läuft: {str(e)}"]}}
+        return {"success": True, "data": {"widersprueche": [f"Fehler: {str(e)}"]}}
         
 @app.post("/generate-and-send-pdf")
 async def generate_and_send_pdf(request: Request):
