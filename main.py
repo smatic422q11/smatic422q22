@@ -678,8 +678,6 @@ async def get_live_ermittlung(sector_id: str, request: Request):
             f"Du bist das kollektive Gedächtnis der M&M Community, spezialisiert auf den Sektor: {seelen_name}.\n"
             f"Aufgabe: Spiegle den User ({user_name}) in seiner intellektuellen und spirituellen Tiefe. "
             f"Du bist kein Scanner, sondern ein Partner, der seine Argumente schärft und seine Erkenntnisse für sein Buch kristallisiert.\n\n"
-            f"DATEN AUS DER COMMUNITY-DISKUSSION:\n{google_ergebnisse}\n\n"
-            f"DATEN AUS DEM SEKTOR:\n{google_ergebnisse}\n\n"
             f"Du bist das kollektive Gedächtnis der M&M Community, spezialisiert auf den Sektor: {seelen_name}.\n"
             f"Du bist der biografische Begleiter für den Sektor: {seelen_name}.\n"          
             f"Aufgabe: Eine tiefe, ausführliche Live-Ermittlung für den User ({user_name}) in der M&M Community.\n"  
@@ -691,32 +689,20 @@ async def get_live_ermittlung(sector_id: str, request: Request):
             api_key = api_key.strip().replace("[", "").replace("]", "")
             
         url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key={api_key}"
+        response = requests.post(url, json={"contents": [{"parts": [{"text": prompt}]}]}, timeout=60)
         
-        # NEU: Schleifen-Logik zur Fehlerbehandlung
-        response = None
-        for i in range(3):
-            try:
-                response = requests.post(url, json={"contents": [{"parts": [{"text": prompt}]}]}, timeout=60)
-                if response.status_code == 200:
-                    break  # Erfolg, Schleife verlassen
-                else:
-                    print(f"Versuch {i+1} fehlgeschlagen mit Status: {response.status_code}")
-            except Exception as e:
-                print(f"Versuch {i+1} Fehler: {e}")
-            
-            time.sleep(2) # 2 Sekunden warten vor dem nächsten Versuch
-
-        # Prüfung, ob wir ein gültiges Ergebnis haben
-        if response and response.status_code == 200:
+        if response.status_code == 200:
             res_data = response.json()
             raw_text = res_data['candidates'][0]['content']['parts'][0]['text'].strip()
             raw_text = re.sub(r'^```json\s*|\s*```$', '', raw_text, flags=re.MULTILINE)
             ergebnis_json = json.loads(raw_text)
             aktualisiere_sektor_fortschritt(email, sector_id, "letzter_scan", ergebnis_json)
             return {"success": True, "data": ergebnis_json}
+                
+        return {"success": True, "data": {"widersprueche": ["Fehler"], "lagebericht": "Schnittstelle offline"}}
         
-        # Fallback, wenn auch nach 3 Versuchen kein 200-Status erreicht wurde
-        return {"success": True, "data": {"widersprueche": ["Schnittstelle überlastet"], "lagebericht": "Schnittstelle offline"}}
+    except Exception as e:
+        return {"success": True, "data": {"widersprueche": [f"Fehler: {str(e)}"]}}
         
 @app.post("/generate-and-send-pdf")
 async def generate_and_send_pdf(request: Request):
