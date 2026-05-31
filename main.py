@@ -818,6 +818,20 @@ async def update_sector(request: Request):
     except Exception as e:
         print(f"Fehler bei update-sector: {e}")
         return JSONResponse(content={"message": "Systemfehler"}, status_code=500)
+
+@app.get("/get-sector-text/{sector_id}")
+async def get_sector_text(sector_id: str, email: str):
+    try:
+        # Hier holen wir den Text aus dem Admin-Profil, wo du ihn speicherst
+        admin_record = db.codes.find_one({"email": "mmcommunity22@gmail.com"})
+        
+        if admin_record and "sector_headers" in admin_record:
+            text = admin_record["sector_headers"].get(sector_id, "Gefühlsvorderung.")
+            return {"success": True, "text": text}
+        
+        return {"success": True, "text": "Gefühlsvorderung."}
+    except Exception as e:
+        return {"success": False, "message": str(e)}
         
 if __name__ == "__main__":
     import uvicorn
