@@ -82,19 +82,19 @@
     </style>
 </head>
 <body>
-    <div style="position: fixed; left: 4%; top: 30%; z-index: 999; text-align: center; color: #003d8f; font-weight: 900;" onclick="starteDemo()">
-    <div style="cursor: pointer; font-size: 0.9rem; letter-spacing: 2px;">DEMO: ECHOO</div>
-    <div style="font-size: 1.2rem; animation: pulse 2s infinite; cursor: pointer;">↓</div>
-    <div id="demo-box" style="margin-top: 10px; padding: 10px; background: rgba(255,255,255,0.8); border: 2px solid #003d8f; border-radius: 5px; display: none; font-size: 0.8rem;">
-        CHATTEN: EBENE 3 AKTIV
+   <div style="position: fixed; left: 4%; top: 30%; z-index: 999; text-align: center; color: #003d8f;">
+    <div style="font-weight: 900; font-size: 0.9rem; letter-spacing: 2px;">DEMO: ECHOO</div>
+    <div style="font-size: 1.2rem; margin: 5px 0;">↓</div>
+    <div onclick="wechselEbene('ebene3')" style="cursor: pointer; font-size: 2rem; margin-top: 5px;" title="Reise zu Ebene 3">
+        🐸
     </div>
 </div>
 
-<div style="position: fixed; right: 4%; top: 30%; z-index: 999; text-align: center; color: #003d8f; font-weight: 900;" onclick="zeigeZertifikatInfo()">
-    <div style="cursor: pointer; font-size: 0.9rem; letter-spacing: 2px;">WAHRHEIT PRÜFEN</div>
-    <div style="font-size: 1.2rem; animation: pulse 2s infinite; cursor: pointer;">↓</div>
-    <div id="scan-box" style="margin-top: 10px; padding: 10px; background: rgba(255,255,255,0.8); border: 2px solid #003d8f; border-radius: 5px; display: none; font-size: 0.8rem;">
-        SCAN EBENE 2: INTERPRETATION LÄUFT...
+<div style="position: fixed; right: 4%; top: 30%; z-index: 999; text-align: center; color: #003d8f;">
+    <div style="font-weight: 900; font-size: 0.9rem; letter-spacing: 2px;">WAHRHEIT PRÜFEN</div>
+    <div style="font-size: 1.2rem; margin: 5px 0;">↓</div>
+    <div onclick="zeigeZertifikatInfo()" style="cursor: pointer; font-size: 2rem; margin-top: 5px;">
+        👁️
     </div>
 </div>
     
