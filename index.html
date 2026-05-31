@@ -873,8 +873,11 @@ async function handleVerifyAccess() {
         if (data.success) {
             userEmail = emailInput; 
             
-            document.getElementById('frosch-button').style.pointerEvents = 'auto';
-            document.getElementById('schweinchen-button').style.pointerEvents = 'auto';
+           document.getElementById('frosch-button').style.setProperty('pointer-events', 'auto', 'important');
+           document.getElementById('frosch-button').style.cursor = 'pointer';
+            
+            document.getElementById('schweinchen-button').style.setProperty('pointer-events', 'auto', 'important');
+            document.getElementById('schweinchen-button').style.cursor = 'pointer';
             
             // 1. Chat laden
             chatVerlauf = data.history || []; 
