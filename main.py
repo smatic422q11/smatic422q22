@@ -518,17 +518,30 @@ async def chat(request: Request):
         if not messages_for_gemini:
             system_instruction += f" HINWEIS: Das ist dein ERSTER Kontakt mit {user_name} in diesem Sektor. Nenne seinen Namen!"
 
-        messages_for_gemini.append({"role": "user", "parts": [{"text": user_message}]})
-
         alter_falscher_name = email.split('@')[0].capitalize()
         gesaeuberte_instruction = system_instruction.replace(alter_falscher_name, user_name) if user_name != alter_falscher_name else system_instruction
 
+        # DER FIX FÜR DEN BEZAHL-SCHLÜSSEL: 
+        # Wir bauen den JSON-Körper exakt so flach wie bei der Live-Ermittlung.
+        # Die System-Anweisung wird als übergeordnete Instruktion an den Anfang der temporären Chat-Liste gesetzt.
+        temporaere_nachrichten = []
+        temporaere_nachrichten.append({"role": "user", "parts": [{"text": f"SYSTEM-ANWEISUNG (Zwingend befolgen):\n{gesaeuberte_instruction}"}]})
+        temporaere_nachrichten.append({"role": "model", "parts": [{"text": "Verstanden. Ich werde meine Identität, Regeln und Aufgaben exakt so ausführen."}]})
+        
+        # Jetzt hängen wir die echte Historie und die neue Nachricht hinten ran
+        for msg in messages_for_gemini:
+            temporaere_nachrichten.append(msg)
+        temporaere_nachrichten.append({"role": "user", "parts": [{"text": user_message}]})
+
         api_key = os.getenv("GEMINI_API_KEY")
+        if api_key:
+            api_key = api_key.strip().replace("[", "").replace("]", "")
+            
         url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key={api_key}"
         
+        # Exakt die flache Struktur, die dein funktionierender Scan nutzt!
         payload = {
-            "contents": messages_for_gemini,
-            "systemInstruction": { "parts": [{ "text": gesaeuberte_instruction }] }
+            "contents": temporaere_nachrichten
         }
 
         response = requests.post(url, json=payload, timeout=30)
@@ -550,6 +563,8 @@ async def chat(request: Request):
                 sektor_abgeschlossen = True
                 cleaned_reply_text = cleaned_reply_text.replace("[SEKTOR_DONE]", "").strip()
 
+            # In die Datenbank speichern wir weiterhin nur die saubere Historie ohne den System-Anweisungs-Kopf!
+            messages_for_gemini.append({"role": "user", "parts": [{"text": user_message}]})
             messages_for_gemini.append({"role": "model", "parts": [{"text": cleaned_reply_text}]})
             
             update_payload = {
@@ -568,17 +583,6 @@ async def chat(request: Request):
         return {"reply": "Fehler bei der Seele.", "info_fuer_ki": "Fehler"}
     except Exception as e:
         return {"reply": "System-Fehler.", "info_fuer_ki": str(e)}
-
-@app.get("/get-sector-text/{sector_id}")
-async def get_sector_text(sector_id: str):
-    try:
-        admin_record = db.codes.find_one({"email": "mmcommunity22@gmail.com"})
-        text = "Gefühlsvorderung. \nKeine Admin-Sichtweise hinterlegt."
-        if admin_record:
-            text = admin_record.get("sector_headers", {}).get(sector_id, text)
-        return {"success": True, "text": text}
-    except Exception as e:
-        return {"success": False, "error": str(e)}
 
 @app.get("/test")
 async def test():
