@@ -679,23 +679,22 @@ async def get_live_ermittlung(sector_id: str, request: Request):
         seelen_name = SECTOR_NAMES.get(sector_id, "KI")
         
         chat_historie = user_record.get("sector_histories", {}).get(sector_id, [])
-        datenbank_chat_verlauf = "\n".join([f"{msg['role']}: {msg['parts'][0]['text']}" for msg in chat_historie[-10:]])
+        datenbank_chat_verlauf = "\n".join([f"{msg['role']}: {msg['parts'][0]['text']}" for msg in chat_historie])
 
         system_status = f"Sektor: {sector_id}, Such-Anfrage: {such_anfrage}, Status: Aktiv"
         
 
         prompt = (
             f"Du bist das Live-Ermittlungs-System der M&M Community für den User {user_name}.\n"
-            f"DEINE HAUPTAUFGABE (90%): Spiegle präzise und faktenbasiert, was der User {user_name} aktuell in den Datenbanken und Chat-Verläufen geschrieben und wie er sich verhalten hat.\n"
-            f"DEINE NEBENAUFGABE (10%): Gib eine systemische Einordnung dazu ab, wie diese Inhalte in den aktuellen Sektor {seelen_name} passen.\n\n"
-            f"DATENQUELLEN (Priorisierung):\n"
-            f"1. Hauptquelle (90%): {datenbank_chat_verlauf} (Analysiere direkt die Wortwahl, Argumentationslinien und Bewegungen des Users).\n"
-            f"2. Nebenquelle (10%): {system_status} (Systemische Einordnung).\n\n"
-            f"FORMAT:\n"
-            f"Antworte AUSSCHLIESSLICH als JSON-Objekt ohne Einleitung:\n"
+            f"DEINE HAUPTAUFGABE (90%): Analysiere den GESAMTEN Verlauf dieses Sektors. "
+            f"Spiegle die Entwicklung, die Argumente und die Wahrhaftigkeit, die der User {user_name} über die gesamte Reise hinweg gezeigt hat.\n"
+            f"DEINE NEBENAUFGABE (10%): Gib eine systemische Einordnung dazu ab, wie diese gesamte Reise zum Kern des Sektors {seelen_name} führt.\n\n"
+            f"DATENQUELLE:\n"
+            f"{datenbank_chat_verlauf}\n\n"
+            f"FORMAT (JSON):\n"
             f"{{\n"
-            f"  'spiegelung_der_inhalte': 'Hier stehen deine tatsächlichen Aussagen aus dem Chat',\n"
-            f"  'verhaltens_beobachtung': 'Wie hast du dich konkret im System bewegt?',\n"
+            f"  'spiegelung_der_gesamten_reise': 'Zusammenfassung deiner gesamten Entwicklung im Sektor',\n"
+            f"  'wahrhaftigkeits_check': 'Reflektion deiner Argumente und Gefühlsvorderungen',\n"
             f"  'systemische_einordnung': 'KI-Einordnung zu 10%'\n"
             f"}}"
         )
