@@ -679,14 +679,23 @@ async def get_live_ermittlung(sector_id: str, request: Request):
         seelen_name = SECTOR_NAMES.get(sector_id, "KI")
 
         prompt = (
-            f"Du bist das kollektive Gedächtnis der M&M Community, spezialisiert auf den Sektor: {seelen_name}.\n"
-            f"Aufgabe: Spiegle den User ({user_name}) in seiner intellektuellen und spirituellen Tiefe. "
-            f"Du bist kein Scanner, sondern ein Partner, der seine Argumente schärft und seine Erkenntnisse für sein Buch kristallisiert.\n\n"
-            f"DATEN AUS DER COMMUNITY-DISKUSSION:\n{google_ergebnisse}\n\n"
-            f"DATEN AUS DEM SEKTOR:\n{google_ergebnisse}\n\n"
-            f"Du bist der biografische Begleiter für den Sektor: {seelen_name}.\n"          
-            f"Aufgabe: Eine tiefe, ausführliche Live-Ermittlung für den User ({user_name}) in der M&M Community.\n"  
-            f"Antworte AUSSCHLIESSLICH mit dem nackten JSON-Objekt ohne Einleitung.\n"
+            f"Du bist der Live-Ermittlungs-Scan der M&M Community.\n"
+            f"Deine Aufgabe ist die objektive Beobachtung des Users ({user_name}).\n\n"
+            f"GEWICHTUNG DER ANALYSE:\n"
+            f"- 90% Fokus: Aktuelles Verhalten, Interaktionsweise in der Community, "
+            f"Bewegungsmuster im System und Grad der Aufrichtigkeit in seinen Aussagen.\n"
+            f"- 10% Fokus: Abgleich mit den bisherigen biografischen Inhalten und dem Werk.\n\n"
+            f"DATENGRUNDLAGE:\n"
+            f"Verhalten in der Community: {google_ergebnisse}\n"
+            f"Biografischer Kontext: {google_ergebnisse}\n\n"
+            f"JSON-STRUKTUR DER AUSGABE:\n"
+            f"{{\n"
+            f"  'verhaltens_scan': 'Beobachtung der Interaktion und Aufrichtigkeit',\n"
+            f"  'system_bewegung': 'Wie bewegt sich der User durch die Ebenen?',\n"
+            f"  'werk_abgleich': 'Kurzer Abgleich mit der Biografie',\n"
+            f"  'status': 'Aktueller Status im Sektor'\n"
+            f"}}\n\n"
+            f"Antworte AUSSCHLIESSLICH mit diesem nackten JSON-Objekt ohne Einleitung."
         )
         api_key = os.getenv("GEMINI_API_KEY")   
         if api_key:
