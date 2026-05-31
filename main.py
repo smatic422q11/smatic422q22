@@ -523,7 +523,7 @@ async def chat(request: Request):
         alter_falscher_name = email.split('@')[0].capitalize()
         gesaeuberte_instruction = system_instruction.replace(alter_falscher_name, user_name) if user_name != alter_falscher_name else system_instruction
 
-       api_key = os.getenv("GEMINI_API_KEY")
+        api_key = os.getenv("GEMINI_API_KEY")
         url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key={api_key}"
         
         payload = {
