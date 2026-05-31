@@ -845,24 +845,7 @@ async function requestManifestPerEmail() {
         btn.disabled = false;
     }
 }
-          
-async function handleAnkerSetzen() {
-    const emailInput = document.getElementById('db-mail').value.trim();
-    if (!emailInput) return alert("Bitte eine E-Mail eingeben.");
-
-    try {
-        const response = await fetch('/send-code', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email: emailInput })
-        });
-        const data = await response.json();
-        alert(data.message); 
-    } catch (e) {
-        alert("Server-Verbindung fehlgeschlagen.");
-    }
-}
-          
+                    
 async function handleAnkerSetzen() {
     const emailInput = document.getElementById('db-mail').value.trim();
     if (!emailInput) return alert("Bitte eine E-Mail eingeben.");
@@ -893,6 +876,9 @@ async function handleVerifyAccess() {
 
         if (data.success) {
             userEmail = emailInput; 
+            
+            document.getElementById('frosch-button').style.pointerEvents = 'auto';
+            document.getElementById('schweinchen-button').style.pointerEvents = 'auto';
             
             // 1. Chat laden
             chatVerlauf = data.history || []; 
