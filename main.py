@@ -677,6 +677,12 @@ async def get_live_ermittlung(sector_id: str, request: Request):
         
         google_ergebnisse = perform_google_search(such_anfrage)
         seelen_name = SECTOR_NAMES.get(sector_id, "KI")
+        
+        chat_historie = user_record.get("sector_histories", {}).get(sector_id, [])
+        datenbank_chat_verlauf = "\n".join([f"{msg['role']}: {msg['parts'][0]['text']}" for msg in chat_historie[-10:]])
+
+        system_status = f"Sektor: {sector_id}, Such-Anfrage: {such_anfrage}, Status: Aktiv"
+        
 
         prompt = (
             f"Du bist das Live-Ermittlungs-System der M&M Community für den User {user_name}.\n"
