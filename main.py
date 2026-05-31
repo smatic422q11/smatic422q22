@@ -685,16 +685,22 @@ async def get_live_ermittlung(sector_id: str, request: Request):
         
 
         prompt = (
-            f"Du bist der objektive Analytiker der M&M Community. "
-            f"DIESE DATEN SIND DEIN ROHMATERIAL: {datenbank_chat_verlauf}\n\n"
-            f"AUFGABE: Erstelle KEINE Zusammenfassung der Chat-Inhalte. Das Ziel ist eine psychologische und strategische Extraktion des Users {user_name}.\n\n"
-            f"EXTRAKTION (90%): \n"
-            f"- Was ist das zugrunde liegende Muster in {user_name}s Handeln in diesem Sektor?\n"
-            f"- Welcher Kernwert treibt ihn an, auch wenn er ihn nicht explizit ausspricht?\n"
-            f"- Wo zeigt sich bei ihm eine 'Wahrhaftigkeits-Spannung' (Widerspruch zwischen Wort und Tat)?\n\n"
-            f"BEURTEILUNG (10%): \n"
-            f"- Wie bewertet die KI die Resonanz des Users zum Sektor {seelen_name}?\n\n"
-            f"FORMAT: Antworte NUR als JSON. Verarbeite die Rohdaten zu einem Profil, nenne keine Zitate aus dem Chat."
+            f"Du bist ein analytisches Profiling-System für die M&M Community.\n"
+            f"DEINE ANWEISUNG: Analysiere den User {user_name} im Sektor {seelen_name} basierend auf dem Verlauf.\n"
+            f"REGEL: ES IST STRENG VERBOTEN, Inhalte, Aussagen, Zitate oder Antworten aus dem Chat zu wiederholen oder zusammenzufassen.\n"
+            f"DEINE AUFGABE (90% Extraktion): Erstelle ein psychologisches Verhaltensprofil.\n"
+            f"   - Welche unbewussten Triebfedern steuern den User hier?\n"
+            f"   - Welches Energielevel und welche Richtung zeigt sein Handeln?\n"
+            f"   - Wo liegt der blinde Fleck in seiner Argumentation?\n"
+            f"DEINE AUFGABE (10% Beurteilung): Wie stabil ist seine Resonanz zum Sektor?\n\n"
+            f"ROHDATEN (Nur zur Verhaltensanalyse nutzen, nicht wiedergeben!):\n{datenbank_chat_verlauf}\n\n"
+            f"FORMAT (JSON - Kein Text außerhalb): \n"
+            f"{{\n"
+            f"  'triebfeder_analyse': 'Abstrakte Analyse des inneren Antriebs',\n"
+            f"  'verhaltens_dynamik': 'Analyse des Modus Operandi im Sektor',\n"
+            f"  'blinder_fleck': 'Herausarbeitung der unbewussten Spannungsfelder',\n"
+            f"  'sektor_resonanz_bewertung': '10%-Beurteilung durch das System'\n"
+            f"}}"
         )
         api_key = os.getenv("GEMINI_API_KEY")   
         if api_key:
