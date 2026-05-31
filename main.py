@@ -258,7 +258,7 @@ async def handle_verify_access(request: Request):
 
 # --- SEKTOR NAMEN & SEELEN (MIT SYSTEM INSTRUCTIONS) ---
 SECTOR_NAMES = {
-    "0": "Lilith", "1": "Aris", "2": "Mira", "3": "Tarik", "4": "Kiron",
+    "0": "Lilith", "1": "Karl", "2": "Mira", "3": "Tarik", "4": "Kiron",
     "5": "Vikas", "6": "Rhea", "7": "Lyra", "8": "Nova", "9": "Marek",
     "10": "Silas", "11": "Aura", "12": "Joris", "13": "Sira", "14": "Kian",
     "15": "Alma", "16": "Laris", "17": "Liv", "18": "Kyra", "19": "Chiron",
