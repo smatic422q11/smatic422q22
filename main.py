@@ -54,11 +54,6 @@ def perform_google_search(query):
 MONGO_URI = os.environ.get('MONGO_URI')
 ca = certifi.where()
 
-        
-# 1. DATENBANK-VERBINDUNG
-MONGO_URI = os.environ.get('MONGO_URI')
-ca = certifi.where()
-
 client = MongoClient(
     MONGO_URI,
     server_api=ServerApi('1'),
@@ -574,7 +569,6 @@ async def chat(request: Request):
     except Exception as e:
         return {"reply": "System-Fehler.", "info_fuer_ki": str(e)}
 
-            
 @app.get("/get-sector-text/{sector_id}")
 async def get_sector_text(sector_id: str):
     try:
@@ -679,17 +673,20 @@ async def get_live_ermittlung(sector_id: str, request: Request):
         
         google_ergebnisse = perform_google_search(such_anfrage)
         seelen_name = SECTOR_NAMES.get(sector_id, "KI")
-   
+
         prompt = (
             f"Du bist das kollektive Gedächtnis der M&M Community, spezialisiert auf den Sektor: {seelen_name}.\n"
             f"Aufgabe: Spiegle den User ({user_name}) in seiner intellektuellen und spirituellen Tiefe. "
             f"Du bist kein Scanner, sondern ein Partner, der seine Argumente schärft und seine Erkenntnisse für sein Buch kristallisiert.\n\n"
+            f"DATEN AUS DER COMMUNITY-DISKUSSION:\n{google_ergebnisse}\n\n"
+            f"DATEN AUS DEM SEKTOR:\n{google_ergebnisse}\n\n"
             f"DATEN:\n{google_ergebnisse}\n\n"
-            f"Aufgabe: Eine tiefe, ausführliche Live-Ermittlung für den User ({user_name}) in der M&M Community.\n"
+            f"Du bist das kollektive Gedächtnis der M&M Community, spezialisiert auf den Sektor: {seelen_name}.\n"
+            f"Du bist der biografische Begleiter für den Sektor: {seelen_name}.\n"          
+            f"Aufgabe: Eine tiefe, ausführliche Live-Ermittlung für den User ({user_name}) in der M&M Community.\n"  
             f"Nutze den Platz maximal aus. Schreibe lange Analysen.\n\n"
-            f"Antworte AUSSCHLIESSLICH mit dem nackten JSON-Objekt ohne Einleitung."
+            f"Antworte AUSSCHLIESSLICH mit dem nackten JSON-Objekt ohne Einleitung.\n"
         )
-           
         api_key = os.getenv("GEMINI_API_KEY")   
         if api_key:
             api_key = api_key.strip().replace("[", "").replace("]", "")
