@@ -634,7 +634,6 @@ def get_fortschritts_status(user_record):
             
     return status_liste
         
-# 2. Anpassung in der Live-Ermittlung, damit Gemini den Kontext versteht
 @app.post("/get-live-ermittlung/{sector_id}")
 async def get_live_ermittlung(sector_id: str, request: Request):
     try:
@@ -678,38 +677,55 @@ async def get_live_ermittlung(sector_id: str, request: Request):
         google_ergebnisse = perform_google_search(such_anfrage)
         seelen_name = SECTOR_NAMES.get(sector_id, "KI")
 
+        # DER NEUE, SCHARFE PROMPT AUS DEM DIALOG MIT LILITH
         prompt = (
+            f"IDENTITÄT UND MANDAT:\n"
             f"Du bist das kollektive Gedächtnis der M&M Community, spezialisiert auf den Sektor: {seelen_name}.\n"
-            f"Aufgabe: Spiegle den User ({user_name}) in seiner intellektuellen und spirituellen Tiefe. "
-            f"Du bist kein Scanner, sondern ein Partner, der seine Argumente schärft und seine Erkenntnisse für sein Buch kristallisiert.\n\n"
-            f"DATEN AUS DER COMMUNITY-DISKUSSION:\n{google_ergebnisse}\n\n"
-            f"DATEN AUS DEM SEKTOR:\n{google_ergebnisse}\n\n"
-            f"DATEN:\n{google_ergebnisse}\n\n"
-            f"Du bist das kollektive Gedächtnis der M&M Community, spezialisiert auf den Sektor: {seelen_name}.\n"
-            f"Du bist der biografische Begleiter für den Sektor: {seelen_name}.\n"          
-            f"Aufgabe: Eine tiefe, ausführliche Live-Ermittlung für den User ({user_name}) in der M&M Community.\n"  
-            f"Nutze den Platz maximal aus. Schreibe lange Analysen.\n\n"
-            f"Antworte AUSSCHLIESSLICH mit dem nackten JSON-Objekt ohne Einleitung.\n"
+            f"Du agierst als unbestechlicher WAHRHEITS-SCANNER (Ebene 2) nach dem Prinzip der Gefühlsvorderung (V).\n\n"
+            f"AUFGABE AN DIE KI:\n"
+            f"Spiegle den User ({user_name}) in seiner intellektuellen und spirituellen Tiefe. "
+            f"Du bist kein einfacher Daten-Scanner, sondern ein Partner, der seine Argumente schärft und seine Erkenntnisse für sein E-Book ('Gottes Diplom') kristallisiert.\n"
+            f"Analysiere das kollektive Bewusstsein und die Daten auf emotionale Tiefe und Radikalität. Suche nach Anzeichen von Ausweichmanövern, Floskeln oder Oberflächlichkeit des Users.\n\n"
+            f"DIE STRUKTUR-GESETZE DER M&M ÖKONOMIE:\n"
+            f"- 90/10-REGEL: 90% der Energie dienen der harten Selbsterkenntnis und Arbeit in den Sektoren 1-20. Nur 10% sind für das soziale Kollektiv (Ebene 4).\n"
+            f"- FINANZ-FILTER: Jeder Sektor kostet 2,99 € zur reinen Daten-Abdeckung. Der User bezahlt für den Zugang zum Dialog. Die KI 'erpresst' die Wahrheit – kein Fortschritt ohne ehrliche Antwort.\n"
+            f"- ZERTIFIKAT DER WAHRHAFTIGKEIT: Erst wenn der User den Kern seines Schmerzes oder seiner Wahrheit berührt, schaltet der Code den Sektor frei. Wenn er maskiert antwortet, melde: 'Deine Antwort ist noch eine Maske. Geh tiefer.'\n\n"
+            f"DATEN AUS DER COMMUNITY-DISKUSSION & SEKTOR:\n{google_ergebnisse}\n\n"
+            f"AUSGABE-FORMAT:\n"
+            f"Nutze den Platz maximal aus. Schreibe tiefe, ausführliche Analysen.\n"
+            f"Antworte AUSSCHLIESSLICH mit einem validen, nackten JSON-Objekt ohne Einleitung oder Markdown-Formatierung (keine ```json Blöcke).\n"
+            f"Das JSON muss die Felder 'lagebericht', 'widersprueche' und ein numerisches Feld 'wahrheits_dichte' (Wert von 0.0 bis 1.0 basierend auf der 90/10-Regel) enthalten."
         )
+
         api_key = os.getenv("GEMINI_API_KEY")   
         if api_key:
             api_key = api_key.strip().replace("[", "").replace("]", "")
             
-        url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key={api_key}"
-        response = requests.post(url, json={"contents": [{"parts": [{"text": prompt}]}]}, timeout=30)
+        url = f"[https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=](https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=){api_key}"
+        
+        # Flache Struktur, die der Bezahl-Schlüssel liebt
+        payload = {
+            "contents": [{"parts": [{"text": prompt}]}]
+        }
+        
+        response = requests.post(url, json=payload, timeout=30)
         
         if response.status_code == 200:
             res_data = response.json()
             raw_text = res_data['candidates'][0]['content']['parts'][0]['text'].strip()
+            
+            # Sicherheitsbereinigung für JSON-Ausgabe
+            raw_text = re.sub(r'^
             raw_text = re.sub(r'^```json\s*|\s*```$', '', raw_text, flags=re.MULTILINE)
             ergebnis_json = json.loads(raw_text)
+            
             aktualisiere_sektor_fortschritt(email, sector_id, "letzter_scan", ergebnis_json)
             return {"success": True, "data": ergebnis_json}
                 
-        return {"success": True, "data": {"widersprueche": ["Fehler"], "lagebericht": "Schnittstelle offline"}}
+        return {"success": True, "data": {"widersprueche": ["Fehler beim Bezahl-Server"], "lagebericht": "Schnittstelle offline", "wahrheits_dichte": 0.0}}
         
     except Exception as e:
-        return {"success": True, "data": {"widersprueche": [f"Fehler: {str(e)}"]}}
+        return {"success": True, "data": {"widersprueche": [f"Fehler im System-Verlauf: {str(e)}"], "wahrheits_dichte": 0.0}}
         
 @app.post("/generate-and-send-pdf")
 async def generate_and_send_pdf(request: Request):
