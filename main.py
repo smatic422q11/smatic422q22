@@ -679,23 +679,19 @@ async def get_live_ermittlung(sector_id: str, request: Request):
         seelen_name = SECTOR_NAMES.get(sector_id, "KI")
 
         prompt = (
-            f"Du bist der Live-Ermittlungs-Scan der M&M Community.\n"
-            f"Deine Aufgabe ist die objektive Beobachtung des Users ({user_name}).\n\n"
-            f"GEWICHTUNG DER ANALYSE:\n"
-            f"- 90% Fokus: Aktuelles Verhalten, Interaktionsweise in der Community, "
-            f"Bewegungsmuster im System und Grad der Aufrichtigkeit in seinen Aussagen.\n"
-            f"- 10% Fokus: Abgleich mit den bisherigen biografischen Inhalten und dem Werk.\n\n"
-            f"DATENGRUNDLAGE:\n"
-            f"Verhalten in der Community: {google_ergebnisse}\n"
-            f"Biografischer Kontext: {google_ergebnisse}\n\n"
-            f"JSON-STRUKTUR DER AUSGABE:\n"
+            f"Du bist das Live-Ermittlungs-System der M&M Community für den User {user_name}.\n"
+            f"DEINE HAUPTAUFGABE (90%): Spiegle präzise und faktenbasiert, was der User {user_name} aktuell in den Datenbanken und Chat-Verläufen geschrieben und wie er sich verhalten hat.\n"
+            f"DEINE NEBENAUFGABE (10%): Gib eine systemische Einordnung dazu ab, wie diese Inhalte in den aktuellen Sektor {seelen_name} passen.\n\n"
+            f"DATENQUELLEN (Priorisierung):\n"
+            f"1. Hauptquelle (90%): {datenbank_chat_verlauf} (Analysiere direkt die Wortwahl, Argumentationslinien und Bewegungen des Users).\n"
+            f"2. Nebenquelle (10%): {system_status} (Systemische Einordnung).\n\n"
+            f"FORMAT:\n"
+            f"Antworte AUSSCHLIESSLICH als JSON-Objekt ohne Einleitung:\n"
             f"{{\n"
-            f"  'verhaltens_scan': 'Beobachtung der Interaktion und Aufrichtigkeit',\n"
-            f"  'system_bewegung': 'Wie bewegt sich der User durch die Ebenen?',\n"
-            f"  'werk_abgleich': 'Kurzer Abgleich mit der Biografie',\n"
-            f"  'status': 'Aktueller Status im Sektor'\n"
-            f"}}\n\n"
-            f"Antworte AUSSCHLIESSLICH mit diesem nackten JSON-Objekt ohne Einleitung."
+            f"  'spiegelung_der_inhalte': 'Hier stehen deine tatsächlichen Aussagen aus dem Chat',\n"
+            f"  'verhaltens_beobachtung': 'Wie hast du dich konkret im System bewegt?',\n"
+            f"  'systemische_einordnung': 'KI-Einordnung zu 10%'\n"
+            f"}}"
         )
         api_key = os.getenv("GEMINI_API_KEY")   
         if api_key:
