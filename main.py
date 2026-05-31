@@ -523,15 +523,15 @@ async def chat(request: Request):
         alter_falscher_name = email.split('@')[0].capitalize()
         gesaeuberte_instruction = system_instruction.replace(alter_falscher_name, user_name) if user_name != alter_falscher_name else system_instruction
 
-        api_key = os.getenv("GEMINI_API_KEY")
+       api_key = os.getenv("GEMINI_API_KEY")
         url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key={api_key}"
         
         payload = {
             "contents": messages_for_gemini,
-            "system_instruction": { "parts": [{ "text": gesaeuberte_instruction }] }
+            "systemInstruction": { "parts": [{ "text": gesaeuberte_instruction }] }
         }
 
-        response = requests.post(url, json=payload)
+        response = requests.post(url, json=payload, timeout=30)
         res_data = response.json()
 
         if response.status_code == 200 and 'candidates' in res_data:
@@ -693,7 +693,7 @@ async def get_live_ermittlung(sector_id: str, request: Request):
             api_key = api_key.strip().replace("[", "").replace("]", "")
             
         url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key={api_key}"
-        response = requests.post(url, json={"contents": [{"parts": [{"text": prompt}]}]}, timeout=15)
+        response = requests.post(url, json={"contents": [{"parts": [{"text": prompt}]}]}, timeout=30)
         
         if response.status_code == 200:
             res_data = response.json()
