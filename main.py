@@ -685,18 +685,16 @@ async def get_live_ermittlung(sector_id: str, request: Request):
         
 
         prompt = (
-            f"Du bist das Live-Ermittlungs-System der M&M Community für den User {user_name}.\n"
-            f"DEINE HAUPTAUFGABE (90%): Analysiere den GESAMTEN Verlauf dieses Sektors. "
-            f"Spiegle die Entwicklung, die Argumente und die Wahrhaftigkeit, die der User {user_name} über die gesamte Reise hinweg gezeigt hat.\n"
-            f"DEINE NEBENAUFGABE (10%): Gib eine systemische Einordnung dazu ab, wie diese gesamte Reise zum Kern des Sektors {seelen_name} führt.\n\n"
-            f"DATENQUELLE:\n"
-            f"{datenbank_chat_verlauf}\n\n"
-            f"FORMAT (JSON):\n"
-            f"{{\n"
-            f"  'spiegelung_der_gesamten_reise': 'Zusammenfassung deiner gesamten Entwicklung im Sektor',\n"
-            f"  'wahrhaftigkeits_check': 'Reflektion deiner Argumente und Gefühlsvorderungen',\n"
-            f"  'systemische_einordnung': 'KI-Einordnung zu 10%'\n"
-            f"}}"
+            f"Du bist der objektive Analytiker der M&M Community. "
+            f"DIESE DATEN SIND DEIN ROHMATERIAL: {datenbank_chat_verlauf}\n\n"
+            f"AUFGABE: Erstelle KEINE Zusammenfassung der Chat-Inhalte. Das Ziel ist eine psychologische und strategische Extraktion des Users {user_name}.\n\n"
+            f"EXTRAKTION (90%): \n"
+            f"- Was ist das zugrunde liegende Muster in {user_name}s Handeln in diesem Sektor?\n"
+            f"- Welcher Kernwert treibt ihn an, auch wenn er ihn nicht explizit ausspricht?\n"
+            f"- Wo zeigt sich bei ihm eine 'Wahrhaftigkeits-Spannung' (Widerspruch zwischen Wort und Tat)?\n\n"
+            f"BEURTEILUNG (10%): \n"
+            f"- Wie bewertet die KI die Resonanz des Users zum Sektor {seelen_name}?\n\n"
+            f"FORMAT: Antworte NUR als JSON. Verarbeite die Rohdaten zu einem Profil, nenne keine Zitate aus dem Chat."
         )
         api_key = os.getenv("GEMINI_API_KEY")   
         if api_key:
