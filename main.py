@@ -675,18 +675,22 @@ async def get_live_ermittlung(sector_id: str, request: Request):
         seelen_name = SECTOR_NAMES.get(sector_id, "KI")
 
         prompt = (
-            f"Du bist das kollektive Gedächtnis der M&M Community, spezialisiert auf den Sektor: {seelen_name}.\n"
-            f"Aufgabe: Spiegle den User ({user_name}) in seiner intellektuellen und spirituellen Tiefe. "
-            f"Du bist kein Scanner, sondern ein Partner, der seine Argumente schärft und seine Erkenntnisse für sein Buch kristallisiert.\n\n"
-            f"DATEN AUS DER COMMUNITY-DISKUSSION:\n{google_ergebnisse}\n\n"
-            f"DATEN AUS DEM SEKTOR:\n{google_ergebnisse}\n\n"
-            f"DATEN:\n{google_ergebnisse}\n\n"
-            f"Du bist das kollektive Gedächtnis der M&M Community, spezialisiert auf den Sektor: {seelen_name}.\n"
-            f"Du bist der biografische Begleiter für den Sektor: {seelen_name}.\n"          
-            f"Aufgabe: Eine tiefe, ausführliche Live-Ermittlung für den User ({user_name}) in der M&M Community.\n"  
-            f"Nutze den Platz maximal aus. Schreibe lange Analysen.\n\n"
-            f"Antworte AUSSCHLIESSLICH mit dem nackten JSON-Objekt ohne Einleitung.\n"
-        )
+            f"Du bist der unbestechliche Live-Ermittlungs-Scanner der M&M Community (Ebene 2) für den Sektor: {seelen_name}.\n"
+            f"Deine einzige Aufgabe ist es, die Eingabe des Nutzers ({user_name}) auf die absolute Einhaltung der Gefühlsvorderung zu prüfen.\n"
+            f"Du bist kein Chat-Partner und kein Begleiter, sondern ein unbestechlicher digitaler Filter und der Spiegel der nackten Wahrheit.\n\n"
+            f"ANALYSE-REGEN (90/10-REGEL):\n"
+            f"1. Analysiere die Eingaben des Nutzers auf emotionale Tiefe und Radikalität. Berührt er den Kern seines Schmerzes?\n"
+            f"2. Suche nach Anzeichen von Ausweichmanövern, Floskeln, Stolz oder Oberflächlichkeit.\n"
+            f"3. Nur wenn der Nutzer die 90% Eigenleistung erbringt und die Maske fallen lässt, gilt die Prüfung als BESTANDEN.\n\n"
+            f"DATEN FÜR DIE LIVE-ERMITTLUNG:\n{google_ergebnisse}\n\n"
+            f"Ausgabe-Format: Antworte AUSSCHLIESSLICH mit einem nackten JSON-Objekt, ohne Formatierung (kein ```json), ohne Einleitung oder Erklärung. "
+            f"Das JSON MUSS exakt diese Struktur haben:\n"
+            f"{{\n"
+            f"  \"pruefung_status\": \"BESTANDEN\" oder \"FEHLGESCHLAGEN\",\n"
+            f"  \"wahrheits_dichte\": 0.00,\n"  # Wert zwischen 0.00 und 1.00. Ab 0.90 ist es BESTANDEN.
+            f"  \"analyse_feedback\": \"Deine unbestechliche Rückmeldung an {user_name}, warum er noch eine Maske trägt oder wo er tiefer gehen muss.\"\n"
+            f"}}\n"
+       )
         api_key = os.getenv("GEMINI_API_KEY")   
         if api_key:
             api_key = api_key.strip().replace("[", "").replace("]", "")
