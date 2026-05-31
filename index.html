@@ -82,17 +82,6 @@
     </style>
 </head>
 <body>
-    <div style="position: fixed; left: 5%; top: 48%; z-index: 999; text-align: center; color: #003d8f;">
-    <div style="font-weight: 900; font-size: 0.9rem; letter-spacing: 2px;">DEMO: ECHOO</div>
-    <div style="font-size: 1.2rem; margin: 5px 0;">↓</div>
-    <div id="frosch-button" style="cursor: default; font-size: 2rem; margin-top: 5px;">🐸</div>
-</div>
-
-<div style="position: fixed; right: 5%; top: 48%; z-index: 999; text-align: center; color: #003d8f;">
-    <div style="font-weight: 900; font-size: 0.9rem; letter-spacing: 2px;">WAHRHEIT PRÜFEN</div>
-    <div style="font-size: 1.2rem; margin: 5px 0;">↓</div>
-    <div id="schweinchen-button" style="cursor: default; font-size: 2rem; margin-top: 5px;">🐷</div>
-</div>
     
     <div class="dashboard-header">
         <div class="logo-ring" onclick="wechselEbene('ebene1')" ondblclick="versucheAdminEbene()">
@@ -872,12 +861,6 @@ async function handleVerifyAccess() {
 
         if (data.success) {
             userEmail = emailInput; 
-            
-           document.getElementById('frosch-button').style.setProperty('pointer-events', 'auto', 'important');
-           document.getElementById('frosch-button').style.cursor = 'pointer';
-            
-            document.getElementById('schweinchen-button').style.setProperty('pointer-events', 'auto', 'important');
-            document.getElementById('schweinchen-button').style.cursor = 'pointer';
             
             // 1. Chat laden
             chatVerlauf = data.history || []; 
