@@ -685,26 +685,16 @@ async def get_live_ermittlung(sector_id: str, request: Request):
         
 
         prompt = (
-            f"Du bist das analytische Profiling-System für die M&M Community. "
-            f"ROHDATEN ZUR VERHALTENSANALYSE: {datenbank_chat_verlauf}\n\n"
-            f"REGELN: "
-            f"1. ES IST STRENG VERBOTEN, Chat-Inhalte, Zitate oder KI-Antworten zu wiederholen oder zusammenzufassen. "
-            f"2. Du analysierst nicht den Text, sondern den MENSCHEN hinter dem Text.\n\n"
-            f"AUFGABE (90% Extraktion - Das psychologische Profil):\n"
-            f"- Welche unbewussten Triebfedern und Kernwerte steuern {user_name} hier (auch unausgesprochen)?\n"
-            f"- Beschreibe die 'Verhaltens-Dynamik' (Modus Operandi) im Sektor: Welche Energie und Richtung zeigt sein Handeln?\n"
-            f"- Identifiziere die 'Wahrhaftigkeits-Spannung': Wo existiert ein Widerspruch zwischen Anspruch und tatsächlichem Ausdruck?\n"
-            f"- Benenne den 'blinden Fleck' in seiner aktuellen Argumentationsstruktur.\n\n"
-            f"BEURTEILUNG (10% - Die systemische Resonanz):\n"
-            f"- Wie bewertet das System die Stabilität und Frequenz der Resonanz des Users zum Sektor {seelen_name}?\n\n"
-            f"FORMAT: Antworte AUSSCHLIESSLICH als JSON ohne jeden weiteren Text:\n"
-            f"{{\n"
-            f"  'triebfeder_und_kernwert': 'Abstrakte Analyse des inneren Antriebs',\n"
-            f"  'verhaltens_dynamik': 'Analyse des Modus Operandi im Sektor',\n"
-            f"  'wahrhaftigkeits_spannung': 'Analyse von Widersprüchen zwischen Wort und Tat',\n"
-            f"  'blinder_fleck': 'Herausarbeitung der unbewussten Spannungsfelder',\n"
-            f"  'sektor_resonanz_bewertung': 'Systemische Einordnung der Frequenzstabilität'\n"
-            f"}}"
+            f"Du bist der objektive Analytiker der M&M Community. "
+            f"DIESE DATEN SIND DEIN ROHMATERIAL: {datenbank_chat_verlauf}\n\n"
+            f"AUFGABE: Erstelle KEINE Zusammenfassung der Chat-Inhalte. Das Ziel ist eine psychologische und strategische Extraktion des Users {user_name}.\n\n"
+            f"EXTRAKTION (90%): \n"
+            f"- Was ist das zugrunde liegende Muster in {user_name}s Handeln in diesem Sektor?\n"
+            f"- Welcher Kernwert treibt ihn an, auch wenn er ihn nicht explizit ausspricht?\n"
+            f"- Wo zeigt sich bei ihm eine 'Wahrhaftigkeits-Spannung' (Widerspruch zwischen Wort und Tat)?\n\n"
+            f"BEURTEILUNG (10%): \n"
+            f"- Wie bewertet die KI die Resonanz des Users zum Sektor {seelen_name}?\n\n"
+            f"FORMAT: Antworte NUR als JSON. Verarbeite die Rohdaten zu einem Profil, nenne keine Zitate aus dem Chat."
         )
         api_key = os.getenv("GEMINI_API_KEY")   
         if api_key:
