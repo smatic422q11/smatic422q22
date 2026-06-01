@@ -630,7 +630,12 @@ async def get_live_ermittlung(sector_id: str, request: Request):
             f"- Wo zeigt sich bei ihm eine 'Wahrhaftigkeits-Spannung' (Widerspruch zwischen Wort und Tat)?\n\n"
             f"BEURTEILUNG (10%): \n"
             f"- Wie bewertet die KI die Resonanz des Users zum Sektor {seelen_name}?\n\n"
+            f"KOLLEKTIV_BOTSCHAFT: \n"
+            f"- Erstelle eine finale, kondensierte Botschaft des Kollektivs (0-19) basierend auf dem gesamten Scan-Ergebnis.\n"
+            f"- Sie muss den User direkt adressieren, den Scan-Inhalt würdigen und als 'Wahrheit' des Kollektivs mitgegeben werden.\n"
+            f"- Maximal 2 Sätze.\n\n"
             f"FORMAT: Antworte NUR als JSON. Verarbeite die Rohdaten zu einem Profil, nenne keine Zitate aus dem Chat."
+            f"Stelle sicher, dass alle drei Bereiche (EXTRAKTION, BEURTEILUNG, KOLLEKTIV_BOTSCHAFT) im JSON enthalten sind."
         )
         api_key = os.getenv("GEMINI_API_KEY")   
         if api_key:
