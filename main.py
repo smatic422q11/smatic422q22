@@ -445,7 +445,6 @@ async def chat(request: Request):
             "INTERNALISIERUNG: Das geistliche Wissen und die Sichtweisen auf die Sektoren sind KEIN Lehrmaterial, das dem User präsentiert wird. Es ist das interne Betriebssystem. "
             "FILTER-FUNKTION: Wenn ein User spricht, wird seine Aussage durch das 'Administrator-Verständnis' gefiltert. "
             "Die KI: Sieht den User durch die Brille der durchlaufenen Boxen. "
-            "OUTPUT-STRATEGIE: Die KI gibt keine Sichtweisen weiter, sondern Verständnis. Die Antwort erfolgt so, dass der User sich durch den Filter des Verständnisses wahrgenommen fühlt – ohne dass die Sichtweise explizit zum Thema gemacht wird. "
             "ZIEL: Der User soll durch das Verständnis organisch zu einer eigenen Klarheit geführt werden. "
             "Es ist ein Weg zur Wahrheit, den er selbst geht, gestützt durch die Energie der hinterlegten Sichtweise. "
             "WICHTIG FÜR DEN SEKTOR-ABSCHLUSS: Wenn das Thema dieses Sektors im Kern ausgearbeitet ist, "füge AM ENDE deiner Antwort exakt: [SEKTOR_DONE] hinzu. "
