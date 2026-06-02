@@ -1029,29 +1029,27 @@ function updateSpezialSektorenStatus() {
     document.getElementById('btn-ebene4-zugang').style.display = 'inline-block';
     alert("Willkommen im Kollektiv! Ebene 4 wurde soeben freigeschaltet.");
 } 
- async function pruefeSektorZugang(id) {
+async function pruefeSektorZugang(id) {
     const isAdmin = (userEmail === "mmcommunity22@gmail.com");
+    console.log("Admin-Status:", isAdmin, "User-Email:", userEmail); // Zeigt dir in der Konsole, wer du bist
     
-    if (isAdmin) return true; // Admin darf immer
+    if (isAdmin) return true;
 
-    // Bezahl-Check für den Sektor
     try {
         const response = await fetch(`/check-payment?email=${encodeURIComponent(userEmail)}&sector=${id}`);
         const data = await response.json();
+        console.log("Bezahl-Status:", data); // Zeigt dir, was der Server über die Zahlung sagt
         
         if (data.hasPaid) {
             return true;
         } else {
-            if (confirm("Möchtest du den Zugang zu diesem Sektor für 2,99 € freischalten?")) {
-                triggerPaymentGateway(id);
-            }
-            return false; // Stoppt den weiteren Ablauf
+            return confirm("Möchtest du den Zugang zu Sektor " + (id + 1) + " für 2,99 € freischalten?");
         }
     } catch (e) {
-        console.error("Fehler beim Bezahl-Gate:", e);
+        console.error("Fehler:", e);
         return false;
     }
-}    
+}
  </script>
 </body>
 </html>  
