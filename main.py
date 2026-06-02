@@ -774,6 +774,7 @@ async def get_sector_text(sector_id: str, email: str):
         return {"success": True, "text": "Gefühlsvorderung."}
     except Exception as e:
         return {"success": False, "message": str(e)}
+        
 @app.post("/anfrage-ticket")
 async def handle_ticket_anfrage(request: Request):
     try:
@@ -785,24 +786,21 @@ async def handle_ticket_anfrage(request: Request):
         if not user:
             return JSONResponse(content={"status": "User nicht gefunden"}, status_code=404)
         
+        # Das ist der Link, den du zum Testen in Version 2 brauchst:
         aktivierungs_link = f"https://smatic422q22.onrender.com/aktiviere-sektor?email={user_email}&sektor={sektor_id}"
         
-        subject = f"Ticket-Anfrage für Sektor {sektor_id}"
-        body = (
-            f"Hallo, du hast ein Ticket für den Sektor {sektor_id} angefordert.\n\n"
-            "Um den Zugang freizuschalten, bestätige bitte den Prozess durch Klick auf diesen Link:\n"
-            f"{aktivierungs_link}\n\n"
-            "Nach Bestätigung wird dein Sektor automatisch aktiviert."
-        )
+        # Wir übergeben den Link an deinen funktionierenden Kanal:
+        success = send_verification_email(user_email, aktivierungs_link)
         
-        success = send_verification_email(user_email, body)
-        
-        return {"status": "erfolgreich" if success else "fehler", "message": "E-Mail mit Aktivierungslink wurde gesendet."}
+        if success:
+            return {"status": "erfolgreich", "message": "Test-E-Mail mit Link wurde gesendet."}
+        else:
+            return {"status": "fehler", "message": "Versand fehlgeschlagen."}
         
     except Exception as e:
         print(f"Fehler bei Ticket-Anfrage: {e}")
         return JSONResponse(content={"status": "Fehler"}, status_code=500)
-
+        
 @app.get("/aktiviere-sektor")
 async def aktiviere_sektor(email: str, sektor: str):
     try:
