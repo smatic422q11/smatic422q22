@@ -708,12 +708,6 @@ async function wechselEbene(id, index = null) {
         }
     }
    
-        const navBar = document.querySelector('.bottom-nav');
-        if (id === 'ticket-kauf-ebene') {
-        navBar.style.display = 'none'; 
-    }   else {
-        navBar.style.display = 'flex'; // Überall sonst ist sie da
-    }
     if (typeof chatSlideshow !== 'undefined') {
         clearInterval(chatSlideshow);
     }
