@@ -453,44 +453,56 @@ async function waehleSektor(id) {
         }
     }
 
-  aktuelleSektorId = id.toString();
+    // 3. Rollen-Check: Admin darf immer rein
     const isAdmin = (userEmail === "mmcommunity22@gmail.com");
 
-    // Admin-Whitelist: Geist-Zugang
-    if (isAdmin) {
-        proceedToSector();
-    } else {
-        // Prüfen, ob für diesen Sektor bereits bezahlt wurde
-        fetch(`/check-payment?email=${encodeURIComponent(userEmail)}&sector=${aktuelleSektorId}`)
-        .then(res => res.json())
-        .then(data => {
-            if (data.hasPaid) {
-                proceedToSector();
-            } else {
-                // Trigger Bezahl-Gate (2,99 €)
-                if (confirm("Möchtest du den Zugang zu Sektor " + (id + 1) + " für 2,99 € freischalten?")) {
-                    triggerPaymentGateway(aktuelleSektorId);
-                }
-            }
-        });
+    // 4. Logik-Check für User
+    if (!isAdmin) {
+        if (sektorZustand[id] !== 'aktiv_gelb' && sektorZustand[id] !== 'erledigt_gruen') {
+            alert("Dieser Sektor ist noch gesperrt. Arbeite dich der Reihe nach vor.");
+            return;
+        }
     }
 
-    function proceedToSector() {
-        const chatBox = document.getElementById('chat-box');
-        if (!alleSektorenVerlaeufe[aktuelleSektorId]) {
-            alleSektorenVerlaeufe[aktuelleSektorId] = [];
-            chatBox.innerHTML = `<i>Verbindung zu Sektor ${themen[id]} (${seelenNamen[id]}) bereit...</i>`;
-        } else {
-            chatBox.innerHTML = "";
-            alleSektorenVerlaeufe[aktuelleSektorId].forEach(msg => {
-                const istUser = msg.role === "user";
-                const farbe = istUser ? "#fff" : "#ffd700";
-                const sender = istUser ? "Du" : seelenNamen[aktuelleSektorId];
-                chatBox.innerHTML += `<div style="color: ${farbe}; margin-bottom: 10px;"><b>${sender}:</b> ${msg.parts[0].text}</div>`;
-            });
+   aktuelleSektorId = id.toString();
+    const isAdmin = (userEmail === "mmcommunity22@gmail.com");
+
+    if (isAdmin) {
+        // Schritt B: Admin -> Zugriff (wird fortgesetzt)
+    } else {
+        // Schritt C: Kein Admin -> Bezahl-Check
+        const response = await fetch(`/check-payment?email=${encodeURIComponent(userEmail)}&sector=${aktuelleSektorId}`);
+        const data = await response.json();
+        
+        if (!data.hasPaid) {
+            if (confirm("Möchtest du den Zugang zu Sektor " + (id + 1) + " für 2,99 € freischalten?")) {
+                triggerPaymentGateway(aktuelleSektorId);
+            }
+            return; // Stoppt den Prozess, wenn keine Bezahlung erfolgt
         }
-        wechselEbene('ebene2', id);
-    } 
+        // Schritt D: Zahlung erfolgreich -> Prozess läuft weiter
+    }
+
+    const chatBox = document.getElementById('chat-box');
+
+    // Chat-Verlauf initialisieren oder laden
+    if (!alleSektorenVerlaeufe[aktuelleSektorId]) {
+        alleSektorenVerlaeufe[aktuelleSektorId] = [];
+        chatBox.innerHTML = `<i>Verbindung zu Sektor ${themen[id]} (${seelenNamen[id]}) bereit...</i>`;
+    } else {
+        chatBox.innerHTML = "";
+        alleSektorenVerlaeufe[aktuelleSektorId].forEach(msg => {
+            const istUser = msg.role === "user";
+            const farbe = istUser ? "#fff" : "#ffd700";
+            const sender = istUser ? "Du" : seelenNamen[aktuelleSektorId];
+            chatBox.innerHTML += `<div style="color: ${farbe}; margin-bottom: 10px;"><b>${sender}:</b> ${msg.parts[0].text}</div>`;
+        });
+    }
+// Wechsel zur Analyse-Ebene
+    wechselEbene('ebene2', id);
+}
+    
+    
         const adminSelect = document.getElementById('admin-sektor-auswahl'); if (adminSelect) { themen.forEach((t, i) => { adminSelect.innerHTML += `<option value="${i}">Sektor ${i+1}: ${t}</option>`; }); }
 
 function waehleSpezialSektor(id) {
@@ -1050,19 +1062,6 @@ async function wähleModus(gewaehlterModus) {
         console.error("Fehler bei Modus-Wahl:", e);
     }
 } 
- function triggerPaymentGateway(sectorId) {
-    // Hier wird das Zahlungsmodul (z.B. Stripe/PayPal) angesteuert
-    fetch('/create-checkout-session', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: userEmail, sector_id: sectorId })
-    })
-    .then(res => res.json())
-    .then(data => {
-        if (data.url) window.location.href = data.url; // Weiterleitung zum Bezahlanbieter
-    })
-    .catch(err => alert("Zahlungsschnittstelle konnte nicht geladen werden."));
-}   
  </script>
 </body>
 </html>  
