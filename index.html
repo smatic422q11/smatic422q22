@@ -1031,22 +1031,24 @@ function updateSpezialSektorenStatus() {
 } 
 async function pruefeSektorZugang(id) {
     const isAdmin = (userEmail === "mmcommunity22@gmail.com");
-    console.log("Admin-Status:", isAdmin, "User-Email:", userEmail); // Zeigt dir in der Konsole, wer du bist
     
-    if (isAdmin) return true;
+    if (isAdmin) return true; // Admin darf immer
 
+    // Bezahl-Check für den Sektor
     try {
         const response = await fetch(`/check-payment?email=${encodeURIComponent(userEmail)}&sector=${id}`);
         const data = await response.json();
-        console.log("Bezahl-Status:", data); // Zeigt dir, was der Server über die Zahlung sagt
         
         if (data.hasPaid) {
             return true;
         } else {
-            return confirm("Möchtest du den Zugang zu Sektor " + (id + 1) + " für 2,99 € freischalten?");
+            if (confirm("Möchtest du den Zugang zu diesem Sektor für 2,99 € freischalten?")) {
+                triggerPaymentGateway(id);
+            }
+            return false; // Stoppt den weiteren Ablauf
         }
     } catch (e) {
-        console.error("Fehler:", e);
+        console.error("Fehler beim Bezahl-Gate:", e);
         return false;
     }
 }
