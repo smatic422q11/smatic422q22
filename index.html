@@ -482,7 +482,8 @@ async function waehleSektor(id) {
         });
     }
 
-    // Wechsel zur Analyse-Ebene
+   const darfRein = await pruefeSektorZugang(id);
+if (darfRein) {
     wechselEbene('ebene2', id);
 }
         const adminSelect = document.getElementById('admin-sektor-auswahl'); if (adminSelect) { themen.forEach((t, i) => { adminSelect.innerHTML += `<option value="${i}">Sektor ${i+1}: ${t}</option>`; }); }
@@ -1027,7 +1028,30 @@ function updateSpezialSektorenStatus() {
  function aboProzessAbschliessen() {
     document.getElementById('btn-ebene4-zugang').style.display = 'inline-block';
     alert("Willkommen im Kollektiv! Ebene 4 wurde soeben freigeschaltet.");
-}  
+} 
+ async function pruefeSektorZugang(id) {
+    const isAdmin = (userEmail === "mmcommunity22@gmail.com");
+    
+    if (isAdmin) return true; // Admin darf immer
+
+    // Bezahl-Check für den Sektor
+    try {
+        const response = await fetch(`/check-payment?email=${encodeURIComponent(userEmail)}&sector=${id}`);
+        const data = await response.json();
+        
+        if (data.hasPaid) {
+            return true;
+        } else {
+            if (confirm("Möchtest du den Zugang zu diesem Sektor für 2,99 € freischalten?")) {
+                triggerPaymentGateway(id);
+            }
+            return false; // Stoppt den weiteren Ablauf
+        }
+    } catch (e) {
+        console.error("Fehler beim Bezahl-Gate:", e);
+        return false;
+    }
+}    
  </script>
 </body>
 </html>  
