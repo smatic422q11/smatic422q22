@@ -433,7 +433,27 @@ function updateBoxFarben() {
         box.className = 'box ' + sektorZustand[i] + blinken;
     });
 }
-     
+async function pruefeTicketStatus(id) {
+    // Admin darf immer passieren
+    if (userEmail === "mmcommunity22@gmail.com") return true;
+
+    // Ticket-Abfrage: Hat der User ein gültiges Reise-Ticket?
+    try {
+        const response = await fetch(`/check-ticket?email=${encodeURIComponent(userEmail)}&sektor=${id}`);
+        const data = await response.json();
+
+        if (data.hasTicket) {
+            return true; // Reise darf fortgesetzt werden
+        } else {
+            // Zeige das Ticket-Fenster (das "Busticket"-Fenster)
+            oeffneTicketFenster(id);
+            return false; // Stoppt den Ebenen-Wechsel
+        }
+    } catch (e) {
+        console.error("Ticket-System nicht erreichbar");
+        return false;
+    }
+}          
 async function waehleSektor(id) {
     // 1. Authentifizierungs-Check
     if (userEmail === "") {
@@ -1049,27 +1069,6 @@ async function wähleModus(gewaehlterModus) {
         console.error("Fehler bei Modus-Wahl:", e);
     }
 }   
-async function pruefeTicketStatus(id) {
-    // Admin darf immer passieren
-    if (userEmail === "mmcommunity22@gmail.com") return true;
-
-    // Ticket-Abfrage: Hat der User ein gültiges Reise-Ticket?
-    try {
-        const response = await fetch(`/check-ticket?email=${encodeURIComponent(userEmail)}&sektor=${id}`);
-        const data = await response.json();
-
-        if (data.hasTicket) {
-            return true; // Reise darf fortgesetzt werden
-        } else {
-            // Zeige das Ticket-Fenster (das "Busticket"-Fenster)
-            oeffneTicketFenster(id);
-            return false; // Stoppt den Ebenen-Wechsel
-        }
-    } catch (e) {
-        console.error("Ticket-System nicht erreichbar");
-        return false;
-    }
-}     
  </script>
 </body>
 </html>  
