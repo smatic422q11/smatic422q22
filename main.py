@@ -6,7 +6,7 @@ import random  # <--- HIER ERGÄNZT
 import certifi # <--- HIER ERGÄNZT
 from datetime import datetime
 from fastapi import FastAPI, Request
-from fastapi.responses import JSONResponse, StreamingResponse, FileResponse # <--- HIER ERGÄNZT
+from fastapi.responses import JSONResponse, StreamingResponse, FileResponse, HTMLResponse 
 from fastapi.middleware.cors import CORSMiddleware # <--- HIER ERGÄNZT
 from pymongo import MongoClient
 from pymongo.server_api import ServerApi # <--- HIER ERGÄNZT
@@ -774,6 +774,49 @@ async def get_sector_text(sector_id: str, email: str):
         return {"success": True, "text": "Gefühlsvorderung."}
     except Exception as e:
         return {"success": False, "message": str(e)}
+        
+ @app.post("/anfrage-ticket")
+async def handle_ticket_anfrage(request: Request):
+    try:
+        data = await request.json()
+        user_email = data.get('email', "").lower().strip()
+        sektor_id = str(data.get('sector_id'))
+        
+        user = db.codes.find_one({"email": user_email})
+        if not user:
+            return JSONResponse(content={"status": "User nicht gefunden"}, status_code=404)
+        
+        aktivierungs_link = f"https://smatic422q22.onrender.com/aktiviere-sektor?email={user_email}&sektor={sektor_id}"
+        
+        subject = f"Ticket-Anfrage für Sektor {sektor_id}"
+        body = (
+            f"Hallo, du hast ein Ticket für den Sektor {sektor_id} angefordert.\n\n"
+            "Um den Zugang freizuschalten, bestätige bitte den Prozess durch Klick auf diesen Link:\n"
+            f"{aktivierungs_link}\n\n"
+            "Nach Bestätigung wird dein Sektor automatisch aktiviert."
+        )
+        
+        success = send_verification_email(user_email, body)
+        
+        return {"status": "erfolgreich" if success else "fehler", "message": "E-Mail mit Aktivierungslink wurde gesendet."}
+        
+    except Exception as e:
+        print(f"Fehler bei Ticket-Anfrage: {e}")
+        return JSONResponse(content={"status": "Fehler"}, status_code=500)
+
+@app.get("/aktiviere-sektor")
+async def aktiviere_sektor(email: str, sektor: str):
+    try:
+        # Hier wird der Sektor für den User in der DB auf 'secure' gesetzt
+        db.codes.update_one(
+            {"email": email.lower().strip()}, 
+            {"$set": {f"sector_statuses.{sektor}": "secure"}}
+        )
+        
+        # Einfache Rückmeldung für den User im Browser
+        return HTMLResponse(content="<h1>Sektor erfolgreich aktiviert!</h1><p>Du kannst nun zurück zum Dashboard gehen.</p>")
+    except Exception as e:
+        return {"message": f"Fehler bei Aktivierung: {e}"}       
         
 if __name__ == "__main__":
     import uvicorn
