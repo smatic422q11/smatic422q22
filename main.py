@@ -800,7 +800,7 @@ async def handle_ticket_anfrage(request: Request):
         
         return {"status": "erfolgreich" if success else "fehler", "message": "E-Mail mit Aktivierungslink wurde gesendet."}
         
-    except Exception as e:
+        except Exception as e:
         print(f"Fehler bei Ticket-Anfrage: {e}")
         return JSONResponse(content={"status": "Fehler"}, status_code=500)
 
@@ -815,7 +815,7 @@ async def aktiviere_sektor(email: str, sektor: str):
         
         # Einfache Rückmeldung für den User im Browser
         return HTMLResponse(content="<h1>Sektor erfolgreich aktiviert!</h1><p>Du kannst nun zurück zum Dashboard gehen.</p>")
-    except Exception as e:
+        except Exception as e:
         return {"message": f"Fehler bei Aktivierung: {e}"}       
         
 if __name__ == "__main__":
