@@ -371,20 +371,14 @@
     </div>
 </div>
     <div id="ticket-kauf-ebene" class="ebene">
-    <div style="margin-top: 150px; border: 2px solid #ffd700; background: #000; padding: 40px; width: 80%; max-width: 600px; text-align: center; color: #fff; box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);">
-        <h2 style="color: #ffd700; letter-spacing: 3px;">REISEPASS ERFORDERLICH</h2>
-        <p style="font-size: 1.1rem; line-height: 1.6; margin: 20px 0;">
-            Du hast für diesen Sektor noch kein aktives Ticket.<br>
-            Bitte fordere dein Reiseticket an, um den Scan-Prozess zu starten.
-        </p>
+    <div style="text-align: center; padding: 50px; background: #000; height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+        <h2 style="color: #ffd700;">DEINE REISEVORBEREITUNG</h2>
+        <p style="color: #fff;">Für diesen Sektor benötigen wir eine Ticket-Anfrage.</p>
         
-        <button class="action-btn" style="width: 100%; margin-top: 20px;" onclick="ticketAnfrageSenden()">
-            TICKET JETZT ANFORDERN
-        </button>
+        <button class="action-btn" onclick="ticketAnfrageSenden()">TICKET JETZT ANFORDERN</button>
         
-        <br><br>
-        <button class="nav-btn" style="background: #333; color: #fff;" onclick="wechselEbene('ebene1')">
-            ZURÜCK ZUR ÜBERSICHT
+        <button class="nav-btn" style="margin-top: 20px; background: #333; color: #fff;" onclick="wechselEbene('ebene1')">
+            ZURÜCK ZUM DASHBOARD
         </button>
     </div>
 </div>
