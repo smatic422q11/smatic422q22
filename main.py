@@ -4,6 +4,8 @@ import json
 import requests
 import random  # <--- HIER ERGÄNZT
 import certifi # <--- HIER ERGÄNZT
+import stripe
+from dotenv import load_dotenv
 from datetime import datetime
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse, StreamingResponse, FileResponse, HTMLResponse 
@@ -24,6 +26,7 @@ from email import encoders
 # APP-INITIALISIERUNG (NUR EINMAL HIER OBEN!)
 # ==========================================
 app = FastAPI() 
+stripe.api_key = "sk_live_dein_key_hier"
 
 def perform_google_search(query):
     api_key = os.getenv('GOOGLE_API_KEY')
@@ -810,7 +813,27 @@ async def aktiviere_sektor(email: str, sektor: str):
         )
         return HTMLResponse(content="<h1>Sektor erfolgreich aktiviert!</h1><p>Du kannst nun zurück zum Dashboard gehen.</p>")
     except Exception as e:
-        return HTMLResponse(content=f"<h1>Fehler bei Aktivierung: {e}</h1>")        
+        return HTMLResponse(content=f"<h1>Fehler bei Aktivierung: {e}</h1>")    
+        
+   @app.post("/create-checkout-session")
+async def create_checkout_session(request: Request):
+    data = await request.json()
+    # Hier erstellen wir die Zahlung bei Stripe
+    session = stripe.checkout.Session.create(
+        payment_method_types=['card', 'paypal', 'sepa_debit'],
+        line_items=[{
+            'price_data': {
+                'currency': 'eur',
+                'product_data': {'name': 'Ticket für Sektor'},
+                'unit_amount': 5000, # Preis in Cent (5000 = 50,00 Euro)
+            },
+            'quantity': 1,
+        }],
+        mode='payment',
+        success_url='https://smatic422q22.onrender.com/erfolg',
+        cancel_url='https://smatic422q22.onrender.com/abgebrochen',
+    )
+    return {"id": session.id}     
                 
 if __name__ == "__main__":
     import uvicorn
