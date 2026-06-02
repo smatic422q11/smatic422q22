@@ -709,6 +709,11 @@ async function wechselEbene(id, index = null) {
     // Wir stellen sicher, dass das Ticket-Fenster bei jedem Ebenen-Wechsel weg ist.
     document.getElementById('ticket-kauf-ebene').style.display = 'none';
     document.getElementById('ticket-kauf-ebene').classList.remove('aktiv');
+    
+    // FIX: NAV-LEISTE WIEDER EINBLENDEN (Das hat gefehlt!)
+    if (id !== 'ticket-kauf-ebene') {
+        document.querySelector('.bottom-nav').style.display = 'flex';
+    }
 
     // ... der Rest deines Codes bleibt exakt gleich ...
     if (typeof chatSlideshow !== 'undefined') {
