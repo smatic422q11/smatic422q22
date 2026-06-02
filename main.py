@@ -4,8 +4,6 @@ import json
 import requests
 import random  # <--- HIER ERGÄNZT
 import certifi # <--- HIER ERGÄNZT
-import stripe
-from dotenv import load_dotenv
 from datetime import datetime
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse, StreamingResponse, FileResponse, HTMLResponse 
@@ -26,7 +24,6 @@ from email import encoders
 # APP-INITIALISIERUNG (NUR EINMAL HIER OBEN!)
 # ==========================================
 app = FastAPI() 
-stripe.api_key = "sk_live_dein_key_hier"
 
 def perform_google_search(query):
     api_key = os.getenv('GOOGLE_API_KEY')
