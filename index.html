@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <title>M&M-COMMUNITY 2.0</title>
     <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script> 
+    <script src="https://js.stripe.com/v3/"></script>
     <style>
     body { background: radial-gradient(circle, #f0f7ff 0%, #a4cdfc 50%, #82b7f7 100%) !important; background-size: 150% 150% !important; animation: wolkenZug 20s ease-in-out infinite; color: #000; font-family: 'Segoe UI', Arial, sans-serif; margin: 0; padding: 0; display: flex; flex-direction: column; align-items: center; height: 100vh; overflow: hidden; }
         
@@ -1112,34 +1113,24 @@ async function wähleModus(gewaehlterModus) {
     }
 }   
 async function ticketAnfrageSenden() {
-    // Hier senden wir die Anfrage an das Backend
-    // Wir nutzen die globale Variable 'userEmail' und 'aktuelleSektorId', 
-    // die du ja schon im System hast.
+    // Hier deinen "Public Key" aus dem Stripe-Dashboard eintragen (fängt mit pk_... an)
+    const stripe = Stripe('pk_live_DEIN_PUBLIC_KEY'); 
     
-    try {
-        const response = await fetch('/anfrage-ticket', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                email: userEmail,
-                sektorId: aktuelleSektorId
-            })
-        });
-        
-        const data = await response.json();
-        
-        if (data.success) {
-            alert("Deine Ticket-Anfrage ist unterwegs! Bitte prüfe dein E-Mail-Postfach für den Zahlungslink.");
-            // Nach dem Absenden schicken wir den User zurück zur Übersicht
-            wechselEbene('ebene1');
-        } else {
-            alert("Anfrage konnte nicht gesendet werden. Bitte versuche es später noch einmal.");
-        }
-    } catch (error) {
-        console.error("Fehler beim Senden der Anfrage:", error);
-        alert("Ein technischer Fehler ist aufgetreten.");
-    }
-}     
+    // 1. Dein Server erstellt bei Stripe eine "Checkout-Session"
+    const response = await fetch('/create-checkout-session', { 
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+            email: userEmail, 
+            sektor: aktuelleSektorId 
+        })
+    });
+    
+    const session = await response.json();
+    
+    // 2. Stripe öffnet den Tunnel, damit der User dort zahlt
+    stripe.redirectToCheckout({ sessionId: session.id });
+}
  </script>
 </body>
 </html>  
