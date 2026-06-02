@@ -26,6 +26,27 @@ stripe.api_key = os.getenv("STRIPE_SECRET_KEY")
 
 app = FastAPI()
 
+@app.post("/create-checkout-session")
+async def create_checkout_session(request: Request):
+    try:
+        session = stripe.checkout.Session.create(
+            payment_method_types=['card', 'paypal', 'sepa_debit'],
+            line_items=[{
+                'price_data': {
+                    'currency': 'eur',
+                    'product_data': {'name': 'M&M Community Zugang'},
+                    'unit_amount': 5000,
+                },
+                'quantity': 1,
+            }],
+            mode='payment',
+            success_url='https://smatic422q22.onrender.com/erfolg',
+            cancel_url='https://smatic422q22.onrender.com/abgebrochen',
+        )
+        return {"id": session.id}
+    except Exception as e:
+        return JSONResponse(status_code=400, content={"error": str(e)})
+
 def perform_google_search(query):
     api_key = os.getenv('GOOGLE_API_KEY')
     cx_id = os.getenv('GOOGLE_SEARCH_CX')  # Exakt wie auf Render hinterlegt
