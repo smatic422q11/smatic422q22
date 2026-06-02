@@ -4,6 +4,7 @@ import json
 import requests
 import random  # <--- HIER ERGÄNZT
 import certifi # <--- HIER ERGÄNZT
+import stripe
 from datetime import datetime
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse, StreamingResponse, FileResponse, HTMLResponse 
