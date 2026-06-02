@@ -165,7 +165,7 @@ async def handle_send_code(request: Request):
         data = await request.json()
         email = data.get('email', "").lower().strip()
         if not email or "@" not in email or "." not in email.split("@")[-1]:
-        print(f"!!! SICHERHEITSBLOCKADE: Ungültiger E-Mail-Versuch: {email} !!!")
+         print(f"!!! SICHERHEITSBLOCKADE: Ungültiger E-Mail-Versuch: {email} !!!")
         return JSONResponse(content={"status": "Ungültige E-Mail-Adresse"}, status_code=400)
         
         user_record = db.codes.find_one({"email": email})
