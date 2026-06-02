@@ -832,8 +832,8 @@ async def aktiviere_sektor(email: str, sektor: str):
         )
         return HTMLResponse(content="<h1>Sektor erfolgreich aktiviert!</h1><p>Du kannst nun zurück zum Dashboard gehen.</p>")
     except Exception as e:
-        return HTMLResponse(content=f"<h1>Fehler bei Aktivierung: {e}</h1>")  
-                
+       return HTMLResponse(content=f"<h1>Fehler bei Aktivierung: {e}</h1>") 
+        
 if __name__ == "__main__":
     import uvicorn
     port = int(os.environ.get("PORT", 10000))
