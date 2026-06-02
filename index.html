@@ -370,16 +370,29 @@
         </button>
     </div>
 </div>
-    <div id="ticket-kauf-ebene" class="ebene">
-    <div style="text-align: center; padding: 50px; background: #000; height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center;">
-        <h2 style="color: #ffd700;">DEINE REISEVORBEREITUNG</h2>
-        <p style="color: #fff;">Für diesen Sektor benötigen wir eine Ticket-Anfrage.</p>
-        
-        <button class="action-btn" onclick="ticketAnfrageSenden()">TICKET JETZT ANFORDERN</button>
-        
-        <button class="nav-btn" style="margin-top: 20px; background: #333; color: #fff;" onclick="wechselEbene('ebene1')">
-            ZURÜCK ZUM DASHBOARD
-        </button>
+   <div id="ticket-kauf-ebene" class="ebene" style="display: none;">
+    <div class="ticket-container">
+        <div class="ticket-header">
+            <h2>DEINE REISEVORBEREITUNG</h2>
+            <div class="divider"></div>
+            <p>Sichere dir exklusiven Zugang zu diesem Sektor durch eine persönliche Ticket-Anfrage.</p>
+        </div>
+
+        <div class="ticket-info-grid">
+            <div class="info-box">
+                <h3>Vorteile</h3>
+                <p>Erhalte Zugriff auf alle exklusiven Ressourcen, Community-Einblicke und Experten-Analysen des gewählten Sektors.</p>
+            </div>
+            <div class="info-box">
+                <h3>Verfahren</h3>
+                <p>Nach deiner Anfrage prüfen wir deine Zugangsberechtigung und senden dir zeitnah deinen persönlichen Schlüssel zu.</p>
+            </div>
+        </div>
+
+        <div class="ticket-actions">
+            <button class="action-btn-gold" onclick="ticketAnfrageSenden()">TICKET JETZT ANFORDERN</button>
+            <button class="nav-btn-secondary" onclick="wechselEbene('ebene1')">ZURÜCK ZUM DASHBOARD</button>
+        </div>
     </div>
 </div>
     
