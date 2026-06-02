@@ -453,38 +453,44 @@ async function waehleSektor(id) {
         }
     }
 
-    // 3. Rollen-Check: Admin darf immer rein
+  aktuelleSektorId = id.toString();
     const isAdmin = (userEmail === "mmcommunity22@gmail.com");
 
-    // 4. Logik-Check für User
-    if (!isAdmin) {
-        if (sektorZustand[id] !== 'aktiv_gelb' && sektorZustand[id] !== 'erledigt_gruen') {
-            alert("Dieser Sektor ist noch gesperrt. Arbeite dich der Reihe nach vor.");
-            return;
-        }
-    }
-
-    // --- PROZESS FREIGABE ---
-    aktuelleSektorId = id.toString();
-    const chatBox = document.getElementById('chat-box');
-
-    // Chat-Verlauf initialisieren oder laden
-    if (!alleSektorenVerlaeufe[aktuelleSektorId]) {
-        alleSektorenVerlaeufe[aktuelleSektorId] = [];
-        chatBox.innerHTML = `<i>Verbindung zu Sektor ${themen[id]} (${seelenNamen[id]}) bereit...</i>`;
+    // Admin-Whitelist: Geist-Zugang
+    if (isAdmin) {
+        proceedToSector();
     } else {
-        chatBox.innerHTML = "";
-        alleSektorenVerlaeufe[aktuelleSektorId].forEach(msg => {
-            const istUser = msg.role === "user";
-            const farbe = istUser ? "#fff" : "#ffd700";
-            const sender = istUser ? "Du" : seelenNamen[aktuelleSektorId];
-            chatBox.innerHTML += `<div style="color: ${farbe}; margin-bottom: 10px;"><b>${sender}:</b> ${msg.parts[0].text}</div>`;
+        // Prüfen, ob für diesen Sektor bereits bezahlt wurde
+        fetch(`/check-payment?email=${encodeURIComponent(userEmail)}&sector=${aktuelleSektorId}`)
+        .then(res => res.json())
+        .then(data => {
+            if (data.hasPaid) {
+                proceedToSector();
+            } else {
+                // Trigger Bezahl-Gate (2,99 €)
+                if (confirm("Möchtest du den Zugang zu Sektor " + (id + 1) + " für 2,99 € freischalten?")) {
+                    triggerPaymentGateway(aktuelleSektorId);
+                }
+            }
         });
     }
 
-    // Wechsel zur Analyse-Ebene
-    wechselEbene('ebene2', id);
-}
+    function proceedToSector() {
+        const chatBox = document.getElementById('chat-box');
+        if (!alleSektorenVerlaeufe[aktuelleSektorId]) {
+            alleSektorenVerlaeufe[aktuelleSektorId] = [];
+            chatBox.innerHTML = `<i>Verbindung zu Sektor ${themen[id]} (${seelenNamen[id]}) bereit...</i>`;
+        } else {
+            chatBox.innerHTML = "";
+            alleSektorenVerlaeufe[aktuelleSektorId].forEach(msg => {
+                const istUser = msg.role === "user";
+                const farbe = istUser ? "#fff" : "#ffd700";
+                const sender = istUser ? "Du" : seelenNamen[aktuelleSektorId];
+                chatBox.innerHTML += `<div style="color: ${farbe}; margin-bottom: 10px;"><b>${sender}:</b> ${msg.parts[0].text}</div>`;
+            });
+        }
+        wechselEbene('ebene2', id);
+    } 
         const adminSelect = document.getElementById('admin-sektor-auswahl'); if (adminSelect) { themen.forEach((t, i) => { adminSelect.innerHTML += `<option value="${i}">Sektor ${i+1}: ${t}</option>`; }); }
 
 function waehleSpezialSektor(id) {
@@ -1043,7 +1049,20 @@ async function wähleModus(gewaehlterModus) {
     } catch (e) {
         console.error("Fehler bei Modus-Wahl:", e);
     }
-}     
+} 
+ function triggerPaymentGateway(sectorId) {
+    // Hier wird das Zahlungsmodul (z.B. Stripe/PayPal) angesteuert
+    fetch('/create-checkout-session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: userEmail, sector_id: sectorId })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.url) window.location.href = data.url; // Weiterleitung zum Bezahlanbieter
+    })
+    .catch(err => alert("Zahlungsschnittstelle konnte nicht geladen werden."));
+}   
  </script>
 </body>
 </html>  
