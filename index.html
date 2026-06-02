@@ -691,23 +691,26 @@ function starteChatHintergrund() {
     ebene3.style.backgroundImage = "none"; 
     ebene3.style.background = "transparent !important"; 
 }
-
-// Die Steuerung beim Wechseln der Ebenen
 // Die Steuerung beim Wechseln der Ebenen
 async function wechselEbene(id, index = null) {
-   // 1. ZWISCHENSTOPP-CHECK
-        if (id === 'ebene2' && index !== null) {
+    // 1. ZWISCHENSTOPP-CHECK
+    if (id === 'ebene2' && index !== null) {
         const darfReisen = await pruefeTicketStatus(index);
         if (!darfReisen) {
             document.querySelectorAll('.ebene').forEach(e => e.classList.remove('aktiv'));
-            // WICHTIG: Setze display hier explizit
             document.getElementById('ticket-kauf-ebene').style.display = 'flex'; 
             document.getElementById('ticket-kauf-ebene').classList.add('aktiv');
             document.querySelector('.bottom-nav').style.display = 'none';
             return; 
         }
     }
-   
+    
+    // HIER IST DER FIX: 
+    // Wir stellen sicher, dass das Ticket-Fenster bei jedem Ebenen-Wechsel weg ist.
+    document.getElementById('ticket-kauf-ebene').style.display = 'none';
+    document.getElementById('ticket-kauf-ebene').classList.remove('aktiv');
+
+    // ... der Rest deines Codes bleibt exakt gleich ...
     if (typeof chatSlideshow !== 'undefined') {
         clearInterval(chatSlideshow);
     }
