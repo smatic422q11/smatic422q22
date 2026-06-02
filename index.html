@@ -433,8 +433,7 @@ function updateBoxFarben() {
         box.className = 'box ' + sektorZustand[i] + blinken;
     });
 }
-     
-async function waehleSektor(id) {
+    async function waehleSektor(id) {
     // 1. Authentifizierungs-Check
     if (userEmail === "") {
         alert("Zugriff verweigert! Bitte zuerst Anker setzen und verifizieren.");
@@ -464,25 +463,8 @@ async function waehleSektor(id) {
         }
     }
 
-   aktuelleSektorId = id.toString();
-    const isAdmin = (userEmail === "mmcommunity22@gmail.com");
-
-    if (isAdmin) {
-        // Schritt B: Admin -> Zugriff (wird fortgesetzt)
-    } else {
-        // Schritt C: Kein Admin -> Bezahl-Check
-        const response = await fetch(`/check-payment?email=${encodeURIComponent(userEmail)}&sector=${aktuelleSektorId}`);
-        const data = await response.json();
-        
-        if (!data.hasPaid) {
-            if (confirm("Möchtest du den Zugang zu Sektor " + (id + 1) + " für 2,99 € freischalten?")) {
-                triggerPaymentGateway(aktuelleSektorId);
-            }
-            return; // Stoppt den Prozess, wenn keine Bezahlung erfolgt
-        }
-        // Schritt D: Zahlung erfolgreich -> Prozess läuft weiter
-    }
-
+    // --- PROZESS FREIGABE ---
+    aktuelleSektorId = id.toString();
     const chatBox = document.getElementById('chat-box');
 
     // Chat-Verlauf initialisieren oder laden
@@ -498,11 +480,10 @@ async function waehleSektor(id) {
             chatBox.innerHTML += `<div style="color: ${farbe}; margin-bottom: 10px;"><b>${sender}:</b> ${msg.parts[0].text}</div>`;
         });
     }
-// Wechsel zur Analyse-Ebene
+
+    // Wechsel zur Analyse-Ebene
     wechselEbene('ebene2', id);
-}
-    
-    
+}  
         const adminSelect = document.getElementById('admin-sektor-auswahl'); if (adminSelect) { themen.forEach((t, i) => { adminSelect.innerHTML += `<option value="${i}">Sektor ${i+1}: ${t}</option>`; }); }
 
 function waehleSpezialSektor(id) {
