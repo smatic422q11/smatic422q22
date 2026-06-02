@@ -370,6 +370,24 @@
         </button>
     </div>
 </div>
+    <div id="ticket-kauf-ebene" class="ebene">
+    <div style="margin-top: 150px; border: 2px solid #ffd700; background: #000; padding: 40px; width: 80%; max-width: 600px; text-align: center; color: #fff; box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);">
+        <h2 style="color: #ffd700; letter-spacing: 3px;">REISEPASS ERFORDERLICH</h2>
+        <p style="font-size: 1.1rem; line-height: 1.6; margin: 20px 0;">
+            Du hast für diesen Sektor noch kein aktives Ticket.<br>
+            Bitte fordere dein Reiseticket an, um den Scan-Prozess zu starten.
+        </p>
+        
+        <button class="action-btn" style="width: 100%; margin-top: 20px;" onclick="ticketAnfrageSenden()">
+            TICKET JETZT ANFORDERN
+        </button>
+        
+        <br><br>
+        <button class="nav-btn" style="background: #333; color: #fff;" onclick="wechselEbene('ebene1')">
+            ZURÜCK ZUR ÜBERSICHT
+        </button>
+    </div>
+</div>
     
 <div class="bottom-nav">
     <button class="nav-btn" onclick="wechselEbene('ebene1')">DASHBOARD</button>
@@ -1075,6 +1093,35 @@ async function wähleModus(gewaehlterModus) {
         console.error("Fehler bei Modus-Wahl:", e);
     }
 }   
+async function ticketAnfrageSenden() {
+    // Hier senden wir die Anfrage an das Backend
+    // Wir nutzen die globale Variable 'userEmail' und 'aktuelleSektorId', 
+    // die du ja schon im System hast.
+    
+    try {
+        const response = await fetch('/anfrage-ticket', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                email: userEmail,
+                sektorId: aktuelleSektorId
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            alert("Deine Ticket-Anfrage ist unterwegs! Bitte prüfe dein E-Mail-Postfach für den Zahlungslink.");
+            // Nach dem Absenden schicken wir den User zurück zur Übersicht
+            wechselEbene('ebene1');
+        } else {
+            alert("Anfrage konnte nicht gesendet werden. Bitte versuche es später noch einmal.");
+        }
+    } catch (error) {
+        console.error("Fehler beim Senden der Anfrage:", error);
+        alert("Ein technischer Fehler ist aufgetreten.");
+    }
+}     
  </script>
 </body>
 </html>  
