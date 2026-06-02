@@ -1,51 +1,29 @@
-import os
+import os 
 import re
 import json
 import requests
-import random
-import certifi
-import stripe
-import base64
-import smtplib
+import random  # <--- HIER ERGÄNZT
+import certifi # <--- HIER ERGÄNZT
 from datetime import datetime
+from fastapi import FastAPI, Request
+from fastapi.responses import JSONResponse, StreamingResponse, FileResponse # <--- HIER ERGÄNZT
+from fastapi.middleware.cors import CORSMiddleware # <--- HIER ERGÄNZT
+from pymongo import MongoClient
+from pymongo.server_api import ServerApi # <--- HIER ERGÄNZT
+from fastapi.responses import StreamingResponse
+import base64
+from fpdf import FPDF
 from io import BytesIO
+import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.mime.base import MIMEBase
 from email import encoders
-from dotenv import load_dotenv
-from fastapi import FastAPI, Request
-from fastapi.responses import JSONResponse, StreamingResponse, FileResponse, HTMLResponse
-from fastapi.middleware.cors import CORSMiddleware
-from pymongo import MongoClient
-from pymongo.server_api import ServerApi
-from fpdf import FPDF
 
-load_dotenv()
-stripe.api_key = os.getenv("STRIPE_SECRET_KEY")
-
-app = FastAPI()
-
-@app.post("/create-checkout-session")
-async def create_checkout_session(request: Request):
-    try:
-        session = stripe.checkout.Session.create(
-            payment_method_types=['card', 'paypal', 'sepa_debit'],
-            line_items=[{
-                'price_data': {
-                    'currency': 'eur',
-                    'product_data': {'name': 'M&M Community Zugang'},
-                    'unit_amount': 5000,
-                },
-                'quantity': 1,
-            }],
-            mode='payment',
-            success_url='https://smatic422q22.onrender.com/erfolg',
-            cancel_url='https://smatic422q22.onrender.com/abgebrochen',
-        )
-        return {"id": session.id}
-    except Exception as e:
-        return JSONResponse(status_code=400, content={"error": str(e)})
+# ==========================================
+# APP-INITIALISIERUNG (NUR EINMAL HIER OBEN!)
+# ==========================================
+app = FastAPI() 
 
 def perform_google_search(query):
     api_key = os.getenv('GOOGLE_API_KEY')
@@ -187,8 +165,8 @@ async def handle_send_code(request: Request):
         data = await request.json()
         email = data.get('email', "").lower().strip()
         if not email or "@" not in email or "." not in email.split("@")[-1]:
-            print(f"!!! SICHERHEITSBLOCKADE: Ungültiger E-Mail-Versuch: {email} !!!")
-            return JSONResponse(content={"status": "Ungültige E-Mail-Adresse"}, status_code=400) # HIER MUSS ES EINGERÜCKT SEIN!
+         print(f"!!! SICHERHEITSBLOCKADE: Ungültiger E-Mail-Versuch: {email} !!!")
+        return JSONResponse(content={"status": "Ungültige E-Mail-Adresse"}, status_code=400)
         
         user_record = db.codes.find_one({"email": email})
         
@@ -767,7 +745,7 @@ async def update_sector(request: Request):
                 {"email": "mmcommunity22@gmail.com"},
                 {"$set": {f"sector_headers.{sector_id}": header_text}},
                 upsert=True
-        )
+            )
             return {"success": True, "message": "Text gespeichert"}
         
         # Wenn es um den Status (Blau/Gelb/Rot/Grün) geht
@@ -776,7 +754,7 @@ async def update_sector(request: Request):
                 {"email": "mmcommunity22@gmail.com"},
                 {"$set": {f"sector_statuses.{sector_id}": status}},
                 upsert=True
-        )
+            )
             return {"success": True, "message": "Status gespeichert"}
             
     except Exception as e:
@@ -796,43 +774,6 @@ async def get_sector_text(sector_id: str, email: str):
         return {"success": True, "text": "Gefühlsvorderung."}
     except Exception as e:
         return {"success": False, "message": str(e)}
-        
-@app.post("/anfrage-ticket")
-async def handle_ticket_anfrage(request: Request):
-    try:
-        data = await request.json()
-        user_email = data.get('email', "").lower().strip()
-        sektor_id = str(data.get('sector_id'))
-        
-        user = db.codes.find_one({"email": user_email})
-        if not user:
-            return JSONResponse(content={"status": "User nicht gefunden"}, status_code=404)
-        
-        # Das ist der Link, den du zum Testen in Version 2 brauchst:
-        aktivierungs_link = f"https://smatic422q22.onrender.com/aktiviere-sektor?email={user_email}&sektor={sektor_id}"
-        
-        # Wir übergeben den Link an deinen funktionierenden Kanal:
-        success = send_verification_email(user_email, aktivierungs_link)
-        
-        if success:
-            return {"status": "erfolgreich", "message": "Test-E-Mail mit Link wurde gesendet."}
-        else:
-            return {"status": "fehler", "message": "Versand fehlgeschlagen."}
-        
-    except Exception as e:
-        print(f"Fehler bei Ticket-Anfrage: {e}")
-        return JSONResponse(content={"status": "Fehler"}, status_code=500)
-        
-@app.get("/aktiviere-sektor")
-async def aktiviere_sektor(email: str, sektor: str):
-    try:
-        db.codes.update_one(
-            {"email": email.lower().strip()}, 
-            {"$set": {f"sector_statuses.{sektor}": "secure"}}
-        )
-        return HTMLResponse(content="<h1>Sektor erfolgreich aktiviert!</h1><p>Du kannst nun zurück zum Dashboard gehen.</p>")
-    except Exception as e:
-        return FileResponse("zahlungs_gateway.html")
         
 if __name__ == "__main__":
     import uvicorn
