@@ -814,25 +814,6 @@ async def aktiviere_sektor(email: str, sektor: str):
         return HTMLResponse(content="<h1>Sektor erfolgreich aktiviert!</h1><p>Du kannst nun zurück zum Dashboard gehen.</p>")
     except Exception as e:
         return HTMLResponse(content=f"<h1>Fehler bei Aktivierung: {e}</h1>")  
-        
-@app.post("/create-checkout-session")
-async def create_checkout_session(request: Request):
-    session = stripe.checkout.Session.create(
-        payment_method_types=['card', 'paypal', 'sepa_debit'],
-        line_items=[{
-            'price_data': {
-                'currency': 'eur',
-                'product_data': {'name': 'M&M Community Zugang'},
-                'unit_amount': 5000,
-            },
-            'quantity': 1,
-        }],
-        mode='payment',
-        success_url='https://smatic422q22.onrender.com/erfolg',
-        cancel_url='https://smatic422q22.onrender.com/abgebrochen',
-    )
-    return {"id": session.id}        
-
                 
 if __name__ == "__main__":
     import uvicorn
