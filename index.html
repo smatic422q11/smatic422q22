@@ -683,9 +683,15 @@ function starteChatHintergrund() {
 // Die Steuerung beim Wechseln der Ebenen
 async function wechselEbene(id, index = null) {
     if (id === 'ebene2' && index !== null) {
-        const darfReisen = await pruefeTicketStatus(index);
-        if (!darfReisen) return;
+    const darfReisen = await pruefeTicketStatus(index);
+    
+    // Prüfe hier explizit:
+    if (!darfReisen) {
+        // HIER SEHEN WIR, OB ER ÜBERHAUPT HIER ANKOMMT!
+        alert("Du hast kein gültiges Ticket für diesen Sektor. Bitte zuerst Ticket kaufen.");
+        return; 
     }
+}
 
     if (typeof chatSlideshow !== 'undefined') {
         clearInterval(chatSlideshow);
