@@ -483,7 +483,7 @@ async function waehleSektor(id) {
     }
 
     // Wechsel zur Analyse-Ebene
-    wechselEbene('ebene2', id);
+   await wechselEbene('ebene2', id); 
 }
         const adminSelect = document.getElementById('admin-sektor-auswahl'); if (adminSelect) { themen.forEach((t, i) => { adminSelect.innerHTML += `<option value="${i}">Sektor ${i+1}: ${t}</option>`; }); }
 
@@ -661,7 +661,12 @@ function starteChatHintergrund() {
 }
 
 // Die Steuerung beim Wechseln der Ebenen
-function wechselEbene(id, index = null) {
+async function wechselEbene(id, index = null) {
+    if (id === 'ebene2' && index !== null) {
+        const darfReisen = await pruefeTicketStatus(index);
+        if (!darfReisen) return;
+    }
+
     if (typeof chatSlideshow !== 'undefined') {
         clearInterval(chatSlideshow);
     }
@@ -1043,7 +1048,28 @@ async function wähleModus(gewaehlterModus) {
     } catch (e) {
         console.error("Fehler bei Modus-Wahl:", e);
     }
-}          
+}   
+async function pruefeTicketStatus(id) {
+    // Admin darf immer passieren
+    if (userEmail === "mmcommunity22@gmail.com") return true;
+
+    // Ticket-Abfrage: Hat der User ein gültiges Reise-Ticket?
+    try {
+        const response = await fetch(`/check-ticket?email=${encodeURIComponent(userEmail)}&sektor=${id}`);
+        const data = await response.json();
+
+        if (data.hasTicket) {
+            return true; // Reise darf fortgesetzt werden
+        } else {
+            // Zeige das Ticket-Fenster (das "Busticket"-Fenster)
+            oeffneTicketFenster(id);
+            return false; // Stoppt den Ebenen-Wechsel
+        }
+    } catch (e) {
+        console.error("Ticket-System nicht erreichbar");
+        return false;
+    }
+}     
  </script>
 </body>
 </html>  
