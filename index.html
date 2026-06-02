@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <title>M&M-COMMUNITY 2.0</title>
     <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script> 
-    <script src="https://js.stripe.com/v3/"></script>
     <style>
     body { background: radial-gradient(circle, #f0f7ff 0%, #a4cdfc 50%, #82b7f7 100%) !important; background-size: 150% 150% !important; animation: wolkenZug 20s ease-in-out infinite; color: #000; font-family: 'Segoe UI', Arial, sans-serif; margin: 0; padding: 0; display: flex; flex-direction: column; align-items: center; height: 100vh; overflow: hidden; }
         
@@ -18,7 +17,7 @@
         .ebene { display: none; width: 100%; flex-direction: column; align-items: center; height: 100vh; position: relative; }
         .aktiv { display: flex; }
 
-         /* EBENE 1: DASHBOARD */
+        /* EBENE 1: DASHBOARD */
         .info-section { width: 100%; height: 26vh; border-top: 2px solid #003d8f; border-bottom: 2px solid #003d8f; background-color: #000; position: relative; overflow: hidden; margin-top: 2vh; display: flex; flex-direction: column; justify-content: center; align-items: center; flex-shrink: 0; }
         .auth-container-left { position: absolute; bottom: 10px; left: 15px; display: flex; gap: 5px; align-items: center; }
         .auth-container-right { position: absolute; bottom: 10px; right: 15px; display: flex; gap: 5px; align-items: center; }
@@ -83,7 +82,7 @@
     </style>
 </head>
 <body>
-    
+
     <div class="dashboard-header">
         <div class="logo-ring" onclick="wechselEbene('ebene1')" ondblclick="versucheAdminEbene()">
             <div class="logo-mm">M&M</div>
@@ -371,31 +370,6 @@
         </button>
     </div>
 </div>
-   <div id="ticket-kauf-ebene" class="ebene" style="display: none;">
-    <div class="ticket-container">
-        <div class="ticket-header">
-            <h2>DEINE REISEVORBEREITUNG</h2>
-            <div class="divider"></div>
-            <p>Sichere dir exklusiven Zugang zu diesem Sektor durch eine persönliche Ticket-Anfrage.</p>
-        </div>
-
-        <div class="ticket-info-grid">
-            <div class="info-box">
-                <h3>Vorteile</h3>
-                <p>Erhalte Zugriff auf alle exklusiven Ressourcen, Community-Einblicke und Experten-Analysen des gewählten Sektors.</p>
-            </div>
-            <div class="info-box">
-                <h3>Verfahren</h3>
-                <p>Nach deiner Anfrage prüfen wir deine Zugangsberechtigung und senden dir zeitnah deinen persönlichen Schlüssel zu.</p>
-            </div>
-        </div>
-
-        <div class="ticket-actions">
-            <button class="action-btn-gold" onclick="ticketAnfrageSenden()">TICKET JETZT ANFORDERN</button>
-            <button class="nav-btn-secondary" onclick="wechselEbene('ebene1')">ZURÜCK ZUM DASHBOARD</button>
-        </div>
-    </div>
-</div>
     
 <div class="bottom-nav">
     <button class="nav-btn" onclick="wechselEbene('ebene1')">DASHBOARD</button>
@@ -421,7 +395,7 @@
 
  <script>
        const themen = ["Recht auf Gefühlsvorderung", "Wie werde ich Mensch", "Glaube an Friede", "Programm für Bürgerliche Rechte", "Moralische Pflicht und Verantwortung", "Menschlichkeit Wiederherstellung", "Kinderschutz-Pflicht-Elternrechte", "Wahre Richtung und Kunst", "LGBTQ und Kirche", "Trend und Tradition", "Religionsbekenntnis oder Selbstwahl", "Gesundheitswesen und Verhalten", "Arbeitswelt und Du", "Mobbing am Arbeitsplatz", "Jugendsprecher", "Ratgeber für Pensionisten", "Sozialgefallen und Widerkehr", "Nachbarschaft und Gemeinschaft", "Alleinerziehend", "Die Brücke"];
-       const seelenNamen = {"0": "Lilith", "1": "Karl", "2": "Mark", "3": "Martin", "4": "Immanuel", "5": "Fjodor", "6": "Michael", "7": "Alejandro", "8": "Nova", "9": "Alan", "10": "Gibran", "11": "Julius", "12": "Werner", "13": "Erin", "14": "Greta", "15": "Claus", "16": "Nelson", "17": "Richard", "18": "Astrid", "19": "Chiron"}
+       const seelenNamen = ["Lilith", "Aris", "Mira", "Tarik", "Kiron", "Vikas", "Rhea", "Lyra", "Nova", "Marek", "Silas", "Aura", "Joris", "Sira", "Kian", "Alma", "Laris", "Liv", "Kyra", "Chiron"];
        const grid = document.getElementById('main-grid');
        let aktuelleEbeneIdx = 1;
        let scanSlideshow;
@@ -459,27 +433,7 @@ function updateBoxFarben() {
         box.className = 'box ' + sektorZustand[i] + blinken;
     });
 }
-async function pruefeTicketStatus(id) {
-    // Admin darf immer passieren
-    if (userEmail === "mmcommunity22@gmail.com") return true;
-
-    // Ticket-Abfrage: Hat der User ein gültiges Reise-Ticket?
-    try {
-        const response = await fetch(`/check-ticket?email=${encodeURIComponent(userEmail)}&sektor=${id}`);
-        const data = await response.json();
-
-        if (data.hasTicket) {
-            return true; // Reise darf fortgesetzt werden
-        } else {
-            // Zeige das Ticket-Fenster (das "Busticket"-Fenster)
-            oeffneTicketFenster(id);
-            return false; // Stoppt den Ebenen-Wechsel
-        }
-    } catch (e) {
-        console.error("Ticket-System nicht erreichbar");
-        return false;
-    }
-}          
+     
 async function waehleSektor(id) {
     // 1. Authentifizierungs-Check
     if (userEmail === "") {
@@ -529,7 +483,7 @@ async function waehleSektor(id) {
     }
 
     // Wechsel zur Analyse-Ebene
-   await wechselEbene('ebene2', id); 
+    wechselEbene('ebene2', id);
 }
         const adminSelect = document.getElementById('admin-sektor-auswahl'); if (adminSelect) { themen.forEach((t, i) => { adminSelect.innerHTML += `<option value="${i}">Sektor ${i+1}: ${t}</option>`; }); }
 
@@ -658,33 +612,35 @@ async function starteScanOptik(themenIndex) {
     } catch (e) { adminEl.innerText = "Fehler beim Laden der Sichtweise."; }
 
     try {
+        // REPARATUR 1: POST-Methode mit der angemeldeten E-Mail im Payload senden
         const response = await fetch(`/get-live-ermittlung/${themenIndex}`, { 
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email: userEmail }) 
+            body: JSON.stringify({ email: userEmail }) // Schickt die verifizierte E-Mail ans Backend
         });
         const dataLive = await response.json();
         
+        // REPARATUR 2: Prüfen, ob Daten da sind und die Liste "widersprueche" sauber auslesen
         if (dataLive.success && dataLive.data) {
             textArea.innerHTML = ""; 
             
-            // NEUER ANSATZ: Wenn ein 'bericht' Feld da ist, nimm es. 
-            // Wenn nicht, schau nach dem alten 'lagebericht' oder zeig alles als Text.
-            if (dataLive.data.bericht) {
-                textArea.innerHTML = `<div style="color:#000; font-weight:600;">${dataLive.data.bericht}</div>`;
-            } else if (dataLive.data.lagebericht) {
-                // FALLBACK: Wenn das JSON noch alte Struktur hat
-                const liste = dataLive.data.widersprueche || [];
+            // Holt das strukturierte Widerspruchs-Array aus dem Datenobjekt
+            const liste = dataLive.data.widersprueche || [];
+            
+            if (liste.length > 0) {
                 liste.forEach(zeile => {
-                    textArea.innerHTML += `<div style="margin-bottom:12px; border-left: 3px solid #003d8f; padding-left: 10px; color:#000; font-weight:600;">${zeile}</div>`;
+                    textArea.innerHTML += `<div style="margin-bottom:12px; border-left: 3px solid #003d8f; padding-left: 10px; color:#000000; font-weight:600;">${zeile}</div>`;
                 });
-                textArea.innerHTML += `<hr style="border:1px solid #003d8f; margin:20px 0;"><div style="color:#555;"><b>Analyse:</b> ${dataLive.data.lagebericht}</div>`;
             } else {
-                // FALLBACK: Alles andere direkt als Text anzeigen, falls es kein JSON ist
-                textArea.innerHTML = `<div style="color:#000;">${JSON.stringify(dataLive.data)}</div>`;
+                textArea.innerHTML = "Keine Live-Widersprüche im Sektor gefunden.";
+            }
+            
+            // Optionale Zusatzanzeige der anderen Felder im Log oder Textbereich
+            if (dataLive.data.lagebericht) {
+                textArea.innerHTML += `<hr style="border:1px solid #003d8f; margin:20px 0;"><div style="color:#555;"><b>Lagebericht:</b> ${dataLive.data.lagebericht}</div>`;
             }
         } else {
-            textArea.innerHTML = "Keine Daten im Sektor gefunden.";
+            textArea.innerHTML = "Keine Live-Widersprüche im Sektor gefunden.";
         }
     } catch (e) { 
         console.error("Scanner-Fehler:", e);
@@ -705,31 +661,9 @@ function starteChatHintergrund() {
     ebene3.style.backgroundImage = "none"; 
     ebene3.style.background = "transparent !important"; 
 }
-// Die Steuerung beim Wechseln der Ebenen
-async function wechselEbene(id, index = null) {
-    // 1. ZWISCHENSTOPP-CHECK
-    if (id === 'ebene2' && index !== null) {
-        const darfReisen = await pruefeTicketStatus(index);
-        if (!darfReisen) {
-            document.querySelectorAll('.ebene').forEach(e => e.classList.remove('aktiv'));
-            document.getElementById('ticket-kauf-ebene').style.display = 'flex'; 
-            document.getElementById('ticket-kauf-ebene').classList.add('aktiv');
-            document.querySelector('.bottom-nav').style.display = 'none';
-            return; 
-        }
-    }
-    
-    // HIER IST DER FIX: 
-    // Wir stellen sicher, dass das Ticket-Fenster bei jedem Ebenen-Wechsel weg ist.
-    document.getElementById('ticket-kauf-ebene').style.display = 'none';
-    document.getElementById('ticket-kauf-ebene').classList.remove('aktiv');
-    
-    // FIX: NAV-LEISTE WIEDER EINBLENDEN (Das hat gefehlt!)
-    if (id !== 'ticket-kauf-ebene') {
-        document.querySelector('.bottom-nav').style.display = 'flex';
-    }
 
-    // ... der Rest deines Codes bleibt exakt gleich ...
+// Die Steuerung beim Wechseln der Ebenen
+function wechselEbene(id, index = null) {
     if (typeof chatSlideshow !== 'undefined') {
         clearInterval(chatSlideshow);
     }
@@ -898,7 +832,24 @@ async function requestManifestPerEmail() {
         btn.disabled = false;
     }
 }
-                    
+          
+async function handleAnkerSetzen() {
+    const emailInput = document.getElementById('db-mail').value.trim();
+    if (!emailInput) return alert("Bitte eine E-Mail eingeben.");
+
+    try {
+        const response = await fetch('/send-code', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: emailInput })
+        });
+        const data = await response.json();
+        alert(data.message); 
+    } catch (e) {
+        alert("Server-Verbindung fehlgeschlagen.");
+    }
+}
+          
 async function handleAnkerSetzen() {
     const emailInput = document.getElementById('db-mail').value.trim();
     if (!emailInput) return alert("Bitte eine E-Mail eingeben.");
@@ -1111,26 +1062,7 @@ async function wähleModus(gewaehlterModus) {
     } catch (e) {
         console.error("Fehler bei Modus-Wahl:", e);
     }
-}   
-async function ticketAnfrageSenden() {
-    // Hier deinen "Public Key" aus dem Stripe-Dashboard eintragen (fängt mit pk_... an)
-    const stripe = Stripe('pk_live_DEIN_PUBLIC_KEY'); 
-    
-    // 1. Dein Server erstellt bei Stripe eine "Checkout-Session"
-    const response = await fetch('/create-checkout-session', { 
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-            email: userEmail, 
-            sektor: aktuelleSektorId 
-        })
-    });
-    
-    const session = await response.json();
-    
-    // 2. Stripe öffnet den Tunnel, damit der User dort zahlt
-    stripe.redirectToCheckout({ sessionId: session.id });
-}
+}     
  </script>
 </body>
 </html>  
