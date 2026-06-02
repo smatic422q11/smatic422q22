@@ -17,7 +17,7 @@
         .ebene { display: none; width: 100%; flex-direction: column; align-items: center; height: 100vh; position: relative; }
         .aktiv { display: flex; }
 
-         /* EBENE 1: DASHBOARD */
+        /* EBENE 1: DASHBOARD */
         .info-section { width: 100%; height: 26vh; border-top: 2px solid #003d8f; border-bottom: 2px solid #003d8f; background-color: #000; position: relative; overflow: hidden; margin-top: 2vh; display: flex; flex-direction: column; justify-content: center; align-items: center; flex-shrink: 0; }
         .auth-container-left { position: absolute; bottom: 10px; left: 15px; display: flex; gap: 5px; align-items: center; }
         .auth-container-right { position: absolute; bottom: 10px; right: 15px; display: flex; gap: 5px; align-items: center; }
@@ -82,7 +82,7 @@
     </style>
 </head>
 <body>
-    
+
     <div class="dashboard-header">
         <div class="logo-ring" onclick="wechselEbene('ebene1')" ondblclick="versucheAdminEbene()">
             <div class="logo-mm">M&M</div>
@@ -395,7 +395,7 @@
 
  <script>
        const themen = ["Recht auf Gefühlsvorderung", "Wie werde ich Mensch", "Glaube an Friede", "Programm für Bürgerliche Rechte", "Moralische Pflicht und Verantwortung", "Menschlichkeit Wiederherstellung", "Kinderschutz-Pflicht-Elternrechte", "Wahre Richtung und Kunst", "LGBTQ und Kirche", "Trend und Tradition", "Religionsbekenntnis oder Selbstwahl", "Gesundheitswesen und Verhalten", "Arbeitswelt und Du", "Mobbing am Arbeitsplatz", "Jugendsprecher", "Ratgeber für Pensionisten", "Sozialgefallen und Widerkehr", "Nachbarschaft und Gemeinschaft", "Alleinerziehend", "Die Brücke"];
-       const seelenNamen = {"0": "Lilith", "1": "Karl", "2": "Mark", "3": "Martin", "4": "Immanuel", "5": "Fjodor", "6": "Michael", "7": "Alejandro", "8": "Nova", "9": "Alan", "10": "Gibran", "11": "Julius", "12": "Werner", "13": "Erin", "14": "Greta", "15": "Claus", "16": "Nelson", "17": "Richard", "18": "Astrid", "19": "Chiron"}
+       const seelenNamen = ["Lilith", "Aris", "Mira", "Tarik", "Kiron", "Vikas", "Rhea", "Lyra", "Nova", "Marek", "Silas", "Aura", "Joris", "Sira", "Kian", "Alma", "Laris", "Liv", "Kyra", "Chiron"];
        const grid = document.getElementById('main-grid');
        let aktuelleEbeneIdx = 1;
        let scanSlideshow;
@@ -433,7 +433,8 @@ function updateBoxFarben() {
         box.className = 'box ' + sektorZustand[i] + blinken;
     });
 }
-    async function waehleSektor(id) {
+     
+async function waehleSektor(id) {
     // 1. Authentifizierungs-Check
     if (userEmail === "") {
         alert("Zugriff verweigert! Bitte zuerst Anker setzen und verifizieren.");
@@ -483,7 +484,7 @@ function updateBoxFarben() {
 
     // Wechsel zur Analyse-Ebene
     wechselEbene('ebene2', id);
-}  
+}
         const adminSelect = document.getElementById('admin-sektor-auswahl'); if (adminSelect) { themen.forEach((t, i) => { adminSelect.innerHTML += `<option value="${i}">Sektor ${i+1}: ${t}</option>`; }); }
 
 function waehleSpezialSektor(id) {
@@ -611,33 +612,35 @@ async function starteScanOptik(themenIndex) {
     } catch (e) { adminEl.innerText = "Fehler beim Laden der Sichtweise."; }
 
     try {
+        // REPARATUR 1: POST-Methode mit der angemeldeten E-Mail im Payload senden
         const response = await fetch(`/get-live-ermittlung/${themenIndex}`, { 
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email: userEmail }) 
+            body: JSON.stringify({ email: userEmail }) // Schickt die verifizierte E-Mail ans Backend
         });
         const dataLive = await response.json();
         
+        // REPARATUR 2: Prüfen, ob Daten da sind und die Liste "widersprueche" sauber auslesen
         if (dataLive.success && dataLive.data) {
             textArea.innerHTML = ""; 
             
-            // NEUER ANSATZ: Wenn ein 'bericht' Feld da ist, nimm es. 
-            // Wenn nicht, schau nach dem alten 'lagebericht' oder zeig alles als Text.
-            if (dataLive.data.bericht) {
-                textArea.innerHTML = `<div style="color:#000; font-weight:600;">${dataLive.data.bericht}</div>`;
-            } else if (dataLive.data.lagebericht) {
-                // FALLBACK: Wenn das JSON noch alte Struktur hat
-                const liste = dataLive.data.widersprueche || [];
+            // Holt das strukturierte Widerspruchs-Array aus dem Datenobjekt
+            const liste = dataLive.data.widersprueche || [];
+            
+            if (liste.length > 0) {
                 liste.forEach(zeile => {
-                    textArea.innerHTML += `<div style="margin-bottom:12px; border-left: 3px solid #003d8f; padding-left: 10px; color:#000; font-weight:600;">${zeile}</div>`;
+                    textArea.innerHTML += `<div style="margin-bottom:12px; border-left: 3px solid #003d8f; padding-left: 10px; color:#000000; font-weight:600;">${zeile}</div>`;
                 });
-                textArea.innerHTML += `<hr style="border:1px solid #003d8f; margin:20px 0;"><div style="color:#555;"><b>Analyse:</b> ${dataLive.data.lagebericht}</div>`;
             } else {
-                // FALLBACK: Alles andere direkt als Text anzeigen, falls es kein JSON ist
-                textArea.innerHTML = `<div style="color:#000;">${JSON.stringify(dataLive.data)}</div>`;
+                textArea.innerHTML = "Keine Live-Widersprüche im Sektor gefunden.";
+            }
+            
+            // Optionale Zusatzanzeige der anderen Felder im Log oder Textbereich
+            if (dataLive.data.lagebericht) {
+                textArea.innerHTML += `<hr style="border:1px solid #003d8f; margin:20px 0;"><div style="color:#555;"><b>Lagebericht:</b> ${dataLive.data.lagebericht}</div>`;
             }
         } else {
-            textArea.innerHTML = "Keine Daten im Sektor gefunden.";
+            textArea.innerHTML = "Keine Live-Widersprüche im Sektor gefunden.";
         }
     } catch (e) { 
         console.error("Scanner-Fehler:", e);
@@ -829,7 +832,24 @@ async function requestManifestPerEmail() {
         btn.disabled = false;
     }
 }
-                    
+          
+async function handleAnkerSetzen() {
+    const emailInput = document.getElementById('db-mail').value.trim();
+    if (!emailInput) return alert("Bitte eine E-Mail eingeben.");
+
+    try {
+        const response = await fetch('/send-code', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: emailInput })
+        });
+        const data = await response.json();
+        alert(data.message); 
+    } catch (e) {
+        alert("Server-Verbindung fehlgeschlagen.");
+    }
+}
+          
 async function handleAnkerSetzen() {
     const emailInput = document.getElementById('db-mail').value.trim();
     if (!emailInput) return alert("Bitte eine E-Mail eingeben.");
@@ -1027,23 +1047,9 @@ function updateSpezialSektorenStatus() {
     document.getElementById('btn-ebene4-zugang').style.display = 'inline-block';
     alert("Willkommen im Kollektiv! Ebene 4 wurde soeben freigeschaltet.");
 }  
-async function wähleModus(gewaehlterModus) {
-    try {
-        const response = await fetch('/update-modus', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email: userEmail, modus: gewaehlterModus })
-        });
-        
-        if (response.ok) {
-            // Schublade ausblenden
-            document.getElementById('schublade').style.display = 'none';
-        }
-    } catch (e) {
-        console.error("Fehler bei Modus-Wahl:", e);
-    }
-} 
  </script>
 </body>
 </html>  
+
+
 
