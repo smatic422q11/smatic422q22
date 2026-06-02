@@ -745,7 +745,7 @@ async def update_sector(request: Request):
                 {"email": "mmcommunity22@gmail.com"},
                 {"$set": {f"sector_headers.{sector_id}": header_text}},
                 upsert=True
-            )
+        )
             return {"success": True, "message": "Text gespeichert"}
         
         # Wenn es um den Status (Blau/Gelb/Rot/Grün) geht
@@ -754,7 +754,7 @@ async def update_sector(request: Request):
                 {"email": "mmcommunity22@gmail.com"},
                 {"$set": {f"sector_statuses.{sector_id}": status}},
                 upsert=True
-            )
+        )
             return {"success": True, "message": "Status gespeichert"}
             
     except Exception as e:
@@ -776,8 +776,8 @@ async def get_sector_text(sector_id: str, email: str):
         return {"success": False, "message": str(e)}
         
  @app.post("/anfrage-ticket")
-async def handle_ticket_anfrage(request: Request):
-    try:
+ async def handle_ticket_anfrage(request: Request):
+        try:
         data = await request.json()
         user_email = data.get('email', "").lower().strip()
         sektor_id = str(data.get('sector_id'))
@@ -804,9 +804,9 @@ async def handle_ticket_anfrage(request: Request):
         print(f"Fehler bei Ticket-Anfrage: {e}")
         return JSONResponse(content={"status": "Fehler"}, status_code=500)
 
-@app.get("/aktiviere-sektor")
-async def aktiviere_sektor(email: str, sektor: str):
-    try:
+ @app.get("/aktiviere-sektor")
+ async def aktiviere_sektor(email: str, sektor: str):
+        try:
         # Hier wird der Sektor für den User in der DB auf 'secure' gesetzt
         db.codes.update_one(
             {"email": email.lower().strip()}, 
