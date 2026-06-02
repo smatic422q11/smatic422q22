@@ -1,30 +1,31 @@
-import os  
+import os
 import re
 import json
 import requests
-import random  # <--- HIER ERGÄNZT
-import certifi # <--- HIER ERGÄNZT
+import random
+import certifi
 import stripe
-from datetime import datetime
-from fastapi import FastAPI, Request
-from fastapi.responses import JSONResponse, StreamingResponse, FileResponse, HTMLResponse 
-from fastapi.middleware.cors import CORSMiddleware # <--- HIER ERGÄNZT
-from pymongo import MongoClient
-from pymongo.server_api import ServerApi # <--- HIER ERGÄNZT
-from fastapi.responses import StreamingResponse
 import base64
-from fpdf import FPDF
-from io import BytesIO
 import smtplib
+from datetime import datetime
+from io import BytesIO
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.mime.base import MIMEBase
 from email import encoders
+from dotenv import load_dotenv
 
-# ==========================================
-# APP-INITIALISIERUNG (NUR EINMAL HIER OBEN!)
-# ==========================================
-app = FastAPI() 
+from fastapi import FastAPI, Request
+from fastapi.responses import JSONResponse, StreamingResponse, FileResponse, HTMLResponse
+from fastapi.middleware.cors import CORSMiddleware
+from pymongo import MongoClient
+from pymongo.server_api import ServerApi
+from fpdf import FPDF
+
+load_dotenv()
+stripe.api_key = os.getenv("STRIPE_SECRET_KEY")
+
+app = FastAPI()
 
 def perform_google_search(query):
     api_key = os.getenv('GOOGLE_API_KEY')
