@@ -7,3 +7,5 @@ dnspython
 certifi
 requests
 fpdf
+stripe
+python-dotenv
