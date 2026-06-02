@@ -682,16 +682,16 @@ function starteChatHintergrund() {
 
 // Die Steuerung beim Wechseln der Ebenen
 async function wechselEbene(id, index = null) {
+    // DER NEUE ZWISCHENSTOPP-CHECK
     if (id === 'ebene2' && index !== null) {
-    const darfReisen = await pruefeTicketStatus(index);
-    
-    // Prüfe hier explizit:
-    if (!darfReisen) {
-        // HIER SEHEN WIR, OB ER ÜBERHAUPT HIER ANKOMMT!
-        alert("Du hast kein gültiges Ticket für diesen Sektor. Bitte zuerst Ticket kaufen.");
-        return; 
+        const darfReisen = await pruefeTicketStatus(index);
+        if (!darfReisen) {
+            // Wir wechseln NICHT zu 'ebene2', sondern zu einer 'ticket-kauf-ebene'
+            document.querySelectorAll('.ebene').forEach(e => e.classList.remove('aktiv'));
+            document.getElementById('ticket-kauf-ebene').style.display = 'block'; // Oder .classList.add('aktiv')
+            return; // Hier stoppen wir den Scan-Start
+        }
     }
-}
 
     if (typeof chatSlideshow !== 'undefined') {
         clearInterval(chatSlideshow);
