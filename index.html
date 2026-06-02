@@ -694,28 +694,46 @@ function starteChatHintergrund() {
 
 // Die Steuerung beim Wechseln der Ebenen
 async function wechselEbene(id, index = null) {
-    // DER NEUE ZWISCHENSTOPP-CHECK
+    // 1. ZWISCHENSTOPP-CHECK
     if (id === 'ebene2' && index !== null) {
         const darfReisen = await pruefeTicketStatus(index);
         if (!darfReisen) {
-            // Wir wechseln NICHT zu 'ebene2', sondern zu einer 'ticket-kauf-ebene'
-            document.querySelectorAll('.ebene').forEach(e => e.classList.remove('aktiv'));
-            document.getElementById('ticket-kauf-ebene').style.display = 'block'; // Oder .classList.add('aktiv')
-            return; // Hier stoppen wir den Scan-Start
+            document.querySelectorAll('.ebene').forEach(e => {
+                e.classList.remove('aktiv');
+                e.style.display = 'none';
+            });
+            document.getElementById('ticket-kauf-ebene').style.display = 'flex'; 
+            document.getElementById('ticket-kauf-ebene').classList.add('aktiv');
+            document.querySelector('.bottom-nav').style.display = 'none';
+            return; 
         }
     }
-        const navBar = document.querySelector('.bottom-nav');
-        if (id === 'ticket-kauf-ebene') {
-        navBar.style.display = 'none'; 
-    }   else {
-        navBar.style.display = 'flex'; // Überall sonst ist sie da
-    }
-    if (typeof chatSlideshow !== 'undefined') {
-        clearInterval(chatSlideshow);
+
+    // 2. CLEANUP & RESET
+    // Dies löscht alle aktiven Zustände und setzt das Display zurück, 
+    // damit das Dashboard (Ebene 1) beim Rücksprung nicht gequetscht wird.
+    document.querySelectorAll('.ebene').forEach(e => {
+        e.classList.remove('aktiv');
+        e.style.display = 'none'; 
+    });
+
+    // 3. ZIEL-EBENE ZEIGEN
+    const target = document.getElementById(id);
+    if (target) {
+        target.style.display = 'flex';
+        target.classList.add('aktiv');
     }
 
-    document.querySelectorAll('.ebene').forEach(e => e.classList.remove('aktiv'));
-    document.getElementById(id).classList.add('aktiv');
+    // 4. NAV-LEISTE KORREKT STEUERN (Nur noch einmal vorhanden)
+    const navBar = document.querySelector('.bottom-nav');
+    if (id === 'ticket-kauf-ebene') {
+        navBar.style.display = 'none'; 
+    } else {
+        navBar.style.display = 'flex';
+    }
+
+    // 5. ZUSATZ-LOGIK
+    if (typeof chatSlideshow !== 'undefined') clearInterval(chatSlideshow);
     if (id === 'admin_ebene') { ladeNeueAdminStats(); }
 
     if (id === 'ebene2' && index !== null) {
@@ -728,7 +746,7 @@ async function wechselEbene(id, index = null) {
 
     document.getElementById('legal-links').style.visibility = (id === 'ebene1') ? 'visible' : 'hidden';
 
-    // Navigations-Code für weiter-nav etc.
+    // 6. NAVIGATION WEITER-BUTTON
     if(id === 'ebene1') {
         aktuelleEbeneIdx = 1;
         document.getElementById('weiter-nav').style.display = 'none';
