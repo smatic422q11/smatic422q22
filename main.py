@@ -471,7 +471,6 @@ async def chat(request: Request):
         messages_for_gemini = user_record.get("sector_histories", {}).get(sector_id, []) if user_record else []
         if not messages_for_gemini:
             system_instruction += f" HINWEIS: Das ist dein ERSTER Kontakt mit {user_name} in diesem Sektor. Nenne seinen Namen!"
-                                  f"IDENTITÄT: Du bist {current_name}, Seele: {current_soul}. "
                                   f"KOLLEKTIVES WISSEN: Das gesamte 20-Seelen-Kollektiv arbeitet für {user_name}. "
                                   f"DEIN GEGENÜBER: Der User ist {user_name}. " 
                                   f"AUFGABE: Wenn dies dein erster kontakt in diesem Sektor ist, BEGRÜSSE {user_name} UNBEDINGT mit seinem Namen. "
