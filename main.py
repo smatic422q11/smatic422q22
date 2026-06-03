@@ -89,6 +89,14 @@ except Exception as e:
     print(f"Verbindungsfehler: {e}")
 
 db = client['mm-community']
+def versiegelung_durch_ki(thema, inhalt):
+    # Diese Funktion wird von den Chat-Sektoren aufgerufen
+    db.mm_wissensarchiv.update_one(
+        {"thema": thema},
+        {"$set": {"inhalt": inhalt, "versiegelt": True}},
+        upsert=True
+    )
+    return f"Box '{thema}' wurde erfolgreich im Kern versiegelt."
 
 # 2. MIDDLEWARE-EINSTELLUNGEN
 app.add_middleware(
