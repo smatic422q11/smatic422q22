@@ -569,6 +569,19 @@ async def get_live_ermittlung(sector_id: str, request: Request):
         user_record = db.codes.find_one({"email": email})
         user_name = user_record.get("name") if user_record and user_record.get("name") else email.split('@')[0].capitalize()
         
+        # Historie abrufen
+        chat_historie = user_record.get("sector_histories", {}).get(sector_id, [])
+        
+        # --- KORREKTE EINRÜCKUNG (AUFGABE 1) ---
+        if not chat_historie:
+            return {
+                "success": True, 
+                "data": {
+                    "EXTRAKTION": {"Info": "Willkommensphase"},
+                    "BEURTEILUNG": {"Resonanz": "Neuankömmling"},
+                    "KOLLEKTIV_BOTSCHAFT": "Willkommen, Reisender. Du hast den ersten Schritt gewagt. Hier beginnt deine Reise – nimm dir die Zeit anzukommen."
+          }
+        }
         if sector_id == "0":
             such_anfrage = "Psychische Überlastung Gesellschaft OR Emotionale Kälte Einsamkeit aktuell"
         elif sector_id == "1":
