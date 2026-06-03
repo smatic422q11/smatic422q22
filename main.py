@@ -786,19 +786,26 @@ async def handle_ticket_anfrage(request: Request):
 @app.get("/aktiviere-sektor")
 async def aktiviere_sektor(email: str, sektor: str):
     try:
-        # Sektor aktivieren
+        # Status hart auf secure setzen
         db.codes.update_one(
             {"email": email.lower().strip()}, 
             {"$set": {f"sector_statuses.{sektor}": "secure"}}
         )
 
-        # SCHALTER-LOGIK
-        if KAUF_MODUS_AKTIV:
-            # Wenn Schalter AN, zeige Gateway
-            return FileResponse("zahlungs_gateway.html")
+        # DIREKTE UMGEHUNG
+        if not KAUF_MODUS_AKTIV:
+            # Wir leiten direkt auf das Dashboard weiter, 
+            # das System sieht 'secure' in der DB und wird dich NICHT mehr blockieren.
+            return HTMLResponse(content=f"""
+                <h1>Sektor {sektor} für Test freigeschaltet!</h1>
+                <p>Du wirst in 2 Sekunden zum Sektor weitergeleitet...</p>
+                <script>
+                    setTimeout(() => {{ window.location.href = '/dashboard'; }}, 2000);
+                </script>
+            """)
         else:
-            # Wenn Schalter AUS, fließe direkt durch
-            return HTMLResponse(content="<h1>Sektor erfolgreich aktiviert!</h1><p>Du kannst nun zurück zum Dashboard gehen.</p>")
+            # Nur wenn der Modus AUF 'Kauf' steht, zeigen wir das Gateway
+            return FileResponse("zahlungs_gateway.html")
             
     except Exception as e:
         return {"status": "error", "message": str(e)}
