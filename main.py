@@ -24,6 +24,8 @@ from fpdf import FPDF
 load_dotenv()
 stripe.api_key = os.getenv("STRIPE_SECRET_KEY")
 
+KAUF_MODUS_AKTIV = False
+
 app = FastAPI()
 
 @app.post("/create-checkout-session")
