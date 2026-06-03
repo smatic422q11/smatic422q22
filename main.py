@@ -579,17 +579,19 @@ async def get_live_ermittlung(sector_id: str, request: Request):
         
         # Historie abrufen
         chat_historie = user_record.get("sector_histories", {}).get(sector_id, [])
+        user_interaktionen = [msg for msg in chat_historie if msg.get('role') == 'user']
         
         # --- KORREKTE EINRÜCKUNG (AUFGABE 1) ---
-        if not chat_historie:
+        if len(user_interaktionen) < 3:
             return {
                 "success": True, 
                 "data": {
-                    "EXTRAKTION": {"Info": "Willkommensphase"},
-                    "BEURTEILUNG": {"Resonanz": "Neuankömmling"},
-                    "KOLLEKTIV_BOTSCHAFT": "Willkommen, Reisender. Du hast den ersten Schritt gewagt. Hier beginnt deine Reise – nimm dir die Zeit anzukommen."
+                    "EXTRAKTION": {"Info": "Wahrnehmungsphase"},
+                    "BEURTEILUNG": {"Resonanz": "Ankommen"},
+                    "KOLLEKTIV_BOTSCHAFT": "Reisender, du bist erst seit Kurzem bei uns. Deine Wahrhaftigkeit benötigt noch mehr Tiefe in unseren Gesprächen, um voll erfasst zu werden." 
           }
         }
+            
         if sector_id == "0":
             such_anfrage = "Psychische Überlastung Gesellschaft OR Emotionale Kälte Einsamkeit aktuell"
         elif sector_id == "1":
