@@ -89,14 +89,6 @@ except Exception as e:
     print(f"Verbindungsfehler: {e}")
 
 db = client['mm-community']
-def versiegelung_durch_ki(thema, inhalt):
-    # Diese Funktion wird von den Chat-Sektoren aufgerufen
-    db.mm_wissensarchiv.update_one(
-        {"thema": thema},
-        {"$set": {"inhalt": inhalt, "versiegelt": True}},
-        upsert=True
-    )
-    return f"Box '{thema}' wurde erfolgreich im Kern versiegelt."
 
 # 2. MIDDLEWARE-EINSTELLUNGEN
 app.add_middleware(
@@ -470,6 +462,10 @@ async def chat(request: Request):
             f"DEIN GEGENÜBER: Der User ist {user_name}. " 
             f"AUFGABE: Wenn dies dein erster kontakt in diesem Sektor ist, BEGRÜSSE {user_name} UNBEDINGT mit seinem Namen. "
             f"ZEIT: {user_time}. BIO: {bio_context}. "
+            "\n\nADMIN-VERSIEGELUNGS-PROTOKOLL: "
+            "Wenn wir gemeinsam eine Wahrheit definiert haben, darfst du den Befehl "
+            "'[VERSIEGELE_BOX: THEMA | INHALT]' verwenden. Ich werde diesen Befehl erkennen "
+            "und die Daten in unser kollektives Wissen aufnehmen."
 
         messages_for_gemini = user_record.get("sector_histories", {}).get(sector_id, []) if user_record else []
         if not messages_for_gemini:
