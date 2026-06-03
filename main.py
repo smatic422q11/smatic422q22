@@ -21,7 +21,6 @@ from pymongo import MongoClient
 from pymongo.server_api import ServerApi
 from fpdf import FPDF
 
-TICKET_SYSTEM_AKTIV = False
 load_dotenv()
 stripe.api_key = os.getenv("STRIPE_SECRET_KEY")
 
@@ -186,11 +185,7 @@ async def get_user_status(email: str):
 async def handle_send_code(request: Request):
     try:
         data = await request.json()
-        email = data.get('email', "").lower().strip()
-        if not email or "@" not in email or "." not in email.split("@")[-1]:
-            print(f"!!! SICHERHEITSBLOCKADE: Ungültiger E-Mail-Versuch: {email} !!!")
-            return JSONResponse(content={"status": "Ungültige E-Mail-Adresse"}, status_code=400) # HIER MUSS ES EINGERÜCKT SEIN!
-        
+        email = data.get('email', "").lower().strip()    
         user_record = db.codes.find_one({"email": email})
         
         if user_record:
