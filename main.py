@@ -784,13 +784,22 @@ async def handle_ticket_anfrage(request: Request):
 @app.get("/aktiviere-sektor")
 async def aktiviere_sektor(email: str, sektor: str):
     try:
+        # Sektor aktivieren
         db.codes.update_one(
             {"email": email.lower().strip()}, 
             {"$set": {f"sector_statuses.{sektor}": "secure"}}
         )
-        return HTMLResponse(content="<h1>Sektor erfolgreich aktiviert!</h1><p>Du kannst nun zurück zum Dashboard gehen.</p>")
+
+        # SCHALTER-LOGIK
+        if KAUF_MODUS_AKTIV:
+            # Wenn Schalter AN, zeige Gateway
+            return FileResponse("zahlungs_gateway.html")
+        else:
+            # Wenn Schalter AUS, fließe direkt durch
+            return HTMLResponse(content="<h1>Sektor erfolgreich aktiviert!</h1><p>Du kannst nun zurück zum Dashboard gehen.</p>")
+            
     except Exception as e:
-        return FileResponse("zahlungs_gateway.html")
+        return {"status": "error", "message": str(e)}
         
 if __name__ == "__main__":
     import uvicorn
