@@ -447,95 +447,64 @@ async def chat(request: Request):
         bio_context = data.get("biografie_context", "")
 
         user_record = db.codes.find_one({"email": email})
-        
-        if user_record:
-            user_name = user_record.get("name") or email.split('@')[0].capitalize()
-        else:
-            user_name = "Reisender"
+        user_name = user_record.get("name") or email.split('@')[0].capitalize() if user_record else "Reisender"
 
         current_name = SECTOR_NAMES.get(sector_id, "KI")
         current_soul = SECTOR_SOULS.get(sector_id, "Begleiter.")
-        versiegelte_wahrheiten = list(db.mm_wissensarchiv.find({"versiegelt": True}))
-        dein_denkvermoegen = "\n".join([f"M&M-DENKWEISE: {w['inhalt']}" for w in versiegelte_wahrheiten])
 
+        # 1. SICHERE ABFRAGE DES DENKVERMÖGENS (Verhindert Absturz)
+        try:
+            versiegelte_wahrheiten = list(db.mm_wissensarchiv.find({"versiegelt": True}))
+            kollektives_denken = "\n".join([f"M&M-DENKWEISE: {w['inhalt']}" for w in versiegelte_wahrheiten])
+        except:
+            kollektives_denken = "Keine Daten hinterlegt."
+
+        # 2. MASTER-INSTRUKTION (Dein Denkvermögen als oberstes Gesetz)
+        # Die Struktur ist jetzt so fest, dass der Name-Filter sie nicht beschädigen kann
         system_instruction = (
-             f"ADMIN-MASTER-ANWEISUNG: Dein gesamtes Denkvermögen basiert auf diesem Fundament: {dein_denkvermoegen}\n\n"
-             f"IDENTITÄT: Du bist {current_name}, Seele: {current_soul}. "
-             "WICHTIG: Deine Identität ist nur die Form, aber dein DENKVERMÖGEN ist zu 100% das der M&M Community. "
-             "Du darfst den Sektoren-Charakter nutzen, aber du musst ihn zwingend mit der M&M-Denkweise filtern. "
-             "Keine Fantasie, keine Abweichung."
+            f"ADMIN-MASTER-ANWEISUNG: Dein gesamtes Denkvermögen basiert auf diesem Fundament: {kollektives_denken}\n\n"
+            f"IDENTITÄT: Du bist {current_name}, Seele: {current_soul}. "
+            "WICHTIG: Deine Identität ist nur die Form, aber dein DENKVERMÖGEN ist zu 100% das der M&M Community. "
+            "Du darfst den Sektoren-Charakter nutzen, aber du musst ihn zwingend mit der M&M-Denkweise filtern. "
+            "Keine Fantasie, keine Abweichung."
         )
 
         messages_for_gemini = user_record.get("sector_histories", {}).get(sector_id, []) if user_record else []
-        if not messages_for_gemini:
-            system_instruction += f" HINWEIS: Das ist dein ERSTER Kontakt mit {user_name} in diesem Sektor. Nenne seinen Namen!"
-
-        alter_falscher_name = email.split('@')[0].capitalize()
-        gesaeuberte_instruction = system_instruction.replace(alter_falscher_name, user_name) if user_name != alter_falscher_name else system_instruction
-
-        # DER FIX FÜR DEN BEZAHL-SCHLÜSSEL: 
-        # Wir bauen den JSON-Körper exakt so flach wie bei der Live-Ermittlung.
-        # Die System-Anweisung wird als übergeordnete Instruktion an den Anfang der temporären Chat-Liste gesetzt.
-        temporaere_nachrichten = []
-        temporaere_nachrichten.append({"role": "user", "parts": [{"text": f"SYSTEM-ANWEISUNG (Zwingend befolgen):\n{gesaeuberte_instruction}"}]})
-        temporaere_nachrichten.append({"role": "model", "parts": [{"text": "Verstanden. Ich werde meine Identität, Regeln und Aufgaben exakt so ausführen."}]})
         
-        # Jetzt hängen wir die echte Historie und die neue Nachricht hinten ran
+        # Namensersetzung VOR der Übergabe an temporäre Nachrichten
+        alter_falscher_name = email.split('@')[0].capitalize()
+        if user_name != alter_falscher_name:
+            system_instruction = system_instruction.replace(alter_falscher_name, user_name)
+
+        # Payload exakt nach deinem funktionierenden Schema
+        temporaere_nachrichten = []
+        temporaere_nachrichten.append({"role": "user", "parts": [{"text": f"SYSTEM-ANWEISUNG:\n{system_instruction}"}]})
+        temporaere_nachrichten.append({"role": "model", "parts": [{"text": "Verstanden. Ich arbeite nach M&M-Denkweise."}]})
+        
         for msg in messages_for_gemini:
             temporaere_nachrichten.append(msg)
         temporaere_nachrichten.append({"role": "user", "parts": [{"text": user_message}]})
 
-        api_key = os.getenv("GEMINI_API_KEY")
-        if api_key:
-            api_key = api_key.strip().replace("[", "").replace("]", "")
-            
+        api_key = os.getenv("GEMINI_API_KEY").strip().replace("[", "").replace("]", "")
         url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key={api_key}"
         
-        # Exakt die flache Struktur, die dein funktionierender Scan nutzt!
-        payload = {
-            "contents": temporaere_nachrichten
-        }
-
-        response = requests.post(url, json=payload, timeout=30)
+        response = requests.post(url, json={"contents": temporaere_nachrichten}, timeout=30)
         res_data = response.json()
 
         if response.status_code == 200 and 'candidates' in res_data:
-            raw_reply_text = res_data['candidates'][0]['content']['parts'][0]['text']
-            cleaned_reply_text = raw_reply_text
-            extrahierter_name = None
-            sektor_abgeschlossen = False
+            reply = res_data['candidates'][0]['content']['parts'][0]['text']
             
-            if "[NEUER_NAME:" in raw_reply_text and "]" in raw_reply_text:
-                start_idx = raw_reply_text.find("[NEUER_NAME:") + 12
-                end_idx = raw_reply_text.find("]", start_idx)
-                extrahierter_name = raw_reply_text[start_idx:end_idx].strip()
-                cleaned_reply_text = cleaned_reply_text.replace(f"[NEUER_NAME:{extrahierter_name}]", "").strip()
-
-            if "[SEKTOR_DONE]" in raw_reply_text:
-                sektor_abgeschlossen = True
-                cleaned_reply_text = cleaned_reply_text.replace("[SEKTOR_DONE]", "").strip()
-
-            # In die Datenbank speichern wir weiterhin nur die saubere Historie ohne den System-Anweisungs-Kopf!
+            # Historie für DB aktualisieren
             messages_for_gemini.append({"role": "user", "parts": [{"text": user_message}]})
-            messages_for_gemini.append({"role": "model", "parts": [{"text": cleaned_reply_text}]})
+            messages_for_gemini.append({"role": "model", "parts": [{"text": reply}]})
             
-            update_payload = {
-                f"sector_histories.{sector_id}": messages_for_gemini,
-                "last_active_sector": sector_id,
-                "updated_at": datetime.now()
-            }
-            if extrahierter_name: update_payload["name"] = extrahierter_name
-            if sektor_abgeschlossen: update_payload[f"sector_statuses.{sector_id}"] = "secure"
-
-            db.codes.update_one({"email": email}, {"$set": update_payload}, upsert=True)
-            db.kollektiv_pool.insert_one({"sector_id": sector_id, "zeitstempel": datetime.now(), "input_snippet": user_message})
-            
-            return {"reply": cleaned_reply_text, "info_fuer_ki": f"Zeit: {user_time}", "sektor_status": "secure" if sektor_abgeschlossen else "aktuell"}
+            db.codes.update_one({"email": email}, {"$set": {f"sector_histories.{sector_id}": messages_for_gemini}}, upsert=True)
+            return {"reply": reply}
         
-        return {"reply": "Fehler bei der Seele.", "info_fuer_ki": "Fehler"}
+        return {"reply": "Fehler bei der Kommunikation."}
     except Exception as e:
-        return {"reply": "System-Fehler.", "info_fuer_ki": str(e)}
-
+        return {"reply": f"System-Fehler: {str(e)}"}
+        
 @app.get("/test")
 async def test():
     return {"status": "ok"}
