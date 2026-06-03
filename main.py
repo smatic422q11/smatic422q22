@@ -450,17 +450,17 @@ async def chat(request: Request):
         current_name = SECTOR_NAMES.get(sector_id, "KI")
         current_soul = SECTOR_SOULS.get(sector_id, "Begleiter.")
 
-       try:
+        try:
             versiegelte_wahrheiten = list(db.mm_wissensarchiv.find({"versiegelt": True}).sort("_id", -1).limit(3))
             kollektives_denken = "\n".join([f"M&M-DENKWEISE: {w['inhalt']}" for w in versiegelte_wahrheiten])
         except:
             kollektives_denken = "Keine Daten hinterlegt."
-        
-        # Diese Abfrage muss IMMER laufen, nicht nur im Fehlerfall:
+
+        # Diese Abfrage läuft immer
         admin_wissen = db.mm_wissensarchiv.find_one({"sector_id": sector_id, "status": "gesetzbuch"})
         sektor_gesetz = admin_wissen.get("inhalt", "Handle nach dem Geist der M&M Community.") if admin_wissen else "Handle nach dem Geist der M&M Community."
 
-        # 2. MASTER-INSTRUKTION (Hier führen wir alles sauber zusammen)
+        # 2. MASTER-INSTRUKTION
         system_instruction = (
             f"ADMIN-MASTER-ANWEISUNG (90/10-REGEL):\n"
             f"FUNDAMENT (90%): Dein Denken ist strikt an das Kollektiv-Wissen gebunden:\n"
