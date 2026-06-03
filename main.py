@@ -21,6 +21,7 @@ from pymongo import MongoClient
 from pymongo.server_api import ServerApi
 from fpdf import FPDF
 
+TICKET_SYSTEM_AKTIV = False
 load_dotenv()
 stripe.api_key = os.getenv("STRIPE_SECRET_KEY")
 
