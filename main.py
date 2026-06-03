@@ -511,10 +511,12 @@ async def chat(request: Request):
                 "$set": {f"sector_histories.{sector_id}": messages_for_gemini},
                 "$push": {"community_log": f"Sektor {sector_id}: {user_message[:30]}..."}
             }, upsert=True)
+            
+            # HIER WAR DER FEHLER: Das return muss HIER stehen
+            return {"reply": reply}
         
-        return {"reply": "Fehler bei der Kommunikation."}
-    except Exception as e:
-        return {"reply": f"System-Fehler: {str(e)}"}
+         # Falls kein Status 200, erst hier den Fehler zurückgeben
+         return {"reply": "Fehler bei der Kommunikation mit dem KI-Dienst."}
         
 @app.get("/test")
 async def test():
