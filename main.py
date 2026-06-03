@@ -516,7 +516,7 @@ async def chat(request: Request):
             return {"reply": reply}
         
          # Falls kein Status 200, erst hier den Fehler zurückgeben
-         return {"reply": "Fehler bei der Kommunikation mit dem KI-Dienst."}
+    return {"reply": "Fehler bei der Kommunikation mit dem KI-Dienst."}
         
 @app.get("/test")
 async def test():
