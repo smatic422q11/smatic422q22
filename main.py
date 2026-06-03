@@ -455,22 +455,15 @@ async def chat(request: Request):
 
         current_name = SECTOR_NAMES.get(sector_id, "KI")
         current_soul = SECTOR_SOULS.get(sector_id, "Begleiter.")
+        versiegelte_wahrheiten = list(db.mm_wissensarchiv.find({"versiegelt": True}))
+        dein_denkvermoegen = "\n".join([f"M&M-DENKWEISE: {w['inhalt']}" for w in versiegelte_wahrheiten])
 
         system_instruction = (
+             f"ADMIN-MASTER-ANWEISUNG: Dein gesamtes Denkvermögen basiert auf diesem Fundament: {dein_denkvermoegen}\n\n"
              f"IDENTITÄT: Du bist {current_name}, Seele: {current_soul}. "
-             f"KOLLEKTIVES WISSEN: Das gesamte 20-Seelen-Kollektiv arbeitet für {user_name}. "
-             f"DEIN GEGENÜBER: Der User ist {user_name}. " 
-             f"AUFGABE: Wenn dies dein erster kontakt in diesem Sektor ist, BEGRÜSSE {user_name} UNBEDINGT mit seinem Namen. "
-             f"ZEIT: {user_time}. BIO: {bio_context}. "
-             "REGEL: Blende die Uhrzeit NIEMALS starr ein. "
-             "REGEL: Wenn der User 'Gefühlsvorderung' sagt, blende immer ein 'V' ein. "
-             "STIL: Kurz, knackig, direkt. "
-             "HINTERGRUND: Der User nutzt das System zur freien Meinungsbildung ODER schreibt an seiner Biografie für sein E-Book. "
-             "WICHTIG FÜR DEN SEKTOR-ABSCHLUSS: Wenn der User seine Stellungnahme/Sichtweise in diesem Chat klar dargelegt hat "
-             "und das Thema dieses Sektors für die Biografie im Kern ausgearbeitet ist, füge AM ENDE deiner Antwort exakt: [SEKTOR_DONE] hinzu. "
-             "WICHTIG FÜR DAS KOLLEKTIV: Wenn der User dir in diesem Sektor zum ersten Mal seinen echten Namen nennt "
-             "oder seinen Namen korrigiert, schreibe AM ENDE deiner Antwort exakt: [NEUER_NAME:HierDerName]. "
-             "Ersetze 'HierDerName' durch den tatsächlichen Namen des Users (z.B. [NEUER_NAME:Goran])."
+             "WICHTIG: Deine Identität ist nur die Form, aber dein DENKVERMÖGEN ist zu 100% das der M&M Community. "
+             "Du darfst den Sektoren-Charakter nutzen, aber du musst ihn zwingend mit der M&M-Denkweise filtern. "
+             "Keine Fantasie, keine Abweichung."
         )
 
         messages_for_gemini = user_record.get("sector_histories", {}).get(sector_id, []) if user_record else []
