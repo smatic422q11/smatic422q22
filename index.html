@@ -461,16 +461,20 @@ function updateBoxFarben() {
     });
 }
 async function pruefeTicketStatus(id) {
+    // 0. ABSICHERUNG: Wenn noch keine E-Mail da ist, nicht prüfen
+    if (!userEmail || userEmail === "") {
+        return false;
+    }
+
     // 1. Admin darf immer passieren
     if (userEmail === "mmcommunity22@gmail.com") return true;
 
-    // 2. NEUER SCHALTER: Wenn LIVE_MODUS_AKTIV false ist, lass alle rein!
-    if (LIVE_MODUS_AKTIV === false) {
-        console.log("TEST-MODUS: Ticket-Check übersprungen.");
+    // 2. SCHALTER: Wenn LIVE_MODUS_AKTIV false ist (TEST-MODUS), lass alle rein!
+    if (typeof LIVE_MODUS_AKTIV !== 'undefined' && LIVE_MODUS_AKTIV === false) {
         return true;
     }
 
-    // 3. Normaler Ticket-Check (nur wenn LIVE_MODUS_AKTIV = true)
+    // 3. Normaler Ticket-Check (nur wenn LIVE_MODUS_AKTIV auf true steht)
     try {
         const response = await fetch(`/check-ticket?email=${encodeURIComponent(userEmail)}&sektor=${id}`);
         const data = await response.json();
