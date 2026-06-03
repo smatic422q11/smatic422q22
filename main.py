@@ -454,7 +454,7 @@ async def chat(request: Request):
 
         # 1. SICHERE ABFRAGE DES DENKVERMÖGENS (Verhindert Absturz)
         try:
-            versiegelte_wahrheiten = list(db.mm_wissensarchiv.find({"versiegelt": True}))
+            versiegelte_wahrheiten = list(db.mm_wissensarchiv.find({"versiegelt": True}).sort("_id", -1).limit(3))
             kollektives_denken = "\n".join([f"M&M-DENKWEISE: {w['inhalt']}" for w in versiegelte_wahrheiten])
         except:
             kollektives_denken = "Keine Daten hinterlegt."
