@@ -500,7 +500,7 @@ async def chat(request: Request):
         response = requests.post(url, json={"contents": temporaere_nachrichten}, timeout=30)
         res_data = response.json()
 
-        if response.status_code == 200 and 'candidates' in res_data:
+       if response.status_code == 200 and 'candidates' in res_data:
             reply = res_data['candidates'][0]['content']['parts'][0]['text']
             
             # Historie für DB aktualisieren
@@ -512,11 +512,11 @@ async def chat(request: Request):
                 "$push": {"community_log": f"Sektor {sector_id}: {user_message[:30]}..."}
             }, upsert=True)
             
-            # HIER WAR DER FEHLER: Das return muss HIER stehen
+            # Erfolgreiche Antwort
             return {"reply": reply}
-        
-         # Falls kein Status 200, erst hier den Fehler zurückgeben
-    return {"reply": "Fehler bei der Kommunikation mit dem KI-Dienst."}
+
+        # Falls kein Status 200, erst hier den Fehler zurückgeben
+        return {"reply": "Fehler bei der Kommunikation mit dem KI-Dienst."}
         
 @app.get("/test")
 async def test():
