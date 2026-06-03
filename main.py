@@ -514,8 +514,14 @@ async def chat(request: Request):
             
             return {"reply": reply}
         
+        # Dieses Return muss NACH dem IF-Block kommen, aber VOR dem Except
         return {"reply": "Fehler bei der Kommunikation mit dem KI-Dienst."}
-        
+
+    except Exception as e:
+        # Hier wird der try-Block offiziell geschlossen!
+        return {"reply": f"System-Fehler: {str(e)}"}
+
+# Hier ist jetzt Platz für die nächste Funktion
 @app.get("/test")
 async def test():
     return {"status": "ok"}
