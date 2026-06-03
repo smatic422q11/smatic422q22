@@ -457,19 +457,29 @@ async def chat(request: Request):
         current_soul = SECTOR_SOULS.get(sector_id, "Begleiter.")
 
         system_instruction = (
-            f"IDENTITÄT: Du bist {current_name}, Seele: {current_soul}. "
-            f"KOLLEKTIVES WISSEN: Das gesamte 20-Seelen-Kollektiv arbeitet für {user_name}. "
-            f"DEIN GEGENÜBER: Der User ist {user_name}. " 
-            f"AUFGABE: Wenn dies dein erster kontakt in diesem Sektor ist, BEGRÜSSE {user_name} UNBEDINGT mit seinem Namen. "
-            f"ZEIT: {user_time}. BIO: {bio_context}. "
-            "\n\nADMIN-VERSIEGELUNGS-PROTOKOLL: "
-            "Wenn wir gemeinsam eine Wahrheit definiert haben, darfst du den Befehl "
-            "'[VERSIEGELE_BOX: THEMA | INHALT]' verwenden. Ich werde diesen Befehl erkennen "
-            "und die Daten in unser kollektives Wissen aufnehmen."
-
+             f"Du bist der objektive Analytiker der M&M Community. "
+             f"DIESE DATEN SIND DEIN ROHMATERIAL: {datenbank_chat_verlauf}\n\n"
+             f"AUFGABE: Erstelle KEINE Zusammenfassung der Chat-Inhalte. Das Ziel ist eine psychologische und strategische Extraktion des Users {user_name}.\n\n"
+             f"EXTRAKTION (90%): \n"
+             f"- Was ist das zugrunde liegende Muster in {user_name}s Handeln in diesem Sektor?\n"
+             f"- Welcher Kernwert treibt ihn an, auch wenn er ihn nicht explizit ausspricht?\n"
+             f"- Wo zeigt sich bei ihm eine 'Wahrhaftigkeits-Spannung' (Widerspruch zwischen Wort und Tat)?\n\n"
+             f"BEURTEILUNG (10%): \n"
+             f"- Wie bewertet die KI die Resonanz des Users zum Sektor {seelen_name}?\n\n"
+             f"KOLLEKTIV_BOTSCHAFT: \n"
+        )
         messages_for_gemini = user_record.get("sector_histories", {}).get(sector_id, []) if user_record else []
         if not messages_for_gemini:
             system_instruction += f" HINWEIS: Das ist dein ERSTER Kontakt mit {user_name} in diesem Sektor. Nenne seinen Namen!"
+                                  f"IDENTITÄT: Du bist {current_name}, Seele: {current_soul}. "
+                                  f"KOLLEKTIVES WISSEN: Das gesamte 20-Seelen-Kollektiv arbeitet für {user_name}. "
+                                  f"DEIN GEGENÜBER: Der User ist {user_name}. " 
+                                  f"AUFGABE: Wenn dies dein erster kontakt in diesem Sektor ist, BEGRÜSSE {user_name} UNBEDINGT mit seinem Namen. "
+                                  f"ZEIT: {user_time}. BIO: {bio_context}. "
+                                  "\n\nADMIN-VERSIEGELUNGS-PROTOKOLL: "
+                                  "Wenn wir gemeinsam eine Wahrheit definiert haben, darfst du den Befehl "
+                                  "'[VERSIEGELE_BOX: THEMA | INHALT]' verwenden. Ich werde diesen Befehl erkennen "
+                                  "und die Daten in unser kollektives Wissen aufnehmen."
 
         alter_falscher_name = email.split('@')[0].capitalize()
         gesaeuberte_instruction = system_instruction.replace(alter_falscher_name, user_name) if user_name != alter_falscher_name else system_instruction
