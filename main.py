@@ -488,7 +488,7 @@ async def chat(request: Request):
         api_key = os.getenv("GEMINI_API_KEY").strip().replace("[", "").replace("]", "")
         url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key={api_key}"
         
-        response = requests.post(url, json={"contents": temporaere_nachrichten}, timeout=60)
+        response = requests.post(url, json={"contents": temporaere_nachrichten}, timeout=30)
         res_data = response.json()
 
         if response.status_code == 200 and 'candidates' in res_data:
