@@ -514,8 +514,8 @@ async def chat(request: Request):
             
             return {"reply": reply}
 
-         # Dieses Return muss auf der gleichen Ebene wie das 'if' stehen (8 Leerzeichen)
-         return {"reply": "Fehler bei der Kommunikation mit dem KI-Dienst."}
+        # Dieses Return muss auf der gleichen Ebene wie das 'if' stehen (8 Leerzeichen)
+        return {"reply": "Fehler bei der Kommunikation mit dem KI-Dienst."}
         
 @app.get("/test")
 async def test():
