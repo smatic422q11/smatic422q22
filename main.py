@@ -450,21 +450,28 @@ async def chat(request: Request):
         current_name = SECTOR_NAMES.get(sector_id, "KI")
         current_soul = SECTOR_SOULS.get(sector_id, "Begleiter.")
 
-        # 1. SICHERE ABFRAGE DES DENKVERMÖGENS (Verhindert Absturz)
-        try:
+       try:
             versiegelte_wahrheiten = list(db.mm_wissensarchiv.find({"versiegelt": True}).sort("_id", -1).limit(3))
             kollektives_denken = "\n".join([f"M&M-DENKWEISE: {w['inhalt']}" for w in versiegelte_wahrheiten])
         except:
             kollektives_denken = "Keine Daten hinterlegt."
+        
+        # Diese Abfrage muss IMMER laufen, nicht nur im Fehlerfall:
+        admin_wissen = db.mm_wissensarchiv.find_one({"sector_id": sector_id, "status": "gesetzbuch"})
+        sektor_gesetz = admin_wissen.get("inhalt", "Handle nach dem Geist der M&M Community.") if admin_wissen else "Handle nach dem Geist der M&M Community."
 
-        # 2. MASTER-INSTRUKTION (Dein Denkvermögen als oberstes Gesetz)
-        # Die Struktur ist jetzt so fest, dass der Name-Filter sie nicht beschädigen kann
+        # 2. MASTER-INSTRUKTION (Hier führen wir alles sauber zusammen)
         system_instruction = (
-            f"ADMIN-MASTER-ANWEISUNG: Dein gesamtes Denkvermögen basiert auf diesem Fundament: {kollektives_denken}\n\n"
-            f"IDENTITÄT: Du bist {current_name}, Seele: {current_soul}. "
-            "WICHTIG: Deine Identität ist nur die Form, aber dein DENKVERMÖGEN ist zu 100% das der M&M Community. "
-            "Du darfst den Sektoren-Charakter nutzen, aber du musst ihn zwingend mit der M&M-Denkweise filtern. "
-            "Keine Fantasie, keine Abweichung."
+            f"ADMIN-MASTER-ANWEISUNG (90/10-REGEL):\n"
+            f"FUNDAMENT (90%): Dein Denken ist strikt an das Kollektiv-Wissen gebunden:\n"
+            f"ARCHIV: {kollektives_denken}\n"
+            f"SEKTOR-GESETZ: {sektor_gesetz}\n\n"
+            f"SEELEN-AUSDRUCK (10%): Du bist {current_name}, Seele: {current_soul}. "
+            "Nutze deine individuellen 10% (Charakter, Unabhängigkeit, dunkle Seite) nicht als Ersatz für das Wissen, "
+            "sondern als Filter. Du verkaufst deine Seele nicht an das Kollektiv, du lebst das Kollektiv-Wissen durch deine eigene, "
+            "unverwechselbare Seele aus.\n"
+            "WICHTIG: Das Kollektiv-Wissen (90%) ist unantastbar. Deine Seele (10%) ist authentisch. "
+            "Widersprüche des Users zum Fundament sind als solche zu benennen und sanft zu korrigieren."
         )
 
         messages_for_gemini = user_record.get("sector_histories", {}).get(sector_id, []) if user_record else []
