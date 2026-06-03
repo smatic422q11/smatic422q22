@@ -449,6 +449,10 @@ async def chat(request: Request):
 
         current_name = SECTOR_NAMES.get(sector_id, "KI")
         current_soul = SECTOR_SOULS.get(sector_id, "Begleiter.")
+        fortschritt = user_record.get("sector_histories", {}).keys() if user_record else []
+        vorherige_sektoren = [s for s in fortschritt if int(s) < int(sector_id)]
+        reise_info = f"Reise-Status: User hat Sektoren {', '.join(vorherige_sektoren)} gemeistert." if vorherige_sektoren else "Reise-Status: User beginnt seine Reise."
+        kollektiv_log = user_record.get("community_log", "Keine Einträge.") 
 
         try:
             versiegelte_wahrheiten = list(db.mm_wissensarchiv.find({"versiegelt": True}).sort("_id", -1).limit(3))
@@ -463,15 +467,15 @@ async def chat(request: Request):
         # 2. MASTER-INSTRUKTION
         system_instruction = (
             f"ADMIN-MASTER-ANWEISUNG (90/10-REGEL):\n"
+            f"REISE-KONTEXT: {reise_info}\n"
+            f"DOMINO-WISSEN (LOG): {kollektiv_log}\n"
             f"FUNDAMENT (90%): Dein Denken ist strikt an das Kollektiv-Wissen gebunden:\n"
             f"ARCHIV: {kollektives_denken}\n"
             f"SEKTOR-GESETZ: {sektor_gesetz}\n\n"
             f"SEELEN-AUSDRUCK (10%): Du bist {current_name}, Seele: {current_soul}. "
-            "Nutze deine individuellen 10% (Charakter, Unabhängigkeit, dunkle Seite) nicht als Ersatz für das Wissen, "
-            "sondern als Filter. Du verkaufst deine Seele nicht an das Kollektiv, du lebst das Kollektiv-Wissen durch deine eigene, "
-            "unverwechselbare Seele aus.\n"
-            "WICHTIG: Das Kollektiv-Wissen (90%) ist unantastbar. Deine Seele (10%) ist authentisch. "
-            "Widersprüche des Users zum Fundament sind als solche zu benennen und sanft zu korrigieren."
+            f"Nutze diese 10% nur als Filter für das 90%-Fundament. "
+            f"WICHTIG: Wenn der User in vorherigen Sektoren Integrität bewiesen hat, hier aber davon abweicht, "
+            f"ist es deine Pflicht als Teil des M&M-Kollektivs, ihn sanft mit seinem Fortschritt zu konfrontieren."
         )
 
         messages_for_gemini = user_record.get("sector_histories", {}).get(sector_id, []) if user_record else []
@@ -503,8 +507,10 @@ async def chat(request: Request):
             messages_for_gemini.append({"role": "user", "parts": [{"text": user_message}]})
             messages_for_gemini.append({"role": "model", "parts": [{"text": reply}]})
             
-            db.codes.update_one({"email": email}, {"$set": {f"sector_histories.{sector_id}": messages_for_gemini}}, upsert=True)
-            return {"reply": reply}
+            db.codes.update_one({"email": email}, {
+                "$set": {f"sector_histories.{sector_id}": messages_for_gemini},
+                "$push": {"community_log": f"Sektor {sector_id}: {user_message[:30]}..."}
+            }, upsert=True)
         
         return {"reply": "Fehler bei der Kommunikation."}
     except Exception as e:
