@@ -479,6 +479,34 @@ async def chat(request: Request):
         # Hier wird der try-Block offiziell geschlossen!
         return {"reply": f"System-Fehler: {str(e)}"}
 
+async def process_and_parse_input(user_message, bio_context, sector_id):
+    """Extrahiert biografische Anker und strukturiert sie als JSON."""
+    
+    prompt = f"""
+    Analysiere diesen User-Input aus Sektor {sector_id}: "{user_message}"
+    Kontext: {bio_context}
+    
+    Erstelle ein JSON mit folgenden Feldern:
+    {{"chronologie": [], "werte": [], "fakten": [], "transformation": ""}}
+    
+    Regeln:
+    1. Suche nach Wendepunkten (Chronologie).
+    2. Suche nach M&M-Werten (Menschlichkeit, Gemeinschaft).
+    3. Extrahiere Fakten (Orte, Personen).
+    4. Beschreibe die aktuelle Entwicklung (Transformation).
+    Antworte NUR als reines JSON.
+    """
+    
+    api_key = os.getenv("GEMINI_API_KEY").strip()
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key={api_key}"
+    
+    try:
+        response = requests.post(url, json={"contents": [{"parts": [{"text": prompt}]}]}, timeout=10)
+        raw_json = response.json()['candidates'][0]['content']['parts'][0]['text']
+        return json.loads(re.sub(r'^```json\s*|\s*```$', '', raw_json, flags=re.MULTILINE))
+    except:
+        return None # Fallback, falls Extraktion fehlschlägt
+
 # Hier ist jetzt Platz für die nächste Funktion
 @app.get("/test")
 async def test():
