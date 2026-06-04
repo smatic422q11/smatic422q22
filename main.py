@@ -461,23 +461,31 @@ async def chat(request: Request):
         if response.status_code == 200 and 'candidates' in res_data:
             reply = res_data['candidates'][0]['content']['parts'][0]['text']
             
-            # Historie für DB aktualisieren
+            # 1. Historie für die DB vorbereiten
             messages_for_gemini.append({"role": "user", "parts": [{"text": user_message}]})
             messages_for_gemini.append({"role": "model", "parts": [{"text": reply}]})
             
+            # 2. Historie in MongoDB speichern
             db.codes.update_one({"email": email}, {
                 "$set": {f"sector_histories.{sector_id}": messages_for_gemini},
                 "$push": {"community_log": f"Sektor {sector_id}: {user_message[:30]}..."}
             }, upsert=True)
             
+            # 3. EXTRAKTION (Hintergrund-Parsing)
+            # Wir führen dies HIER aus, bevor wir die Antwort an den User senden
+            parsed_data = await process_and_parse_input(user_message, bio_context, sector_id)
+            
+            if parsed_data:
+                db.codes.update_one(
+                    {"email": email},
+                    {"$push": {f"user_container.{sector_id}": parsed_data}}
+                )
+            
+            # 4. EINZIGES RETURN
             return {"reply": reply}
         
-        # Dieses Return muss NACH dem IF-Block kommen, aber VOR dem Except
+        # Falls Statuscode nicht 200
         return {"reply": "Fehler bei der Kommunikation mit dem KI-Dienst."}
-
-    except Exception as e:
-        # Hier wird der try-Block offiziell geschlossen!
-        return {"reply": f"System-Fehler: {str(e)}"}
 
 async def process_and_parse_input(user_message, bio_context, sector_id):
     """Extrahiert biografische Anker und strukturiert sie als JSON."""
