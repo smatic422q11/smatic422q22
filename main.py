@@ -669,6 +669,23 @@ async def get_live_ermittlung(sector_id: str, request: Request):
     except Exception as e:
         return {"success": True, "data": {"widersprueche": [f"Fehler: {str(e)}"]}}
         
+ def generate_biography_text(user_container):
+    """Führt alle Sektor-Daten zu einer narrativen Biografie zusammen."""
+    biografie = "DEIN MANIFEST DER WAHRHAFTIGKEIT\n\n"
+    
+    # Wir iterieren durch die Sektoren (0-19)
+    for i in range(20):
+        sektor_id = str(i)
+        if sektor_id in user_container:
+            sektor_daten = user_container[sektor_id] # Liste von JSON-Extraktionen
+            biografie += f"\n--- Sektor {sektor_id} ---\n"
+            for eintrag in sektor_daten:
+                biografie += f"Erkenntnis: {eintrag.get('transformation', 'Transformation erfahren.')}\n"
+                biografie += f"Werte: {', '.join(eintrag.get('werte', []))}\n\n"
+    
+    biografie += "\n\nZERTIFIKAT DER WAHRHAFTIGKEIT: Der Reisende hat seine Reise vollendet."
+    return biografie       
+        
 @app.post("/generate-and-send-pdf")
 async def generate_and_send_pdf(request: Request):
     try:
@@ -679,20 +696,21 @@ async def generate_and_send_pdf(request: Request):
         if not user_record:
             return JSONResponse(content={"message": "User nicht gefunden"}, status_code=404)
 
-        # PDF im RAM generieren
+        # 1. Biografie aus den gespeicherten Ankern generieren
+        user_container = user_record.get("user_container", {})
+        bio_text = generate_biography_text(user_container)
+        
+        # 2. PDF Generierung im RAM
         pdf = FPDF()
         pdf.add_page()
-        pdf.set_font("Arial", 'B', 16)
-        pdf.cell(200, 10, txt="DEIN PERSOENLICHES MANIFEST", ln=True, align='C')
-        pdf.ln(10)
         pdf.set_font("Arial", size=12)
-        bio_text = user_record.get("biografie", "Keine Biografie hinterlegt.")
-        pdf.multi_cell(0, 10, txt=str(bio_text).encode('latin-1', 'replace').decode('latin-1'))
+        pdf.multi_cell(0, 10, txt=bio_text.encode('latin-1', 'replace').decode('latin-1'))
         
+        # 3. WICHTIG: PDF in Base64 umwandeln (das hat gefehlt)
         pdf_bytes = pdf.output(dest='S').encode('latin-1')
         encoded_pdf = base64.b64encode(pdf_bytes).decode()
         
-        # Versand auslösen
+        # 4. Versand auslösen
         success = send_email_with_attachment(
             to_email=email,
             subject="Dein M&M Community Manifest",
@@ -705,6 +723,7 @@ async def generate_and_send_pdf(request: Request):
             return JSONResponse(content={"message": "Das Manifest wurde per E-Mail versendet."})
         else:
             return JSONResponse(content={"message": "Versand fehlgeschlagen"}, status_code=500)
+            
     except Exception as e:
         return JSONResponse(content={"message": str(e)}, status_code=500)
         
