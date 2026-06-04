@@ -669,22 +669,21 @@ async def get_live_ermittlung(sector_id: str, request: Request):
     except Exception as e:
         return {"success": True, "data": {"widersprueche": [f"Fehler: {str(e)}"]}}
         
- def generate_biography_text(user_container):
+def generate_biography_text(user_container):
     """Führt alle Sektor-Daten zu einer narrativen Biografie zusammen."""
     biografie = "DEIN MANIFEST DER WAHRHAFTIGKEIT\n\n"
     
-    # Wir iterieren durch die Sektoren (0-19)
     for i in range(20):
         sektor_id = str(i)
         if sektor_id in user_container:
-            sektor_daten = user_container[sektor_id] # Liste von JSON-Extraktionen
+            sektor_daten = user_container[sektor_id]
             biografie += f"\n--- Sektor {sektor_id} ---\n"
             for eintrag in sektor_daten:
                 biografie += f"Erkenntnis: {eintrag.get('transformation', 'Transformation erfahren.')}\n"
                 biografie += f"Werte: {', '.join(eintrag.get('werte', []))}\n\n"
     
     biografie += "\n\nZERTIFIKAT DER WAHRHAFTIGKEIT: Der Reisende hat seine Reise vollendet."
-    return biografie       
+    return biografie
         
 @app.post("/generate-and-send-pdf")
 async def generate_and_send_pdf(request: Request):
