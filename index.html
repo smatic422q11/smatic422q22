@@ -792,29 +792,6 @@ async function wechselEbene(id, index = null) {
         }
     }
 }); 
-
-async function checkSektor21Gate() {
-    // 1. Status vom Server holen (wir erweitern den Status-Check)
-    const response = await fetch(`/get-user-status?email=${encodeURIComponent(userEmail)}`);
-    const data = await response.json();
-    
-    // Status in der globalen Variable speichern
-    manifestClaimed = data.manifest_claimed || false;
-    
-    const sektor21Btn = document.querySelector('.sektor-special[onclick*="ebene21"]');
-    
-    if (manifestClaimed) {
-        // RESET-LOGIK: Sperre für immer
-        sektor21Btn.style.display = 'none'; 
-        return;
-    }
-
-    // Blink-Animation, wenn Sektoren fertig (Grün)
-    const alleGruen = sektorZustand.slice(0, 20).every(s => s === 'erledigt_gruen');
-    if (alleGruen) {
-        sektor21Btn.classList.add('blink-animation');
-        sektor21Btn.style.opacity = '1';
-    }          
      
 function versucheEbene4Oeffnen() {
     // 1. Prüfen, ob Abo in der Datenbank aktiv ist (dieser Status kommt beim Login via data.fortschritt)
