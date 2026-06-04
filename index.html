@@ -287,9 +287,9 @@
         </div>
 
         <!-- Der mächtige Erfolgs-Button (Exakte Spiegelung in der Breite zu S22) -->
-        <button id="btn-manifest-claim" class="action-btn" 
-    style="width: 100%; background: linear-gradient(90deg, #00ffcc 0%, #008b8b 100%); color: #000; font-weight: 900; font-size: 1.25rem; padding: 16px; border: 1px solid #00ffcc; letter-spacing: 2px; text-transform: uppercase; cursor: pointer; box-shadow: 0 5px 20px rgba(0, 255, 210, 0.4); border-radius: 4px;" 
-    onclick="handleManifestTrigger(this)">
+        <button class="action-btn" 
+        style="width: 100%; background: linear-gradient(90deg, #00ffcc 0%, #008b8b 100%); color: #000; font-weight: 900; font-size: 1.25rem; padding: 16px; border: 1px solid #00ffcc; letter-spacing: 2px; text-transform: uppercase; cursor: pointer; box-shadow: 0 5px 20px rgba(0, 255, 210, 0.4); border-radius: 4px;" 
+        onclick="generiereBiografiePDF()">
     Mein digitales Manifest versiegeln & Biografie als PDF anfordern
 </button>
     </div>
@@ -651,21 +651,6 @@ function openLegal(fileName) {
             area.innerHTML = "<span style='color:red;'>Fehler: Text konnte nicht geladen werden.</span>";
         }
     }
-}
-function handleManifestTrigger(btn) {
-    // 1. Prüfen, ob alle 20 Sektoren fertig sind (dein 'sektorZustand'-Array)
-    const alleGruen = sektorZustand.slice(0, 20).every(s => s === 'erledigt_gruen');
-    
-    if (!alleGruen) {
-        alert("Das Tor öffnet sich erst, wenn alle 20 Sektoren der Reise 'GRÜN' markiert sind.");
-        return;
-    }
-
-    // 2. Single-Use: Button sofort unsichtbar machen
-    btn.style.display = 'none'; 
-    
-    // 3. PDF-Generierung auslösen
-    generiereBiografiePDF();
 }
      
 // EBENE 2: Der "Himmel" für deine Texte (Blaues Leuchten)
