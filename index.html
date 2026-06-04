@@ -424,6 +424,7 @@
        const themen = ["Recht auf Gefühlsvorderung", "Wie werde ich Mensch", "Glaube an Friede", "Programm für Bürgerliche Rechte", "Moralische Pflicht und Verantwortung", "Menschlichkeit Wiederherstellung", "Kinderschutz-Pflicht-Elternrechte", "Wahre Richtung und Kunst", "LGBTQ und Kirche", "Trend und Tradition", "Religionsbekenntnis oder Selbstwahl", "Gesundheitswesen und Verhalten", "Arbeitswelt und Du", "Mobbing am Arbeitsplatz", "Jugendsprecher", "Ratgeber für Pensionisten", "Sozialgefallen und Widerkehr", "Nachbarschaft und Gemeinschaft", "Alleinerziehend", "Die Brücke"];
        const seelenNamen = {"0": "Lilith", "1": "Karl", "2": "Mark", "3": "Martin", "4": "Immanuel", "5": "Fjodor", "6": "Michael", "7": "Alejandro", "8": "Nova", "9": "Alan", "10": "Gibran", "11": "Julius", "12": "Werner", "13": "Erin", "14": "Greta", "15": "Claus", "16": "Nelson", "17": "Richard", "18": "Astrid", "19": "Chiron"}
        const grid = document.getElementById('main-grid');
+       let manifestClaimed = false; // Initialer Status
        let aktuelleEbeneIdx = 1;
        let scanSlideshow;
        let userEmail = ""; 
@@ -431,7 +432,7 @@
        let alleSektorenVerlaeufe = {};
        let globaleBiografieDaten = "";
        let sektorZustand = new Array(22).fill('gesperrt');
-       let manifestClaimed = false; // Initialer Status
+       
      
        themen.forEach((t, i) => {
     grid.innerHTML += `
@@ -1144,28 +1145,6 @@ async function ticketAnfrageSenden() {
     // 2. Stripe öffnet den Tunnel, damit der User dort zahlt
     stripe.redirectToCheckout({ sessionId: session.id });
 }
-async function checkSektor21Gate() {
-    // 1. Status vom Server holen (wir erweitern den Status-Check)
-    const response = await fetch(`/get-user-status?email=${encodeURIComponent(userEmail)}`);
-    const data = await response.json();
-    
-    // Status in der globalen Variable speichern
-    manifestClaimed = data.manifest_claimed || false;
-    
-    const sektor21Btn = document.querySelector('.sektor-special[onclick*="ebene21"]');
-    
-    if (manifestClaimed) {
-        // RESET-LOGIK: Sperre für immer
-        sektor21Btn.style.display = 'none'; 
-        return;
-    }
-
-    // Blink-Animation, wenn Sektoren fertig (Grün)
-    const alleGruen = sektorZustand.slice(0, 20).every(s => s === 'erledigt_gruen');
-    if (alleGruen) {
-        sektor21Btn.classList.add('blink-animation');
-        sektor21Btn.style.opacity = '1';
-    }     
  </script>
 </body>
 </html>  
