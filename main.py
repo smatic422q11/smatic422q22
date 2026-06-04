@@ -487,7 +487,7 @@ async def chat(request: Request):
         # Falls Statuscode nicht 200
         return {"reply": "Fehler bei der Kommunikation mit dem KI-Dienst."}
         
-
+# HIER MUSS ALLES NACH LINKS EINGERÜCKT SEIN (keine Leerzeichen davor!)              
 async def process_and_parse_input(user_message, bio_context, sector_id):
     """Extrahiert biografische Anker und strukturiert sie als JSON."""
     
