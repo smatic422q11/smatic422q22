@@ -424,7 +424,6 @@
        const themen = ["Recht auf Gefühlsvorderung", "Wie werde ich Mensch", "Glaube an Friede", "Programm für Bürgerliche Rechte", "Moralische Pflicht und Verantwortung", "Menschlichkeit Wiederherstellung", "Kinderschutz-Pflicht-Elternrechte", "Wahre Richtung und Kunst", "LGBTQ und Kirche", "Trend und Tradition", "Religionsbekenntnis oder Selbstwahl", "Gesundheitswesen und Verhalten", "Arbeitswelt und Du", "Mobbing am Arbeitsplatz", "Jugendsprecher", "Ratgeber für Pensionisten", "Sozialgefallen und Widerkehr", "Nachbarschaft und Gemeinschaft", "Alleinerziehend", "Die Brücke"];
        const seelenNamen = {"0": "Lilith", "1": "Karl", "2": "Mark", "3": "Martin", "4": "Immanuel", "5": "Fjodor", "6": "Michael", "7": "Alejandro", "8": "Nova", "9": "Alan", "10": "Gibran", "11": "Julius", "12": "Werner", "13": "Erin", "14": "Greta", "15": "Claus", "16": "Nelson", "17": "Richard", "18": "Astrid", "19": "Chiron"}
        const grid = document.getElementById('main-grid');
-       let manifestClaimed = false; // Initialer Status
        let aktuelleEbeneIdx = 1;
        let scanSlideshow;
        let userEmail = ""; 
@@ -432,7 +431,6 @@
        let alleSektorenVerlaeufe = {};
        let globaleBiografieDaten = "";
        let sektorZustand = new Array(22).fill('gesperrt');
-       
      
        themen.forEach((t, i) => {
     grid.innerHTML += `
@@ -565,8 +563,7 @@ function waehleSpezialSektor(id) {
 
     // 4. Prozess-Freigabe
     wechselEbene(id);
-}   
-     
+}     
         // 2. Funktion für die Rechtliche Texte
 function openLegal(fileName) {
     const area = document.getElementById('legal-content-area'); 
@@ -857,31 +854,29 @@ async function adminSetzeSektorStatus() {
 }    
 async function generiereBiografiePDF() {
     if(!userEmail) return alert("Bitte erst verifizieren!");
-    if(manifestClaimed) return alert("Manifest wurde bereits abgerufen."); // Schutz
 
     const btn = event.currentTarget;
+    const originalText = btn.innerText;
+    btn.innerText = "VERSENDE MANIFEST...";
     btn.disabled = true;
-    btn.innerText = "VERSIEGELE MANIFEST...";
 
     try {
-        // Hier rufen wir jetzt DEINEN neuen Backend-Endpunkt auf
-        const response = await fetch('/claim-manifest', {
+        const response = await fetch('/generate-and-send-pdf', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email: userEmail })
         });
 
         const data = await response.json();
-        if (data.success) {
-            manifestClaimed = true; // Flag im Frontend setzen
-            alert("Erfolg: Dein Manifest wurde versiegelt und versendet.");
-            // Button sofort ausblenden
-            document.querySelector('.sektor-special[onclick*="ebene21"]').style.display = 'none';
+        if (response.ok) {
+            alert("Erfolg: Das Manifest wurde an deine E-Mail-Adresse versendet.");
         } else {
-            alert(data.message);
+            alert("System-Fehler: " + data.message);
         }
     } catch (e) {
-        alert("Verbindungsfehler.");
+        alert("Netzwerkfehler: Verbindung zum Server unterbrochen.");
+    } finally {
+        btn.innerText = originalText;
         btn.disabled = false;
     }
 }
