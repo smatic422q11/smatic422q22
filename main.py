@@ -461,36 +461,36 @@ async def chat(request: Request):
         if response.status_code == 200 and 'candidates' in res_data:
             reply = res_data['candidates'][0]['content']['parts'][0]['text']
             
-            # 1. Historie für die DB vorbereiten
+            # Historie vorbereiten und in MongoDB speichern
             messages_for_gemini.append({"role": "user", "parts": [{"text": user_message}]})
             messages_for_gemini.append({"role": "model", "parts": [{"text": reply}]})
             
-            # 2. Historie in MongoDB speichern
             db.codes.update_one({"email": email}, {
                 "$set": {f"sector_histories.{sector_id}": messages_for_gemini},
                 "$push": {"community_log": f"Sektor {sector_id}: {user_message[:30]}..."}
             }, upsert=True)
             
-            # 3. EXTRAKTION (Hintergrund-Parsing)
-            # Wir führen dies HIER aus, bevor wir die Antwort an den User senden
+            # Hintergrund-Parsing
             parsed_data = await process_and_parse_input(user_message, bio_context, sector_id)
-            
             if parsed_data:
                 db.codes.update_one(
                     {"email": email},
                     {"$push": {f"user_container.{sector_id}": parsed_data}}
                 )
             
-            # 4. EINZIGES RETURN
             return {"reply": reply}
         
-        # Falls Statuscode nicht 200
         return {"reply": "Fehler bei der Kommunikation mit dem KI-Dienst."}
-        
-# HIER MUSS ALLES NACH LINKS EINGERÜCKT SEIN (keine Leerzeichen davor!)              
+
+    except Exception as e:
+        # Dies schließt den TRY-Block der CHAT-Funktion sicher ab!
+        return {"reply": f"System-Fehler: {str(e)}"}
+
+# DIESE LEERZEILE IST WICHTIG
+# Ab hier beginnt die neue Funktion völlig unabhängig
+
 async def process_and_parse_input(user_message, bio_context, sector_id):
     """Extrahiert biografische Anker und strukturiert sie als JSON."""
-    
     prompt = f"""
     Analysiere diesen User-Input aus Sektor {sector_id}: "{user_message}"
     Kontext: {bio_context}
@@ -499,10 +499,10 @@ async def process_and_parse_input(user_message, bio_context, sector_id):
     {{"chronologie": [], "werte": [], "fakten": [], "transformation": ""}}
     
     Regeln:
-    1. Suche nach Wendepunkten (Chronologie).
-    2. Suche nach M&M-Werten (Menschlichkeit, Gemeinschaft).
-    3. Extrahiere Fakten (Orte, Personen).
-    4. Beschreibe die aktuelle Entwicklung (Transformation).
+    1. Suche nach Wendepunkten.
+    2. Suche nach M&M-Werten.
+    3. Extrahiere Fakten.
+    4. Beschreibe Entwicklung.
     Antworte NUR als reines JSON.
     """
     
@@ -514,8 +514,8 @@ async def process_and_parse_input(user_message, bio_context, sector_id):
         raw_json = response.json()['candidates'][0]['content']['parts'][0]['text']
         return json.loads(re.sub(r'^```json\s*|\s*```$', '', raw_json, flags=re.MULTILINE))
     except:
-        return None # Fallback, falls Extraktion fehlschlägt
-
+        return None
+        
 # Hier ist jetzt Platz für die nächste Funktion
 @app.get("/test")
 async def test():
