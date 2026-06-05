@@ -490,13 +490,12 @@ async def chat(request: Request):
             
             # 4. Antwort an den User senden
             return {"reply": reply}
-            
-# 2. AB HIER BEGINNEN DIE NEUEN FUNKTIONEN (AUẞERHALB VON CHAT!)
+
+
+# --- NEUE FUNKTIONEN (AUẞERHALB DER CHAT-LOGIK) ---
 
 async def analyze_integrity(user_message, sector_id):
-    """
-    Der Katalysator-Monitor: Erkennt den Funken der Unabhängigkeit.
-    """
+    """Der Katalysator-Monitor: Erkennt den Funken der Unabhängigkeit."""
     prompt = f"""
     Analysiere diesen User-Input aus Sektor {sector_id}: "{user_message}"
     Bewerte diesen Text auf einer Skala von 0-10:
@@ -514,7 +513,7 @@ async def analyze_integrity(user_message, sector_id):
         return json.loads(re.sub(r'^```json\s*|\s*```$', '', raw_json, flags=re.MULTILINE))
     except:
         return {"score": 0, "reason": "Analyse fehlgeschlagen"}
-
+        
 async def process_and_parse_input(user_message, bio_context, sector_id):
     """Extrahiert biografische Anker und strukturiert sie als JSON."""
     prompt = f"""
