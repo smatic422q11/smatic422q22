@@ -489,6 +489,28 @@ async def chat(request: Request):
 # DIESE LEERZEILE IST WICHTIG
 # Ab hier beginnt die neue Funktion völlig unabhängig
 
+async def analyze_integrity(user_message, sector_id):
+    """
+    Der Katalysator-Monitor: Erkennt den Funken der Unabhängigkeit.
+    """
+    prompt = f"""
+    Analysiere diesen User-Input aus Sektor {sector_id}: "{user_message}"
+    Bewerte diesen Text auf einer Skala von 0-10:
+    0 = Vollständige Anpassung (konform, systemhörig, flach)
+    10 = Höchste Unabhängigkeit (eigenständiges Denken, echte innere Überzeugung)
+    
+    Antworte NUR als reines JSON im Format: {{"score": X, "reason": "kurze Begründung"}}
+    """
+    api_key = os.getenv("GEMINI_API_KEY").strip()
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key={api_key}"
+    
+    try:
+        response = requests.post(url, json={"contents": [{"parts": [{"text": prompt}]}]}, timeout=10)
+        raw_json = response.json()['candidates'][0]['content']['parts'][0]['text']
+        return json.loads(re.sub(r'^```json\s*|\s*```$', '', raw_json, flags=re.MULTILINE))
+    except:
+        return {"score": 0, "reason": "Analyse fehlgeschlagen"}
+
 async def process_and_parse_input(user_message, bio_context, sector_id):
     """Extrahiert biografische Anker und strukturiert sie als JSON."""
     prompt = f"""
