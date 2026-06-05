@@ -490,9 +490,8 @@ async def chat(request: Request):
             
             # 4. Antwort an den User senden
             return {"reply": reply}
-
-# DIESE LEERZEILE IST WICHTIG
-# Ab hier beginnt die neue Funktion völlig unabhängig
+            
+# 2. AB HIER BEGINNEN DIE NEUEN FUNKTIONEN (AUẞERHALB VON CHAT!)
 
 async def analyze_integrity(user_message, sector_id):
     """
