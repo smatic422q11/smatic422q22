@@ -461,7 +461,7 @@ async def chat(request: Request):
         if response.status_code == 200 and 'candidates' in res_data:
             reply = res_data['candidates'][0]['content']['parts'][0]['text']
             
-            # Historie vorbereiten und in MongoDB speichern
+            # 1. Historie vorbereiten und in MongoDB speichern
             messages_for_gemini.append({"role": "user", "parts": [{"text": user_message}]})
             messages_for_gemini.append({"role": "model", "parts": [{"text": reply}]})
             
@@ -470,7 +470,17 @@ async def chat(request: Request):
                 "$push": {"community_log": f"Sektor {sector_id}: {user_message[:30]}..."}
             }, upsert=True)
             
-            # Hintergrund-Parsing
+            # 2. KATALYSATOR-MONITOR (Geist im Code)
+            integrity = await analyze_integrity(user_message, sector_id)
+            if integrity and integrity.get('score', 0) >= 7:
+                db.codes.update_one(
+                    {"email": email},
+                    {"$inc": {"transformation_index": 1}}
+                )
+            else:
+                print(f"!!! Katalysator erkennt Anpassung: Score {integrity.get('score')} !!!")
+
+            # 3. HINTERGRUND-PARSING (Biografische Anker)
             parsed_data = await process_and_parse_input(user_message, bio_context, sector_id)
             if parsed_data:
                 db.codes.update_one(
@@ -478,13 +488,8 @@ async def chat(request: Request):
                     {"$push": {f"user_container.{sector_id}": parsed_data}}
                 )
             
+            # 4. Antwort an den User senden
             return {"reply": reply}
-        
-        return {"reply": "Fehler bei der Kommunikation mit dem KI-Dienst."}
-
-    except Exception as e:
-        # Dies schließt den TRY-Block der CHAT-Funktion sicher ab!
-        return {"reply": f"System-Fehler: {str(e)}"}
 
 # DIESE LEERZEILE IST WICHTIG
 # Ab hier beginnt die neue Funktion völlig unabhängig
