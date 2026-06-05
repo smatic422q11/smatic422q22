@@ -470,7 +470,7 @@ async def chat(request: Request):
                 "$push": {"community_log": f"Sektor {sector_id}: {user_message[:30]}..."}
             }, upsert=True)
             
-            # 2. KATALYSATOR-MONITOR (Geist im Code)
+            # 2. KATALYSATOR-MONITOR
             integrity = await analyze_integrity(user_message, sector_id)
             if integrity and integrity.get('score', 0) >= 7:
                 db.codes.update_one(
@@ -478,9 +478,9 @@ async def chat(request: Request):
                     {"$inc": {"transformation_index": 1}}
                 )
             else:
-                print(f"!!! Katalysator erkennt Anpassung: Score {integrity.get('score')} !!!")
+                print(f"!!! Katalysator erkennt Anpassung: Score {integrity.get('score', 'N/A')} !!!")
 
-            # 3. HINTERGRUND-PARSING (Biografische Anker)
+            # 3. HINTERGRUND-PARSING
             parsed_data = await process_and_parse_input(user_message, bio_context, sector_id)
             if parsed_data:
                 db.codes.update_one(
