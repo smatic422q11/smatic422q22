@@ -491,8 +491,13 @@ async def chat(request: Request):
             # 4. Antwort an den User senden
             return {"reply": reply}
 
+        return {"reply": "Fehler bei der Kommunikation mit dem KI-Dienst."}
 
-# --- NEUE FUNKTIONEN (AUẞERHALB DER CHAT-LOGIK) ---
+    except Exception as e:
+        # HIER WIRD DER TRY-BLOCK SAUBER GESCHLOSSEN
+        return {"reply": f"System-Fehler: {str(e)}"}
+
+# --- AB HIER SIND DIE FUNKTIONEN GLOBAL (AUẞERHALB VON CHAT) ---
 
 async def analyze_integrity(user_message, sector_id):
     """Der Katalysator-Monitor: Erkennt den Funken der Unabhängigkeit."""
