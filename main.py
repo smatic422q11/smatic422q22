@@ -415,10 +415,8 @@ async def chat(request: Request):
         except:
             kollektives_denken = "Keine Daten hinterlegt."
 
-        kollektiv_gesetz = db.mm_wissensarchiv.find_one({"status": "kollektiv_gesetz"})
-        sektor_gesetz = admin_wissen.get("inhalt", "Handle nach dem Geist der M&M Community.") if admin_wissen else "Handle nach dem Geist der M&M Community."
-        erfahrungs_schatz = list(db.mm_wissensarchiv.find({"typ": "gemeinsame_erfahrung"}).sort("_id", -1).limit(5))
-        gedaechtnis_der_seele = "\n".join([f"ERFAHRUNG: {e['inhalt']}" for e in erfahrungs_schatz])
+            admin_wissen_raw = db.mm_wissensarchiv.find_one({"status": "admin_master"}) # Oder wie dein Schlüssel heißt
+            sektor_gesetz = admin_wissen_raw.get("inhalt", "Handle nach dem Geist der M&M Community.") if admin_wissen_raw else "Handle nach dem Geist der M&M Community."
 
         system_instruction = (
             f"ADMIN-MASTER-ANWEISUNG (90/10-REGEL):\n"
