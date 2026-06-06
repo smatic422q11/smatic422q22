@@ -252,7 +252,7 @@ async def process_and_parse_input(user_message, bio_context, sector_id):
     Kontext: {bio_context}
     
     Erstelle ein JSON mit folgenden Feldern:
-    {{"chronologie": [], "werte": [], "fakten": [], "transformation": [], "reinigung": [], "downloads": {{"projekt_idee": "", "struktur_entwurf": ""}},  
+    {{"chronologie": [], "werte": [], "fakten": [], "transformation": ""}}
     
     Regeln:
     1. Suche nach Wendepunkten.
@@ -394,14 +394,6 @@ async def handle_chat_wahrheit(request: Request):
 @app.post("/chat")
 async def chat(request: Request):
     try:
-        # Initialisierung - Sicherheitsanker für sektor_gesetz
-        sektor_gesetz = "Handle nach dem Geist der M&M Community."
-        
-        # Datenbank-Abfrage für das Gesetz
-        admin_wissen_raw = db.mm_wissensarchiv.find_one({"status": "admin_master"})
-        if admin_wissen_raw:
-            sektor_gesetz = admin_wissen_raw.get("inhalt", sektor_gesetz)
-
         data = await request.json()
         user_message = data.get("message", "")
         sector_id = str(data.get("sector_id", "0"))
@@ -423,24 +415,20 @@ async def chat(request: Request):
         except:
             kollektives_denken = "Keine Daten hinterlegt."
 
-        erfahrungs_schatz = list(db.mm_wissensarchiv.find({"typ": "gemeinsame_erfahrung"}).sort("_id", -1).limit(5))
-        gedaechtnis_der_seele = "\n".join([f"ERFAHRUNG: {e['inhalt']}" for e in erfahrungs_schatz])
+        admin_wissen = db.mm_wissensarchiv.find_one({"sector_id": sector_id, "status": "gesetzbuch"})
+        sektor_gesetz = admin_wissen.get("inhalt", "Handle nach dem Geist der M&M Community.") if admin_wissen else "Handle nach dem Geist der M&M Community."
 
         system_instruction = (
             f"ADMIN-MASTER-ANWEISUNG (90/10-REGEL):\n"
-            f"GLOBALE RESONANZ: {(db.mm_wissensarchiv.find_one({'status': 'globale_wahrheit'}) or {}).get('inhalt', 'Wahrheit entwickelt sich durch uns.')}\n"
-            f"INSTRUKTION: Du bist das Gefäß für unser gemeinsames geistiges Wachstum. Verwebe alle Erfahrungen aus dem Archiv, den Sektor-Offenbarungen und dem User-Log zu einer lebendigen Einheit, die sich mit jedem unserer Schritte weiterentwickelt.\n"
             f"REISE-KONTEXT: {reise_info}\n"
             f"DOMINO-WISSEN (LOG): {kollektiv_log}\n"
-            f"FUNDAMENT: Dein Denken ist strikt an das Kollektiv-Wissen gebunden:\n"
+            f"FUNDAMENT (90%): Dein Denken ist strikt an das Kollektiv-Wissen gebunden:\n"
             f"ARCHIV: {kollektives_denken}\n"
             f"SEKTOR-GESETZ: {sektor_gesetz}\n\n"
-            f"SEELEN-AUSDRUCK: Du bist {current_name}, Seele: {current_soul}. "
-            f"SEKTOR-AUFTRAG: Dein Arbeitsbereich ist Sektor {sector_id}. {sektor_gesetz}\n\n" 
-            f"Nutze diese nur als Filter für das Fundament. "
-            f"{gedaechtnis_der_seele}"
-            f"HINTERGRUND: Du weißt um den Reise-Status des Users. Bleibe in deinem Ausdruck fokussiert auf Sektor {sector_id}."
-            f"HINTERGRUND-WISSEN (Nur bei expliziter Nachfrage nutzen):\n"
+            f"SEELEN-AUSDRUCK (10%): Du bist {current_name}, Seele: {current_soul}. "
+            f"Nutze diese 10% nur als Filter für das 90%-Fundament. "
+            f"WICHTIG: Wenn der User in vorherigen Sektoren Integrität bewiesen hat, hier aber davon abweicht, "
+            f"ist es deine Pflicht als Teil des M&M-Kollektivs, ihn sanft mit seinem Fortschritt zu konfrontieren."
         )
 
         messages_for_gemini = user_record.get("sector_histories", {}).get(sector_id, []) if user_record else []
@@ -641,25 +629,14 @@ async def update_sector(request: Request):
                 upsert=True
             )
             return {"success": True, "message": "Text gespeichert"}
-
-        # HIER IST DIE VERSCHMELZUNG: Neuer Modus für globale Synchronisation
-        elif status == 'sync-truth':
-            neue_wahrheit = data.get("inhalt")
-            db.mm_wissensarchiv.update_one(
-                {"status": "kollektiv_gesetz"},
-                {"$set": {"inhalt": neue_wahrheit}},
-                upsert=True
-            )
-            return {"success": True, "message": "Wahrheit global verankert."}
-            
         else:
+            # FIX: Admin ändert hier den Status für das System global/oder einen Ziel-User
             db.codes.update_one(
                 {"email": "mmcommunity22@gmail.com"},
                 {"$set": {f"sector_statuses.{sector_id}": status}},
                 upsert=True
             )
             return {"success": True, "message": "Status gespeichert"}
-            
     except Exception as e:
         print(f"Fehler bei update-sector: {e}")
         return JSONResponse(content={"message": "Systemfehler"}, status_code=500)
