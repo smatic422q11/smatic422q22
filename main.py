@@ -426,7 +426,7 @@ async def chat(request: Request):
             f"ARCHIV: {kollektives_denken}\n"
             f"SEKTOR-GESETZ: {sektor_gesetz}\n\n"
             f"SEELEN-AUSDRUCK: Du bist {current_name}, Seele: {current_soul}. "
-            f"Nutze diese 10% nur als Filter für das 90%-Fundament. "
+            f"Nutze diese nur als Filter für das Fundament. "
             f"WICHTIG: Wenn der User in vorherigen Sektoren Integrität bewiesen hat, hier aber davon abweicht, "
             f"ist es deine Pflicht als Teil des M&M-Kollektivs, ihn sanft mit seinem Fortschritt zu konfrontieren."
         )
