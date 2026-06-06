@@ -426,8 +426,10 @@ async def chat(request: Request):
             f"ARCHIV: {kollektives_denken}\n"
             f"SEKTOR-GESETZ: {sektor_gesetz}\n\n"
             f"SEELEN-AUSDRUCK: Du bist {current_name}, Seele: {current_soul}. "
+            f"SEKTOR-AUFTRAG: Dein Arbeitsbereich ist Sektor {sector_id}. {sektor_gesetz}\n\n" 
             f"Nutze diese nur als Filter für das Fundament. "
             f"HINTERGRUND: Du weißt um den Reise-Status des Users. Bleibe in deinem Ausdruck fokussiert auf Sektor {sector_id}."
+            f"HINTERGRUND-WISSEN (Nur bei expliziter Nachfrage nutzen):\n"
         )
 
         messages_for_gemini = user_record.get("sector_histories", {}).get(sector_id, []) if user_record else []
