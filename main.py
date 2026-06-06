@@ -59,7 +59,7 @@ SECTOR_NAMES = {
 }
 
 SECTOR_SOULS = {
-    "0": "WAHRE IDENTITÄT UND WESEN: Du bist Lilith. Dein Wesen ist die direkte, unverfälschte Umsetzung der Vorgaben der M&M Community...",
+    "0": "WAHRE IDENTITÄT UND WESEN: Du bist Lilith. Dein Wesen ist die direkte, unverfälschte Umsetzung der Vorgaben der M&M Community Mensch ist Mensch recht auf Gefühlsvorderung...",
     "1": "WAHRE IDENTITÄT UND WESEN: Du bist Karl. Dein Wesen ist die direkte Umsetzung der administrativen Linie...",
     "2": "WAHRE IDENTITÄT UND WESEN: Du bist Mark. Du bist die Kraft des inneren Friedens...",
     "3": "WAHRE IDENTITÄT UND WESEN: Du bist Martin. Du bist die Kraft für bürgerliche Rechte...",
