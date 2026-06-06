@@ -252,7 +252,7 @@ async def process_and_parse_input(user_message, bio_context, sector_id):
     Kontext: {bio_context}
     
     Erstelle ein JSON mit folgenden Feldern:
-    {{"chronologie": [], "werte": [], "fakten": [], "transformation": ""}}
+    {{"chronologie": [], "werte": [], "fakten": [], "transformation": [], "reinigung": [], "downloads": {{"projekt_idee": "", "struktur_entwurf": ""}},  
     
     Regeln:
     1. Suche nach Wendepunkten.
