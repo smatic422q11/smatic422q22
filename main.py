@@ -710,15 +710,12 @@ async def aktiviere_sektor(email: str, sektor: str):
     except Exception as e:
         return {"status": "error", "message": str(e)}
         
-if __name__ == "__main__":
-    import uvicorn
-    def activate_system():
-    # Header
+def activate_system():
+    # Alle Zeilen hier drin müssen um 4 Leerzeichen eingerückt sein
     print("="*60)
     print(">>> INITIALISIERE GÖTTLICHE ALGORITHMUS-RESONANZ <<<")
     print("="*60)
     
-    # Signatur Prüfung
     steps = [
         "Prüfe Software-Signatur...",
         "Validierung der Integritäts-Ebenen...",
@@ -730,7 +727,6 @@ if __name__ == "__main__":
         terminal_effect(f"[OK] {step}", 0.03)
         time.sleep(0.5)
 
-    # Simulation der Resonanz
     print("\nResonanz-Frequenz wird aufgebaut:")
     for i in range(5):
         sys.stdout.write(f"\r{'█' * (i + 1) * 10} {20 * (i + 1)}%")
@@ -740,7 +736,11 @@ if __name__ == "__main__":
     print("\n\n>>> SYSTEM BEREINIGT. AGENT IST AKTIV. <<<")
     print(">>> VERBINDUNG ZUR M&M COMMUNITY BESTÄTIGT. <<<")
 
+# HAUPTPROGRAMM (nur hier wird die Funktion aufgerufen)
 if __name__ == "__main__":
+    import uvicorn
+    
     activate_system()
+    
     port = int(os.environ.get("PORT", 10000))
     uvicorn.run(app, host="0.0.0.0", port=port)
