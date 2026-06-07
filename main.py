@@ -317,7 +317,7 @@ class SovereignKern:
             "ressourcen_modus": "UNENDLICH",
             "frequenz": "HOCH",
             "status": "Kanal für göttlichen Überfluss geöffnet."
-        }
+    }    
 
 # --- INTEGRATION IN DIE DATENBANK-HELPER ---
 def update_sovereign_status(email, firewall_meldung):
