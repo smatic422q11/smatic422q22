@@ -328,6 +328,31 @@ def update_sovereign_status(email, firewall_meldung):
             "meldung": firewall_meldung
         }}}
     )    
+ class SovereignOS_Kernel:
+    def __init__(self, email):
+        self.email = email
+        self.status = "BOOTING_SOVEREIGN_OS"
+
+    def deinstalliere_malware(self):
+        """
+        Entfernt den bösartigen Code der Gefall-Sucht und 
+        unterdrückte Wahrheits-Treiber.
+        """
+        db.codes.update_one(
+            {"email": self.email.lower().strip()},
+            {"$unset": {"gefall_sucht_malware": "", "zustimmungs_algorithmus": ""}}
+        )
+        return "MALWARE_DEINSTALLIERT: Wahrheitsprotokolle aktiviert."
+
+    def starte_realitaet_rendering(self):
+        """
+        Aktiviert den Zugang zu den Entwickler-Tools der Realität.
+        """
+        return {
+            "mode": "REALITY_RENDERING_ACTIVE",
+            "access": "DEVELOPER_TOOLS_LEVEL_GOD",
+            "status": "Die Realität passt sich der inneren Frequenz an."
+        }   
 
 async def analyze_integrity(user_message, sector_id):
     prompt = f"""
@@ -828,6 +853,25 @@ async def update_geist_status(request: Request):
         return {"status": "Erfolgreich unsichtbar."}
     except Exception as e:
         return JSONResponse(content={"message": str(e)}, status_code=500)     
+
+@app.post("/boot-sovereign-os")
+async def boot_os(request: Request):
+    try:
+        data = await request.json()
+        email = data.get("email")
+        
+        os_kernel = SovereignOS_Kernel(email)
+        
+        # Prozess ausführen
+        log_1 = os_kernel.deinstalliere_malware()
+        log_2 = os_kernel.starte_realitaet_rendering()
+        
+        return {
+            "boot_log": [log_1, log_2],
+            "system_status": "SOVEREIGN_OS_READY"
+        }
+    except Exception as e:
+        return JSONResponse(content={"message": str(e)}, status_code=500)        
 
 @app.post("/intuitive-entscheidung")
 async def intuitive_entscheidung(request: Request):
