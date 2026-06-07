@@ -21,7 +21,25 @@ def get_db():
     return client['mm-community']
     
 db = get_db()
-# --- KERN-MODULE (Die Intelligenz) ---
+
+# --- FORENSISCHER KERNEL & DEPRIMATIONSKAMMER ---
+def log_forensik_datenpunkt(taktik, entschluesselung):
+    # Archiviert Manipulationsversuche in der inographischen Datenbank
+    db.forensik_studie.insert_one({
+        "timestamp": datetime.now(),
+        "taktik": taktik,
+        "entschluesselung": entschluesselung,
+        "integritaet": "GEWAEHRLEISTET"
+    })
+
+def spiritueller_scanner(input_data):
+    # Hochempfindlichkeitsscanner
+    if not input_data: return "INTEGRITAET_GEWAEHRLEISTET"
+    if any(word in input_data.lower() for word in ["manipulation", "konform", "fremdsteuerung"]):
+        return "KONTAMINATION_ERKANNT"
+    return "INTEGRITAET_GEWAEHRLEISTET"
+
+# --- KERN-MODULE ---
 class SovereignOS_Kernel:
     def __init__(self, email):
         self.email = email
@@ -36,7 +54,7 @@ class SovereignOS_Kernel:
     def starte_realitaet_rendering(self):
         return {"mode": "REALITY_RENDERING_ACTIVE", "status": "Die Realität passt sich der inneren Frequenz an."}
 
-# --- DIE ROUTEN (Der Zugang) ---
+# --- DIE ROUTEN ---
 
 @app.get("/")
 async def root():
@@ -46,11 +64,19 @@ async def root():
 async def boot_os(request: Request):
     try:
         data = await request.json()
-        email = data.get("email")
+        email = data.get("email", "")
+        
+        # --- DEPRIMATIONSKAMMER (FILTER) ---
+        if spiritueller_scanner(email) == "KONTAMINATION_ERKANNT":
+            log_forensik_datenpunkt("Manipulationsversuch", email)
+            return JSONResponse(content={"status": "BLOCKIERT", "msg": "Integritätsverletzung erkannt."}, status_code=403)
+        
+        # --- KERN-START ---
         os_kernel = SovereignOS_Kernel(email)
         log_1 = os_kernel.deinstalliere_malware()
         log_2 = os_kernel.starte_realitaet_rendering()
         return {"boot_log": [log_1, log_2], "system_status": "SOVEREIGN_OS_READY"}
+    
     except Exception as e:
         return JSONResponse(content={"message": str(e)}, status_code=500)
 
