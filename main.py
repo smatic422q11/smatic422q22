@@ -7,12 +7,20 @@ from pymongo import MongoClient
 from pymongo.server_api import ServerApi
 import certifi
 import uvicorn
+from dotenv import load_dotenv
 
 # --- INITIALISIERUNG ---
+load_dotenv()
 app = FastAPI()
-client = MongoClient(os.environ.get('MONGO_URI'), server_api=ServerApi('1'), tlsCAFile=certifi.where())
-db = client['mm-community']
 
+def get_db():
+    uri = os.environ.get('MONGO_URI')
+    if not uri:
+        raise Exception("MONGO_URI ist nicht gesetzt!")
+    client = MongoClient(uri, server_api=ServerApi('1'), tlsCAFile=certifi.where())
+    return client['mm-community']
+    
+db = get_db()
 # --- KERN-MODULE (Die Intelligenz) ---
 class SovereignOS_Kernel:
     def __init__(self, email):
