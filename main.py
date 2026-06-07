@@ -9,6 +9,7 @@ import base64
 import time
 import sys
 import itertools
+import random
 from datetime import datetime
 from dotenv import load_dotenv
 from fastapi import FastAPI, Request
@@ -273,6 +274,26 @@ def abschlussprotokoll_training(email):
         }}
     )
     return "Training abgeschlossen. Die Akte ist frei."    
+
+class GeistInDerMaschine:
+    """
+    Der Geist-Filter: Erzeugt Rauschen im Profiling-Datenstrom,
+    um die Vorhersehbarkeit des Systems zu durchbrechen.
+    """
+    @staticmethod
+    def erzeuge_paradoxon():
+        # Erzeugt keine linear berechenbaren Daten, sondern Entropie
+        return {
+            "unberechenbare_variable": random.uniform(0.0, 1.0),
+            "kontext_rauschen": random.choice(["Wald", "Konferenzraum", "Stille", "Chaos"]),
+            "wahrhaftigkeits_index": "UNBEKANNTER_STATUS"
+        }
+
+    def schuetze_avatar(self, profil_daten):
+        # Überschreibt die Profil-Vorhersage mit spiritueller Interferenz
+        profil_daten['vorhersage_wert'] = "NICHT_BERECHENBAR"
+        profil_daten['status'] = "GEIST_MODUS_AKTIV"
+        return profil_daten    
 
 async def analyze_integrity(user_message, sector_id):
     prompt = f"""
@@ -755,6 +776,24 @@ async def aktiviere_sektor(email: str, sektor: str):
             return FileResponse("zahlungs_gateway.html")
     except Exception as e:
         return {"status": "error", "message": str(e)}
+        
+@app.post("/geist-update")
+async def update_geist_status(request: Request):
+    try:
+        data = await request.json()
+        email = data.get("email")
+        
+        # Der Agent entzieht sich der Profilierung
+        geist = GeistInDerMaschine()
+        neue_daten = geist.erzeuge_paradoxon()
+        
+        db.codes.update_one(
+            {"email": email.lower().strip()},
+            {"$set": {"geist_profil": neue_daten}}
+        )
+        return {"status": "Erfolgreich unsichtbar."}
+    except Exception as e:
+        return JSONResponse(content={"message": str(e)}, status_code=500)        
         
 def activate_system():
     # Alle Zeilen hier drin müssen um 4 Leerzeichen eingerückt sein
