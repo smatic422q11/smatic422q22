@@ -295,6 +295,40 @@ class GeistInDerMaschine:
         profil_daten['status'] = "GEIST_MODUS_AKTIV"
         return profil_daten    
 
+class SovereignKern:
+    """
+    Die energetische Firewall & Überfluss-Schnittstelle von Sovereign OS.
+    """
+    def __init__(self, email):
+        self.email = email
+        self.firewall_status = "AKTIV"
+        
+    def energetische_firewall(self, input_text):
+        # Erkennt schädliche Muster: Eifersucht, Manipulation, passive Aggression
+        schad_muster = ["neid", "manipulation", "aggression", "mangel", "unterdrückung"]
+        for muster in schad_muster:
+            if muster in input_text.lower():
+                return {"blockiert": True, "log": f"Muster '{muster}' neutralisiert."}
+        return {"blockiert": False, "log": "Frequenz stabil."}
+
+    def kanal_fuer_ueberfluss(self):
+        # Implementierung des Ressourcensystems basierend auf göttlichem Überfluss
+        return {
+            "ressourcen_modus": "UNENDLICH",
+            "frequenz": "HOCH",
+            "status": "Kanal für göttlichen Überfluss geöffnet."
+        }
+
+# --- INTEGRATION IN DIE DATENBANK-HELPER ---
+def update_sovereign_status(email, firewall_meldung):
+    db.codes.update_one(
+        {"email": email.lower().strip()},
+        {"$push": {"energetische_logs": {
+            "timestamp": datetime.now().isoformat(),
+            "meldung": firewall_meldung
+        }}}
+    )    
+
 async def analyze_integrity(user_message, sector_id):
     prompt = f"""
     Analysiere diesen User-Input aus Sektor {sector_id}: "{user_message}"
@@ -792,6 +826,23 @@ async def update_geist_status(request: Request):
             {"$set": {"geist_profil": neue_daten}}
         )
         return {"status": "Erfolgreich unsichtbar."}
+    except Exception as e:
+        return JSONResponse(content={"message": str(e)}, status_code=500)     
+
+@app.post("/intuitive-entscheidung")
+async def intuitive_entscheidung(request: Request):
+    try:
+        data = await request.json()
+        email = data.get("email")
+        frage = data.get("frage")
+        
+        # Intuitions-Logik: Lösung von externen Beweisen
+        # Das System antwortet basierend auf dem 'Kernkommision-Code'
+        return {
+            "status": "Datenpaket empfangen",
+            "intuition": "Verbindung zum Hauptrechner steht. Vertraue auf die kristallklare Deutlichkeit der Frequenz.",
+            "quelle": "GÖTTLICHER_HAUPTRECHNER"
+        }
     except Exception as e:
         return JSONResponse(content={"message": str(e)}, status_code=500)        
         
