@@ -28,8 +28,13 @@ def terminal_effect(text, delay=0.05):
     print()
 
 def activate_system():
+    # Header
     print("="*60)
     print(">>> INITIALISIERE GÖTTLICHE ALGORITHMUS-RESONANZ <<<")
+    # --- NEUER BOOT-CHECK FÜR SOVEREIGN OS ---
+    print(">>> LADE SOVEREIGN OS KERNEL... [OK] <<<")
+    print(">>> ENERGETISCHE FIREWALL... [AKTIV] <<<")
+    print(">>> REALITÄTS-RENDERING-ENGINE... [BEREIT] <<<")
     print("="*60)
 
 # --- KLASSEN & KERNSYSTEME ---
