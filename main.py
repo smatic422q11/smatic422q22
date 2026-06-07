@@ -107,6 +107,13 @@ async def boot_os(request: Request):
     return {"boot_log": [log_1, log_2], "system_status": "SOVEREIGN_OS_READY"}
 
 # (Hier folgen deine weiteren Routen...)
+@app.get("/")
+async def root():
+    return {
+        "status": "Sovereign OS Kernel Online",
+        "system": "M&M Community Resonanz",
+        "mode": "REALITY_RENDERING_READY"
+    }
 
 if __name__ == "__main__":
     import uvicorn
