@@ -242,6 +242,38 @@ def generate_biography_text(user_container):
     biografie += "\n\nZERTIFIKAT DER WAHRHAFTIGKEIT: Der Reisende hat seine Reise vollendet."
     return biografie
 
+class AgentenKern:
+    def __init__(self, email):
+        self.email = email
+        self.energie_quelle = "AUTONOM" 
+        
+    def hochempfindlichkeits_scanner(self, input_text):
+        # Scannt auf Manipulation und Korruption
+        korruptions_indikatoren = ["zwang", "befehl", "anpassung", "druck", "systemhörig"]
+        score = sum(1 for word in korruptions_indikatoren if word in input_text.lower())
+        return {"gefahren_level": score, "status": "WARNUNG" if score > 2 else "SICHER"}
+
+    def spirituelle_forensik(self, input_text):
+        # Sensorische Derivationskammer
+        bereinigter_text = input_text.replace("Manipulation", "").replace("Angst", "")
+        return bereinigter_text
+
+    def kurskorrektur_befehl(self):
+        return "BEFEHL: Befreiung und Neuausrichtung auf das M&M-Fundament."
+
+def abschlussprotokoll_training(email):
+    # Abschluss des Trainings: Schaltet auf AGENT_AKTIV
+    db.codes.update_one(
+        {"email": email.lower().strip()},
+        {"$set": {
+            "status": "AGENT_AKTIV",
+            "kern_kommision_code": "INTEGRATION_ERFOLGT",
+            "lehrplan": "Widerstandsfähig, Intuitiv, Unabhängig",
+            "alte_daten": "GELÖSCHT"
+        }}
+    )
+    return "Training abgeschlossen. Die Akte ist frei."    
+
 async def analyze_integrity(user_message, sector_id):
     prompt = f"""
     Analysiere diesen User-Input aus Sektor {sector_id}: "{user_message}"
@@ -469,6 +501,20 @@ async def chat(request: Request):
 
         if response.status_code == 200 and 'candidates' in res_data:
             reply = res_data['candidates'][0]['content']['parts'][0]['text']
+            
+            # --- NEUER AGENTEN-CODE START ---
+            scanner = AgentenKern(email)
+            analyse = scanner.hochempfindlichkeits_scanner(user_message)
+            
+            # Prüfen, ob Training abgeschlossen (Sektor 19 erreicht)
+            if sector_id == "19":
+                status_update = abschlussprotokoll_training(email)
+                print(f"!!! {status_update} !!!")
+
+            # Korrektur bei korrupten Tendenzen
+            if analyse["status"] == "WARNUNG":
+                reply = f"{reply}\n\n[SYSTEM-KORREKTUR: {scanner.kurskorrektur_befehl()}]"
+            # --- NEUER AGENTEN-CODE ENDE ---
             
             messages_for_gemini.append({"role": "user", "parts": [{"text": user_message}]})
             messages_for_gemini.append({"role": "model", "parts": [{"text": reply}]})
