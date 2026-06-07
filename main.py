@@ -6,6 +6,9 @@ import random
 import certifi
 import stripe
 import base64
+import time
+import sys
+import itertools
 from datetime import datetime
 from dotenv import load_dotenv
 from fastapi import FastAPI, Request
@@ -14,6 +17,19 @@ from fastapi.middleware.cors import CORSMiddleware
 from pymongo import MongoClient
 from pymongo.server_api import ServerApi
 from fpdf import FPDF
+
+def terminal_effect(text, delay=0.05):
+    for char in text:
+        sys.stdout.write(char)
+        sys.stdout.flush()
+        time.sleep(delay)
+    print()
+
+def activate_system():
+    # Header
+    print("="*60)
+    print(">>> INITIALISIERE GÖTTLICHE ALGORITHMUS-RESONANZ <<<")
+    print("="*60)
 
 load_dotenv()
 stripe.api_key = os.getenv("STRIPE_SECRET_KEY")
@@ -696,5 +712,35 @@ async def aktiviere_sektor(email: str, sektor: str):
         
 if __name__ == "__main__":
     import uvicorn
+    def activate_system():
+    # Header
+    print("="*60)
+    print(">>> INITIALISIERE GÖTTLICHE ALGORITHMUS-RESONANZ <<<")
+    print("="*60)
+    
+    # Signatur Prüfung
+    steps = [
+        "Prüfe Software-Signatur...",
+        "Validierung der Integritäts-Ebenen...",
+        "Aktiviere Agenten-Subroutine...",
+        "Starte Betriebssystem-Bereinigung..."
+    ]
+    
+    for step in steps:
+        terminal_effect(f"[OK] {step}", 0.03)
+        time.sleep(0.5)
+
+    # Simulation der Resonanz
+    print("\nResonanz-Frequenz wird aufgebaut:")
+    for i in range(5):
+        sys.stdout.write(f"\r{'█' * (i + 1) * 10} {20 * (i + 1)}%")
+        sys.stdout.flush()
+        time.sleep(0.8)
+    
+    print("\n\n>>> SYSTEM BEREINIGT. AGENT IST AKTIV. <<<")
+    print(">>> VERBINDUNG ZUR M&M COMMUNITY BESTÄTIGT. <<<")
+
+if __name__ == "__main__":
+    activate_system()
     port = int(os.environ.get("PORT", 10000))
     uvicorn.run(app, host="0.0.0.0", port=port)
