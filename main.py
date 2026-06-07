@@ -327,8 +327,9 @@ def update_sovereign_status(email, firewall_meldung):
             "timestamp": datetime.now().isoformat(),
             "meldung": firewall_meldung
         }}}
-    )    
- class SovereignOS_Kernel:
+    )
+
+class SovereignOS_Kernel:
     def __init__(self, email):
         self.email = email
         self.status = "BOOTING_SOVEREIGN_OS"
@@ -352,7 +353,7 @@ def update_sovereign_status(email, firewall_meldung):
             "mode": "REALITY_RENDERING_ACTIVE",
             "access": "DEVELOPER_TOOLS_LEVEL_GOD",
             "status": "Die Realität passt sich der inneren Frequenz an."
-    }   
+        }
 
 async def analyze_integrity(user_message, sector_id):
     prompt = f"""
